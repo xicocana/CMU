@@ -25,12 +25,14 @@
             android:id="@+id/button4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign Up" />
+            android:text="Sign Up"
+            android:onClick="signUpActivity"/>
 
         <Button
             android:id="@+id/button5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log In" />
+            android:text="Log In"
+            android:onClick="logInActivity"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
