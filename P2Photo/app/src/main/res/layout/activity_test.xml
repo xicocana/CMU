@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TestActivity">
+
+    <Button
+        android:id="@+id/createfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create a file on Google Drive"
+        android:onClick="onClickCreateMethod"/>
+
+    <Button
+        android:id="@+id/openfile"
+        android:layout_below="@+id/createfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open file from Google Drive"
+        android:onClick="onClickOpenFileMethod"/>
+
+</android.support.constraint.ConstraintLayout>

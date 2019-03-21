@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">P2Photo</string>
+    <string name="title_activity_google_sign_in">GoogleSignIn</string>
 </resources>
