@@ -21,13 +21,7 @@
             </intent-filter>
         </activity>
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".TestActivity">
-
-        </activity>
         <activity android:name=".ModeActivity" />
         <activity android:name=".UserOptionsActivity" />
         <activity android:name=".LogInActivity" />
@@ -35,9 +29,6 @@
         <activity android:name=".SignUpActivity" />
         <activity android:name=".MainActivity" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA1x8BraLlhCtTmWzX5ATsioJKFAO25HbI" />
 
     </application>
 
