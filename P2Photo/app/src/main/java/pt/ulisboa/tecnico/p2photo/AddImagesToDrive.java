@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.p2photo;
 
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -26,6 +25,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,14 +34,15 @@ import java.io.OutputStream;
  * Android Drive Quickstart activity. This activity takes a photo and saves it in Google Drive. The
  * user is prompted with a pre-made dialog which allows them to choose the file location.
  */
-public class googleSignIn extends Activity {
+public class AddImagesToDrive extends Activity {
 
     private static final String TAG = "drive-quickstart";
-    private static final int REQUEST_CODE_SIGN_IN = 0;
-    private static final int REQUEST_CODE_ADD_ALBUM = 1;
     private static final int REQUEST_CODE_CAPTURE_IMAGE = 66;
     private static final int REQUEST_CODE_CREATOR = 77;
-    private static final int REQUEST_GET_SINGLE_FILE = 88;
+
+    private static final int INITIATE_DRIVER = 1;
+    private static final int REQUEST_GET_SINGLE_FILE = 2;
+
 
     private Bitmap mBitmapToSave;
     DataHolder dataHolder;
@@ -50,24 +51,8 @@ public class googleSignIn extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataHolder =  DataHolder.getInstance();
-        signIn();
+        startActivityForResult(dataHolder.getmGoogleSignInClient().getSignInIntent(), INITIATE_DRIVER);
 
-    }
-
-    /** Start sign in activity. */
-    private void signIn() {
-        Log.i(TAG, "Start sign in");
-        dataHolder.setmGoogleSignInClient(buildGoogleSignInClient());
-        startActivityForResult(dataHolder.getmGoogleSignInClient().getSignInIntent(), REQUEST_CODE_SIGN_IN);
-    }
-
-    /** Build a Google SignIn client. */
-    private GoogleSignInClient buildGoogleSignInClient() {
-        GoogleSignInOptions signInOptions =
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestScopes(Drive.SCOPE_FILE)
-                        .build();
-        return GoogleSignIn.getClient(this, signInOptions);
     }
 
     /** Create a new file and save it to Drive. */
@@ -142,40 +127,7 @@ public class googleSignIn extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
 
-            case REQUEST_CODE_SIGN_IN:
-                Log.i(TAG, "Sign in request code");
-                // Called after user is signed in.
-                if (resultCode == RESULT_OK) {
-                    Log.i(TAG, "Signed in successfully.");
-                    startActivity( new Intent(googleSignIn.this, ModeActivity.class));
-                }
-                break;
-
-            case REQUEST_CODE_ADD_ALBUM:
-                Log.i(TAG, "Add Album in request code");
-                // Called after user is signed in.
-                if (resultCode == RESULT_OK) {
-                    Log.i(TAG, "Add album in successfully.");
-                    dataHolder.getmDriveResourceClient()
-                            .getRootFolder()
-                            .continueWithTask(task -> {
-                                DriveFolder parentFolder = task.getResult();
-                                MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                        .setTitle("New folder")
-                                        .setMimeType(DriveFolder.MIME_TYPE)
-                                        .setStarred(true)
-                                        .build();
-                                return dataHolder.getmDriveResourceClient().createFolder(parentFolder, changeSet);
-                            })
-                            .addOnSuccessListener(this, driveFolder -> { Log.i("teste","Sucess");})
-
-                            .addOnFailureListener(this, e -> {
-                                Log.e(TAG, "Unable to create file", e);
-
-                            });
-                }
-                break;
-            case 4:
+            case INITIATE_DRIVER:
                 Log.i(TAG, "Sign in request code");
                 // Called after user is signed in.
                 if (resultCode == RESULT_OK) {
@@ -185,8 +137,8 @@ public class googleSignIn extends Activity {
                     // Build a drive resource client.
                     dataHolder.setmDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
                     // Start camera.
-                   // startActivityForResult(
-                     //       new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_IMAGE);
+                    // startActivityForResult(
+                    //       new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_IMAGE);
 
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -208,7 +160,7 @@ public class googleSignIn extends Activity {
                     }
 
                     // Store the image data as a bitmap for writing later.
-                   // mBitmapToSave = (Bitmap) data.getExtras().get("data");
+                    // mBitmapToSave = (Bitmap) data.getExtras().get("data");
                     //saveFileToDrive();
                 }
                 break;

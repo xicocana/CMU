@@ -13,6 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".AddImagesToDrive"></activity>
+        <activity android:name=".UserListActivity" />
         <activity android:name=".googleSignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,16 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name=".ModeActivity" />
+        <activity android:name=".ModeActivity"></activity>
         <activity android:name=".UserOptionsActivity" />
         <activity android:name=".LogInActivity" />
         <activity android:name=".Loading" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".MainActivity" />
-
-
     </application>
 
 </manifest>

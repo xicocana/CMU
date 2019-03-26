@@ -20,16 +20,17 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/add_album_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="createAlbum"
             android:text="Create Album" />
 
         <Button
-            android:id="@+id/button6"
+            android:id="@+id/find_user_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="findUser"
             android:text="Find User" />
 
         <Button
