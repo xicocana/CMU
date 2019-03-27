@@ -23,7 +23,7 @@ public class CreateFolderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CreateFolderActivity.this, GoogleCreateFolderActivity.class);
-                intent.putExtra("foldername", folder_name.getText());
+                intent.putExtra("foldername", folder_name.getText().toString());
                 startActivity(intent);
             }
         });

@@ -19,8 +19,12 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
     @Override
     protected void onDriveClientReady() {
         Intent intent = getIntent();
-        folder_name = intent.getStringExtra("foldername");
-        createFolder();
+        Bundle extras = intent.getExtras();
+        if(extras != null ){
+            folder_name = extras.getString("foldername");
+            createFolder();
+        }
+
     }
 
     private void createFolder() {
