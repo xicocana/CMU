@@ -14,7 +14,7 @@ import pt.ulisboa.tecnico.p2photo.R;
  * An activity to list all available demo activities.
  */
 public class HomeActivity extends Activity {
-    private final Class[] sActivities = new Class[]{CreateFolderActivity.class};
+    private final Class[] sActivities = new Class[]{GoogleCreateFolderActivity.class};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.CreateFolderActivity;
+import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
 
 public class UserOptionsActivity extends AppCompatActivity {
     private static final String TAG = "UserOptionsActivity";
@@ -25,14 +25,22 @@ public class UserOptionsActivity extends AppCompatActivity {
             }
         });
 
+        Button listAlbumsBtn = (Button) findViewById(R.id.button7);
+        listAlbumsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(UserOptionsActivity.this, AlbumsListActivity.class));
+            }
+        });
 
-        Button findUsersBtn = (Button) findViewById(R.id.find_user_btn);
+
+        /*Button findUsersBtn = (Button) findViewById(R.id.find_user_btn);
         findUsersBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(UserOptionsActivity.this, UserListActivity.class));
             }
-        });
+        });*/
     }
 
 }

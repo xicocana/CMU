@@ -34,9 +34,9 @@ import java.io.OutputStream;
  * Android Drive Quickstart activity. This activity takes a photo and saves it in Google Drive. The
  * user is prompted with a pre-made dialog which allows them to choose the file location.
  */
-public class AddImagesToDrive extends Activity {
+public class AddImagesToDrive_DELETE extends Activity {
 
-    private static final String TAG = "AddImagesToDrive";
+    private static final String TAG = "AddImagesToDrive_DELETE";
     private static final int REQUEST_CODE_CAPTURE_IMAGE = 66;
     private static final int REQUEST_CODE_CREATOR = 77;
 
@@ -127,25 +127,6 @@ public class AddImagesToDrive extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
 
-            case INITIATE_DRIVER:
-                Log.i(TAG, "Sign in request code");
-                // Called after user is signed in.
-                if (resultCode == RESULT_OK) {
-                    Log.i(TAG, "Signed in successfully.");
-                    // Use the last signed in account here since it already have a Drive scope.
-                    dataHolder.setmDriveClient(Drive.getDriveClient(this, GoogleSignIn.getLastSignedInAccount(this)));
-                    // Build a drive resource client.
-                    dataHolder.setmDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
-                    // Start camera.
-                    // startActivityForResult(
-                    //       new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_IMAGE);
-
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("image/*");
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"),REQUEST_GET_SINGLE_FILE);
-                }
-                break;
             case REQUEST_GET_SINGLE_FILE:
                 Log.i(TAG, "capture image request code");
                 // Called after a photo has been taken.
@@ -155,13 +136,8 @@ public class AddImagesToDrive extends Activity {
                     final String path = getPathFromURI(selectedImageUri);
                     if (path != null) {
                         mBitmapToSave =  BitmapFactory.decodeFile(path);
-
                         saveFileToDrive();
                     }
-
-                    // Store the image data as a bitmap for writing later.
-                    // mBitmapToSave = (Bitmap) data.getExtras().get("data");
-                    //saveFileToDrive();
                 }
                 break;
             case REQUEST_CODE_CREATOR:
