@@ -36,7 +36,7 @@ import java.io.OutputStream;
  */
 public class AddImagesToDrive extends Activity {
 
-    private static final String TAG = "drive-quickstart";
+    private static final String TAG = "AddImagesToDrive";
     private static final int REQUEST_CODE_CAPTURE_IMAGE = 66;
     private static final int REQUEST_CODE_CREATOR = 77;
 
@@ -154,7 +154,7 @@ public class AddImagesToDrive extends Activity {
                     // Get the path from the Uri
                     final String path = getPathFromURI(selectedImageUri);
                     if (path != null) {
-                        mBitmapToSave = BitmapFactory.decodeFile(path);
+                        mBitmapToSave =  BitmapFactory.decodeFile(path);
 
                         saveFileToDrive();
                     }
