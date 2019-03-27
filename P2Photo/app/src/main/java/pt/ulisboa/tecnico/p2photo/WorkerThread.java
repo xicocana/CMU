@@ -1,15 +1,16 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import java.io.IOException;
 import java.net.Socket;
+import pt.ulisboa.tecnico.p2photo.Communications;
+import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class WorkerThread implements Runnable{
-	
-	private boolean isRunning = true;
-	
+
+    private boolean isRunning = true;
+
     protected Socket clientSocket = null;
     protected String serverText   = null;
-    protected Thread runningThread= null; 
+    protected Thread runningThread= null;
 
     public WorkerThread(Socket clientSocket, String serverText) {
         this.clientSocket = clientSocket;
@@ -17,36 +18,35 @@ public class WorkerThread implements Runnable{
     }
 
     public void run() {
-    	synchronized(this){
+        //TODO melhorar controlo do multi-threading
+        synchronized(this){
             this.runningThread = Thread.currentThread();
         }
-    	
-    	Communications communications = new Communications(clientSocket);
-    	
-    	//implementar o paralelismo das nossas threads como em SIRS. Aqui nao fiz nada, apenas implementei o paralelismo na sua criacao acima
-    	while(isRunning) {
-			try {
-				String input = (String) communications.receiveInChunks();
-				System.out.println(input);
 
-		    	switch(input) {
-		    		case "LUSIADAS":
-		    			String livro = (String) communications.receiveInChunks();
-		    			System.out.println(livro);
-		    			break;
-		    		default:
-		    			System.out.println("Wrong input command. Try another one.");
-		    	}
-		    	//TODO mudar esta excepcao para uma excepcao da propria classe das comunicacoes
-			} catch (IOException e) {
-				// caso o socket do cliente seja fechado vai haver uma explosao no socket deste lado
-				// como tal o String input nao vai conseguir ler nada do seu lado.
-				System.out.println("Lost communication to the client. Ending worker thread...");
-				isRunning = false;
-			}
-			
-    	}
-        
+        Communications communications = new Communications(clientSocket);
+
+        try {
+
+
+            //TODO implementar o paralelismo das nossas threads como em SIRS. Aqui nao fiz nada, apenas implementei o paralelismo na sua criacao acima
+            while(isRunning) {
+                String input;
+                    input = (String) communications.receiveInChunks();
+                    System.out.println(input);
+
+
+                    switch(input) {
+                        case "LUSIADAS":
+                            String lusiadas = (String) communications.receiveInChunks();
+                            System.out.println(lusiadas);
+                            break;
+                        default:
+                            System.out.println("Wrong input command. Try another one.");
+                    }
+            }
+        } catch (CommunicationsException ce) {
+            System.out.println("Communications module broke down. Aborting...");
+            isRunning = false;
+        }
     }
-    
 }
