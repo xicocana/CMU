@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
+import pt.ulisboa.tecnico.cmu.server.exceptions.ServerLibraryException;
 import pt.ulisboa.tecnico.sec.communications.Communications;
 import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 
@@ -31,44 +32,37 @@ public class WorkerThread implements Runnable{
         }
 
         Communications communications = new Communications(clientSocket);
+        ServerLibrary serverLibrary = new ServerLibrary(communications);
 
-        try {
-
-
-            //TODO implementar o paralelismo das nossas threads como em SIRS. Aqui nao fiz nada, apenas implementei o paralelismo na sua criacao acima
+        try {        	
+	        //TODO implementar o paralelismo das nossas threads como em SIRS. Aqui nao fiz nada, apenas implementei o paralelismo na sua criacao acima
             while(isRunning) {
+            	try {
                 String input;
                     input = (String) communications.receiveInChunks();
                     System.out.println(input);
-
 
                     switch(input) {
                         case "LUSIADAS":
                             String lusiadas = (String) communications.receiveInChunks();
                             System.out.println(lusiadas);
                             break;
-                        case "SIGN-UP":
-                            String data = (String) communications.receiveInChunks();
-                            System.out.println(data);
-
-                            //TODO mudar esta excepcao de merda aquando a biblioteca
-                            JSONObject obj = new JSONObject(data);
-                            String user = (String) obj.get("user-name");
-                            String password = (String) obj.get("password");
-                            
-                            try {
-                                BufferedWriter bw = new BufferedWriter(new FileWriter("registered_clients.txt"));
-                                
-                                bw.write(data);
-                                bw.close();
-                            } catch(IOException ioe) {
-                                System.out.println("foda-se");
-                            }
+                        case "SIGN-UP":                                                       
+                            serverLibrary.signUp();                           
                             break;
                         default:
                             System.out.println("Wrong input command. Try another one.");
                     }
-            }
+            	} catch(ServerLibraryException sle) {
+            		System.out.println(sle.getMessage());
+    				if(sle.getTerminationStatus()) {
+    					System.out.println("Aborting worker thread...");
+    					communications.end();
+    					isRunning = false;
+    					break;
+    				}
+            	}
+            }        	
         } catch (CommunicationsException ce) {
             System.out.println("Communications module broke down. Aborting...");
             isRunning = false;

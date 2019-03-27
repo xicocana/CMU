@@ -26,7 +26,7 @@ public class ClientTest {
 
         JSONObject obj = new JSONObject();
         obj.put("user-name", "xicocana");
-        obj.put("password", "vivaCMU");
+        obj.put("password", "password");
         String data = obj.toString();
         communication.sendInChunks(command);
         communication.sendInChunks(data);

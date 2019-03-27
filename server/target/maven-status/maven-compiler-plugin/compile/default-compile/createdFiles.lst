@@ -1,2 +1,5 @@
-pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class
 pt/ulisboa/tecnico/cmu/server/WorkerThread.class
+pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.class
+pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class
+pt/ulisboa/tecnico/cmu/server/Parser.class
+pt/ulisboa/tecnico/cmu/server/ServerLibrary.class
