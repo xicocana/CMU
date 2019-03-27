@@ -26,7 +26,7 @@ public class UserListActivity extends AppCompatActivity {
         usersList.add("user3");
 
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, usersList);
-        final ListView usersViewList = (ListView) findViewById(R.id.userList);
+        final ListView usersViewList = (ListView) findViewById(R.id.user_list);
         usersViewList.setAdapter(arrayAdapter);
 
 
