@@ -1,8 +1,15 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.cmu.server;
 
 import java.net.Socket;
-import pt.ulisboa.tecnico.p2photo.Communications;
-import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
+
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
+import pt.ulisboa.tecnico.sec.communications.Communications;
+import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
+
+import org.json.JSONObject;
 
 public class WorkerThread implements Runnable{
 
@@ -39,6 +46,24 @@ public class WorkerThread implements Runnable{
                         case "LUSIADAS":
                             String lusiadas = (String) communications.receiveInChunks();
                             System.out.println(lusiadas);
+                            break;
+                        case "SIGN-UP":
+                            String data = (String) communications.receiveInChunks();
+                            System.out.println(data);
+
+                            //TODO mudar esta excepcao de merda aquando a biblioteca
+                            JSONObject obj = new JSONObject(data);
+                            String user = (String) obj.get("user-name");
+                            String password = (String) obj.get("password");
+                            
+                            try {
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("registered_clients.txt"));
+                                
+                                bw.write(data);
+                                bw.close();
+                            } catch(IOException ioe) {
+                                System.out.println("foda-se");
+                            }
                             break;
                         default:
                             System.out.println("Wrong input command. Try another one.");

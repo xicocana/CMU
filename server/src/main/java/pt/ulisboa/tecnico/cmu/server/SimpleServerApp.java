@@ -1,10 +1,15 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.cmu.server;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
+
+import pt.ulisboa.tecnico.sec.communications.Communications;
+import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 
 public class SimpleServerApp {
 	
