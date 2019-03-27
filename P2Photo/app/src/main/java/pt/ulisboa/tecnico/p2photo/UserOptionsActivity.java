@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.CreateFolderActivity;
+import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
 
 public class UserOptionsActivity extends AppCompatActivity {
     private static final String TAG = "UserOptionsActivity";

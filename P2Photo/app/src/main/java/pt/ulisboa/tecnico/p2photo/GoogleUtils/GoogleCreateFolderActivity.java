@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.p2photo.GoogleUtils;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -11,11 +12,14 @@ import pt.ulisboa.tecnico.p2photo.R;
 /**
  * An activity to illustrate how to create a new folder.
  */
-public class CreateFolderActivity extends BaseGoogleActivity {
-    private static final String TAG = "CreateFolderActivity";
+public class GoogleCreateFolderActivity extends BaseGoogleActivity {
+    private static final String TAG = "GoogleCreateFolder";
+    String folder_name;
 
     @Override
     protected void onDriveClientReady() {
+        Intent intent = getIntent();
+        folder_name = intent.getStringExtra("foldername");
         createFolder();
     }
 
@@ -25,7 +29,7 @@ public class CreateFolderActivity extends BaseGoogleActivity {
                 .continueWithTask(task -> {
                     DriveFolder parentFolder = task.getResult();
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("New folder")
+                            .setTitle(folder_name)
                             .setMimeType(DriveFolder.MIME_TYPE)
                             .setStarred(true)
                             .build();
