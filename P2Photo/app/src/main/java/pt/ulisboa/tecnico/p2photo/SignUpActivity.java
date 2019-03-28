@@ -7,8 +7,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class SignUpActivity extends AppCompatActivity {
 
+    public final static String PATTERN = "^[a-zA-Z0-9_.-]*$";
     public final static String NAME = "pt.ulisboa.tecnico.p2photo.NAME";
     public final static String PASSWORD = "pt.ulisboa.tecnico.p2photo.PASSWORD";
 
@@ -65,33 +69,52 @@ public class SignUpActivity extends AppCompatActivity {
         EditText rptpwdView = findViewById(R.id.editText3);
         String repeatpwd = rptpwdView.getText().toString();
 
-        //TODO ifs para verificar se o nome esta num formato correcto temos de definir quais os formatos dos IDs
+        Pattern pattern = Pattern.compile(PATTERN);
 
+        // Now create matcher object.
+        Matcher m = pattern.matcher(name);
+
+        //TODO ifs para verificar se o nome esta num formato correcto temos de definir quais os formatos dos IDs
         //checks basicos que vao ter de ser melhorados mas ja esta aqui a ideia
         if(name==null || name.isEmpty()) {
-            Toast.makeText(getApplicationContext(), "You must insert a name!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "You must insert a valid name!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
             SignUpActivity.this.finish();
             startActivity(intent);
         }
 
-        if(password==null || password.isEmpty()) {
+
+        else if(m.find()==false) {
+            Toast.makeText(getApplicationContext(), "You are using invalid characters in your username", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
+            intent.putExtra(NAME, name);
+            intent.putExtra(PASSWORD, password);
+            SignUpActivity.this.finish();
+            startActivity(intent);
+        }
+
+        else if(password==null || password.isEmpty()) {
             Toast.makeText(getApplicationContext(), "You must insert a password!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
             SignUpActivity.this.finish();
             startActivity(intent);
         }
 
-        if(repeatpwd==null || repeatpwd.isEmpty()) {
+        else if(password.length()<4) {
+            Toast.makeText(getApplicationContext(), "Password should at least have 4 characters!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
+            SignUpActivity.this.finish();
+            startActivity(intent);
+        }
+
+        else if(repeatpwd==null || repeatpwd.isEmpty()) {
             Toast.makeText(getApplicationContext(), "You must repeat your password!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
             SignUpActivity.this.finish();
             startActivity(intent);
         }
 
-        if(!password.equals(repeatpwd)) {
-            //isto tem de ser melhorado. Para uma coisa que nao acaba a actividade e volta a comeca-la
-            //tem de ser algo que detecte imediatamente que a password esta ma e poe uma daquelas advertencias
+        else if(!password.equals(repeatpwd)) {
             Toast.makeText(getApplicationContext(), "Your password does not match.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SignUpActivity.this, SignUpActivity.class);
             intent.putExtra(NAME, name);
