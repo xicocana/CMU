@@ -26,11 +26,15 @@ public class ClientTest {
         Scanner scanner = new Scanner(System.in);
         System.out.println("just insert user name. This is just a silly test class");
         String input = scanner.nextLine();
-        String command = "SIGN-UP";
+        
+        System.out.println("Insert the password");
+        String password = scanner.nextLine();
+        //String command = "SIGN-UP";
+        String command = "LOGIN";
 
         JSONObject obj = new JSONObject();
         obj.put("user-name", input);
-        obj.put("password", "cmu");
+        obj.put("password", password);
         String data = obj.toString();
         communication.sendInChunks(command);
         communication.sendInChunks(data);

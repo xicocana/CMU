@@ -32,6 +32,90 @@ public class ServerLibrary {
 		this.communication = communication;
 	}
 	
+	public void login() throws ServerLibraryException {
+		try {
+			try {
+				
+				String data = (String) communication.receiveInChunks();
+		        JSONObject obj = new JSONObject(data);
+		        String user = (String) obj.get("user-name");
+		        String password = (String) obj.get("password");
+		        
+		        try {
+		        	BufferedReader br = new BufferedReader(new FileReader("register_clients.json"));
+		        	String jsonFileString = br.readLine();
+		        	if(jsonFileString==null || jsonFileString.equals("")) {
+		        		byte[] bytes = new byte[96];
+		        		new Random().nextBytes(bytes);
+		        		
+		        		String adminPassword = Base64.getEncoder().withoutPadding().encodeToString(bytes);
+		        		BufferedWriter bw = new BufferedWriter(new FileWriter("register_clients.json"));
+		        		obj = new JSONObject();
+		        		obj.put("admin", adminPassword);
+		        		String firstTimeUser = obj.toString();
+		        		jsonFileString = firstTimeUser;
+						bw.write(firstTimeUser);
+						bw.close();
+		        	}
+		        			        	
+		        	obj = new JSONObject(jsonFileString);
+		        	if(obj.has(user)) {
+		        		String registeredPassword = (String) obj.get(user);
+			        	if(registeredPassword.equals(password)) {
+			        		String message = "You were sucessfully logged into the system!";
+			        		obj.put("conclusion", OK_MESSAGE);
+			        		obj.put("message", message);
+			        		data = obj.toString();
+			        		communication.sendInChunks(data);
+			        		System.out.println("The client was sucessfully logged into the system!");
+			        	} else {
+			        		String message = "Incorrect password. Try again!";
+			        		obj.put("conclusion", NOT_OK_MESSAGE);
+			        		obj.put("message", message);
+			        		data = obj.toString();
+			        		communication.sendInChunks(data);
+			        		System.out.println(message);
+			        	}
+		        	} else {
+		        		String message = "You are not registered on the system...";
+		        		obj.put("conclusion", NOT_OK_MESSAGE);
+		        		obj.put("message", message);
+		        		data = obj.toString();
+		        		communication.sendInChunks(data);
+		        		System.out.println("The user is not registered on the system...");
+		        	}
+		        } catch (FileNotFoundException fnfe) {
+		        	new FileWriter("register_clients.json");
+		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
+		        	obj = new JSONObject();
+					obj.put("conclusion", NOT_OK_MESSAGE);
+					obj.put("message", error);
+					data = obj.toString();
+					communication.sendInChunks(data);
+		        	throw new ServerLibraryException("Could not find the register_clients.json file. Aborting...", true);
+				} catch (JSONException jsone) {
+					String error = "Server faced a problem while processing your request. Try again later...";	        	
+		        	obj = new JSONObject();
+					obj.put("conclusion", NOT_OK_MESSAGE);
+					obj.put("message", error);
+					data = obj.toString();
+					communication.sendInChunks(data);
+					throw new ServerLibraryException("Server crashed while doing JSON Operations. Aborting...", true);
+				}
+			} catch (IOException ioe) {
+				String error = "Server faced a problem while processing your request. Try again later...";	        	
+	        	JSONObject obj = new JSONObject();
+				obj.put("conclusion", NOT_OK_MESSAGE);
+				obj.put("message", error);
+				String data = obj.toString();
+				communication.sendInChunks(data);
+				throw new ServerLibraryException("Could not either read or write in the register_clients.json file. Aborting...", true);
+			} 
+		} catch (CommunicationsException ce) {
+			throw new ServerLibraryException("Communications module broke down...", ce, true);
+		}	
+	}
+	
 	public void signUp() throws ServerLibraryException {
 		try {
 			try {

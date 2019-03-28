@@ -47,6 +47,9 @@ public class WorkerThread implements Runnable{
                             String lusiadas = (String) communications.receiveInChunks();
                             System.out.println(lusiadas);
                             break;
+                        case "LOGIN":                                                       
+                            serverLibrary.login();                           
+                            break;
                         case "SIGN-UP":                                                       
                             serverLibrary.signUp();                           
                             break;
