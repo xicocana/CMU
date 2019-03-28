@@ -22,6 +22,8 @@ public class ServerLibrary {
 	private static final String REGISTER_CLIENTS_FILE = "register_clients.json";
 	private static final String OK_MESSAGE = "OK";
 	private static final String NOT_OK_MESSAGE = "NOT-OK";
+	
+	private String exceptionFile = null;
 	//TODO 
 	//TODO FAZER AS ESCRITAS E LEITURAS DO JSON ATOMICAS EU NAO FIZ ISSO AINDA 
 	//TODO 
@@ -42,14 +44,16 @@ public class ServerLibrary {
 		        String password = (String) obj.get("password");
 		        
 		        try {
-		        	BufferedReader br = new BufferedReader(new FileReader("register_clients.json"));
+		        	exceptionFile = "read";
+		        	BufferedReader br = new BufferedReader(new FileReader(REGISTER_CLIENTS_FILE));
 		        	String jsonFileString = br.readLine();
 		        	if(jsonFileString==null || jsonFileString.equals("")) {
 		        		byte[] bytes = new byte[96];
 		        		new Random().nextBytes(bytes);
 		        		
 		        		String adminPassword = Base64.getEncoder().withoutPadding().encodeToString(bytes);
-		        		BufferedWriter bw = new BufferedWriter(new FileWriter("register_clients.json"));
+		        		exceptionFile = "write";
+		        		BufferedWriter bw = new BufferedWriter(new FileWriter(REGISTER_CLIENTS_FILE));
 		        		obj = new JSONObject();
 		        		obj.put("admin", adminPassword);
 		        		String firstTimeUser = obj.toString();
@@ -67,7 +71,7 @@ public class ServerLibrary {
 			        		obj.put("message", message);
 			        		data = obj.toString();
 			        		communication.sendInChunks(data);
-			        		System.out.println("The client was sucessfully logged into the system!");
+			        		System.out.println("Client: " + user + "was sucessfully logged into the system!");
 			        	} else {
 			        		String message = "Incorrect password. Try again!";
 			        		obj.put("conclusion", NOT_OK_MESSAGE);
@@ -82,10 +86,10 @@ public class ServerLibrary {
 		        		obj.put("message", message);
 		        		data = obj.toString();
 		        		communication.sendInChunks(data);
-		        		System.out.println("The user is not registered on the system...");
+		        		System.out.println("Client: " + user + " is not registered on the system...");
 		        	}
 		        } catch (FileNotFoundException fnfe) {
-		        	new FileWriter("register_clients.json");
+		        	new FileWriter(REGISTER_CLIENTS_FILE);
 		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
 		        	obj = new JSONObject();
 					obj.put("conclusion", NOT_OK_MESSAGE);
@@ -109,7 +113,7 @@ public class ServerLibrary {
 				obj.put("message", error);
 				String data = obj.toString();
 				communication.sendInChunks(data);
-				throw new ServerLibraryException("Could not either read or write in the register_clients.json file. Aborting...", true);
+				throw new ServerLibraryException("Could not " + exceptionFile + " in the register_clients.json file. Aborting...", true);
 			} 
 		} catch (CommunicationsException ce) {
 			throw new ServerLibraryException("Communications module broke down...", ce, true);
@@ -126,14 +130,16 @@ public class ServerLibrary {
 		        String password = (String) obj.get("password");
 		        
 		        try {
-		        	BufferedReader br = new BufferedReader(new FileReader("register_clients.json"));
+		        	exceptionFile = "read";
+		        	BufferedReader br = new BufferedReader(new FileReader(REGISTER_CLIENTS_FILE));
 		        	String jsonFileString = br.readLine();
 		        	if(jsonFileString==null || jsonFileString.equals("")) {
 		        		byte[] bytes = new byte[96];
 		        		new Random().nextBytes(bytes);
 		        		
 		        		String adminPassword = Base64.getEncoder().withoutPadding().encodeToString(bytes);
-		        		BufferedWriter bw = new BufferedWriter(new FileWriter("register_clients.json"));
+		        		exceptionFile = "write";
+		        		BufferedWriter bw = new BufferedWriter(new FileWriter(REGISTER_CLIENTS_FILE));
 		        		obj = new JSONObject();
 		        		obj.put("admin", adminPassword);
 		        		String firstTimeUser = obj.toString();
@@ -142,6 +148,7 @@ public class ServerLibrary {
 						bw.close();
 		        	}
 		        	
+		        	exceptionFile = "write";
 		        	Parser parser = new Parser(jsonFileString, user, password);
 		        	
 		        	obj = new JSONObject();
@@ -161,7 +168,8 @@ public class ServerLibrary {
 		        		System.out.println(message);
 		        	}
 		        } catch (FileNotFoundException fnfe) {
-		        	new FileWriter("register_clients.json");
+		        	exceptionFile = "write";
+		        	new FileWriter(REGISTER_CLIENTS_FILE);
 		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
 		        	obj = new JSONObject();
 					obj.put("conclusion", NOT_OK_MESSAGE);
@@ -185,7 +193,7 @@ public class ServerLibrary {
 				obj.put("message", error);
 				String data = obj.toString();
 				communication.sendInChunks(data);
-				throw new ServerLibraryException("Could not either read or write in the register_clients.json file. Aborting...", true);
+				throw new ServerLibraryException("Could not " + exceptionFile + " in the register_clients.json file. Aborting...", true);
 			} 
 		} catch (CommunicationsException ce) {
 			throw new ServerLibraryException("Communications module broke down...", ce, true);
