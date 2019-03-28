@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
+import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
 
 /**
@@ -41,6 +42,8 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
                 })
                 .addOnSuccessListener(this,
                         driveFolder -> {
+                            DataHolder dataHolder = DataHolder.getInstance();
+                            dataHolder.setAlbum1DriveID(driveFolder.getDriveId().encodeToString());
                             showMessage(getString(R.string.file_created,
                                     driveFolder.getDriveId().encodeToString()));
                             finish();
