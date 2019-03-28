@@ -54,7 +54,11 @@ public class WorkerThread implements Runnable{
                             serverLibrary.signUp();                           
                             break;
                         case "EXIT":
-                        	break;
+                    		System.out.println("Ending communications with client. Bye!");           
+                    		isRunning = false;
+                    		//adicionar esta linha a SEC
+                    		communications.end();
+                    		break;
                         default:
                             System.out.println("Wrong input command. Try another one.");
                     }

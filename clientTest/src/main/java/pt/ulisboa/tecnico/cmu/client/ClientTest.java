@@ -48,6 +48,7 @@ public class ClientTest {
         	System.out.println(obj.get("message"));
         }
         
+        communication.sendInChunks("EXIT");
         communication.end();        
     }
 }
