@@ -13,7 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AlbumDisplayActivity"></activity>
+        <activity android:name=".teste.downloadTest"></activity>
+        <activity android:name=".teste.DownloadImages" />
+        <activity android:name=".GoogleUtils.GoogleAlbumDisplayActivity" />
+        <activity android:name=".AlbumDisplayActivity" />
         <activity android:name=".AlbumsListActivity" />
         <activity android:name=".GoogleUtils.GoogleAddImageActivity" />
         <activity android:name=".GoogleUtils.HomeActivity" />

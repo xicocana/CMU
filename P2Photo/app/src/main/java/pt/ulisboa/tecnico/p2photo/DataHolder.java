@@ -1,8 +1,5 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import android.util.Log;
-
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveResourceClient;
@@ -13,13 +10,20 @@ public class DataHolder {
     private DriveClient mDriveClient;
     private DriveResourceClient mDriveResourceClient;
 
+    private String album1DriveID = "";
+    private String fileDriveID ="";
+
     private static DataHolder instance;
 
-    static DataHolder getInstance(){
+    public static DataHolder getInstance(){
         if (instance == null){
             instance = new DataHolder();
         }
         return instance;
+    }
+
+    private DataHolder (){
+
     }
 
 
@@ -45,5 +49,21 @@ public class DataHolder {
 
     public void setmDriveResourceClient(DriveResourceClient mDriveResourceClient) {
         this.mDriveResourceClient = mDriveResourceClient;
+    }
+
+    public String getAlbum1DriveID() {
+        return album1DriveID;
+    }
+
+    public void setAlbum1DriveID(String album1DriveID) {
+        this.album1DriveID = album1DriveID;
+    }
+
+    public String getFileDriveID() {
+        return fileDriveID;
+    }
+
+    public void setFileDriveID(String fileDriveID) {
+        this.fileDriveID = fileDriveID;
     }
 }

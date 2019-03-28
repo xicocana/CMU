@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+
+import pt.ulisboa.tecnico.p2photo.teste.downloadTest;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
@@ -29,13 +32,12 @@ public class AlbumsListActivity extends AppCompatActivity {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albums_from_server);
         albums_list.setAdapter(arrayAdapter);
 
-        albums_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(AlbumsListActivity.this, AlbumDisplayActivity.class);
-                intent.putExtra("album_name", albums_from_server.get(position));
-                startActivity(intent);
-            }
+        albums_list.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(AlbumsListActivity.this, downloadTest.class);
+            intent.putExtra("album_name", albums_from_server.get(position));
+            startActivity(intent);
         });
+
+
     }
 }

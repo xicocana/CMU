@@ -167,7 +167,7 @@ public abstract class BaseGoogleActivity extends Activity {
      *
      * @return Task that resolves with the selected item's ID.
      */
-    protected Task<DriveId> pickFolder() {
+        protected Task<DriveId> pickFolder() {
         OpenFileActivityOptions openOptions =
                 new OpenFileActivityOptions.Builder()
                         .setSelectionFilter(
