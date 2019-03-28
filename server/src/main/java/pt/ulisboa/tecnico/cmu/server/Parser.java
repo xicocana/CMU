@@ -4,14 +4,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Parser {
 	
-	private static final String OWNER_ID = "owner-id";
-	private static final String STATE = "state";
 	private String jsonString;
 	private String user;
 	private String password;
@@ -22,20 +19,24 @@ public class Parser {
 		this.password = password;
 	}
 	
-	public void parseChanges() {		
-		try {			
+	public boolean parseChanges() throws IOException, JSONException {								
 	    	JSONObject jsonFile = new JSONObject(this.jsonString);
-	    	jsonFile.put(this.user, this.password);
-	    	String replaceJSONFile = jsonFile.toString();
-	    	System.out.println(replaceJSONFile);
-			BufferedWriter bw;
-			
-			bw = new BufferedWriter(new FileWriter("register_clients.json"));
-			bw.write(replaceJSONFile);
-			bw.close();
-		} catch (IOException ioe) {
-			System.out.println("IOException...");
-		}	
-		
+	    	
+	    	System.out.println(jsonFile.has(this.user));
+	    	System.out.println(jsonFile);
+	    	if(jsonFile.has(this.user)==true) {
+	    		return false;
+	    	} else {
+	    		jsonFile.put(this.user, this.password);
+		    	String replaceJSONFile = jsonFile.toString();
+		    	System.out.println(replaceJSONFile);
+				BufferedWriter bw;
+				
+				bw = new BufferedWriter(new FileWriter("register_clients.json"));
+				bw.write(replaceJSONFile);
+				bw.close();
+				
+				return true; 	
+	    	}
 	}
 }

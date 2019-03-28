@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 import pt.ulisboa.tecnico.sec.communications.Communications;
 import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
@@ -21,16 +22,28 @@ public class ClientTest {
         Socket socket = new Socket("localhost", 5111);
         System.out.println(socket.getInetAddress().getHostAddress());
         Communications communication = new Communications(socket);
-
+        
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("just insert user name. This is just a silly test class");
+        String input = scanner.nextLine();
         String command = "SIGN-UP";
 
         JSONObject obj = new JSONObject();
-        obj.put("user-name", "xicocana");
-        obj.put("password", "password");
+        obj.put("user-name", input);
+        obj.put("password", "cmu");
         String data = obj.toString();
         communication.sendInChunks(command);
         communication.sendInChunks(data);
-
+        
+        data = (String) communication.receiveInChunks();
+        obj = new JSONObject(data);
+        if(obj.get("conclusion").equals("OK")) {
+        	System.out.println(obj.get("message"));
+        }
+        else if(obj.get("conclusion").equals("NOT-OK")) {
+        	System.out.println(obj.get("message"));
+        }
+        
         communication.end();        
     }
 }

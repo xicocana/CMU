@@ -50,6 +50,8 @@ public class WorkerThread implements Runnable{
                         case "SIGN-UP":                                                       
                             serverLibrary.signUp();                           
                             break;
+                        case "EXIT":
+                        	break;
                         default:
                             System.out.println("Wrong input command. Try another one.");
                     }
