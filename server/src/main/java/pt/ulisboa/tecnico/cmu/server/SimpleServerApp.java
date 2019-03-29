@@ -41,7 +41,7 @@ public class SimpleServerApp {
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket = new ServerSocket();
 
-		InetSocketAddress endpoint = new InetSocketAddress("127.0.0.1", 5111);
+		InetSocketAddress endpoint = new InetSocketAddress("192.168.43.80", 8080);
 		serverSocket.bind(endpoint);
 
 		System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());

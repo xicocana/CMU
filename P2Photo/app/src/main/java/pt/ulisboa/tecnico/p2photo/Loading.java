@@ -40,10 +40,10 @@ public class Loading extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params)  {
             try {
-                String hostname = "10.0.2.2";
+                String hostname = "192.168.43.80";
 
                 System.out.println("entra aqui");
-                Socket socket = new Socket(hostname, 5111);
+                Socket socket = new Socket(hostname, 8080);
                 System.out.println(socket.getInetAddress().getHostAddress());
                 Communications communication = new Communications(socket);
 
