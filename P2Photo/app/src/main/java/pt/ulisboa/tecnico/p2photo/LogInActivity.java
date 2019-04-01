@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,6 +23,7 @@ public class LogInActivity extends AppCompatActivity {
 
     public final static String NAME = "pt.ulisboa.tecnico.p2photo.NAME";
     public final static String PASSWORD = "pt.ulisboa.tecnico.p2photo.PASSWORD";
+    public final static String LOGIN = "LOGIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,47 @@ public class LogInActivity extends AppCompatActivity {
         EditText pwdView = findViewById(R.id.editText2);
         String password = pwdView.getText().toString();
 
+        SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
+        task.execute();
 
+        if(task.getStateOfRequest().equals("sucess")) {
+            String message = task.getMessage();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LogInActivity.this, AlbumsListActivity.class);
+            LogInActivity.this.finish();
+            startActivity(intent);
+        } else if(task.getStateOfRequest().equals("failure")) {
+            String message = task.getMessage();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        } else {
+            for(int i = 1; i<10; i++) {
+                try {
+                    Thread.sleep(500);
+                    if(task.getStateOfRequest().equals("sucess")) {
+                        String message = task.getMessage();
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LogInActivity.this, AlbumsListActivity.class);
+                        LogInActivity.this.finish();
+                        startActivity(intent);
+                        break;
+                    } else if(task.getStateOfRequest().equals("failure")) {
+                        String message = task.getMessage();
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                } catch(InterruptedException ie) {
+                    System.err.println("Could not properly put the thread to sleep...");
+                    Toast.makeText(getApplicationContext(), "Critical error!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+                    LogInActivity.this.finish();
+                    startActivity(intent);
+                }
+                Toast.makeText(getApplicationContext(), "Could not obtain an answer back from the server!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+                LogInActivity.this.finish();
+                startActivity(intent);
+            }
+        }
 
         //intent.putExtra(NAME, name);
         //intent.putExtra(PASSWORD, password);
@@ -49,66 +92,5 @@ public class LogInActivity extends AppCompatActivity {
 
     public void cancelLogIn(View v) {
         LogInActivity.this.finish();
-    }
-
-    class myTask extends AsyncTask<Void, Void, Void> {
-
-        private String name = "";
-        private String pswd = "";
-        private String command = "LOGIN";
-
-        public myTask(String name, String pswd, String command) {
-            this.name = name;
-            this.pswd = pswd;
-            this.command = command;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                String hostname = "192.168.43.80";
-
-                System.out.println("entra aqui");
-                Socket socket = new Socket(hostname, 8080);
-                System.out.println(socket.getInetAddress().getHostAddress());
-                Communications communication = new Communications(socket);
-
-                JSONObject obj = new JSONObject();
-                obj.put("user-name", name);
-                obj.put("password", pswd);
-
-                String data = obj.toString();
-                communication.sendInChunks(command);
-                communication.sendInChunks(data);
-
-                data = (String) communication.receiveInChunks();
-                obj = new JSONObject(data);
-                if (obj.get("conclusion").equals("OK")) {
-                    //System.out.println(obj.get("message"));
-                    Log.i("SIGNUP", "OK");
-                } else if (obj.get("conclusion").equals("NOT-OK")) {
-                    //System.out.println(obj.get("message"));
-                    Log.i("SIGNUP", "NOT-OK");
-                }
-
-                communication.sendInChunks("EXIT");
-                communication.end();
-
-
-            } catch (UnknownHostException uhe) {
-                uhe.printStackTrace();
-                System.out.println("Couldn't find the host.");
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                System.out.println("IOException");
-            } catch (CommunicationsException ce) {
-                ce.printStackTrace();
-                System.out.println("CommunicationsException");
-            } catch (JSONException je) {
-                je.printStackTrace();
-                System.out.println("JsonException");
-            }
-            return null;
-        }
     }
 }

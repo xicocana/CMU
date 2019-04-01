@@ -200,4 +200,12 @@ public class ServerLibrary {
 		}	
 	}
 	
+	public void exit() throws ServerLibraryException {
+		try {
+			communication.end();
+		} catch (CommunicationsException ce) {
+			throw new ServerLibraryException("Could properly close the connection", ce, true);
+		}
+	}
+	
 }

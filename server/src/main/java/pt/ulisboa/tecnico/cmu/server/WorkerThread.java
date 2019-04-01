@@ -43,10 +43,6 @@ public class WorkerThread implements Runnable{
                     System.out.println(input);
 
                     switch(input) {
-                        case "LUSIADAS":
-                            String lusiadas = (String) communications.receiveInChunks();
-                            System.out.println(lusiadas);
-                            break;
                         case "LOGIN":                                                       
                             serverLibrary.login();                           
                             break;
@@ -57,7 +53,7 @@ public class WorkerThread implements Runnable{
                     		System.out.println("Ending communications with client. Bye!");           
                     		isRunning = false;
                     		//adicionar esta linha a SEC
-                    		communications.end();
+                    		serverLibrary.exit();
                     		break;
                         default:
                             System.out.println("Wrong input command. Try another one.");

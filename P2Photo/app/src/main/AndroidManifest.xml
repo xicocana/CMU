@@ -14,7 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".teste.downloadTest"></activity>
-        <activity android:name=".teste.DownloadImages" />
         <activity android:name=".GoogleUtils.GoogleAlbumDisplayActivity" />
         <activity android:name=".AlbumDisplayActivity" />
         <activity android:name=".AlbumsListActivity" />
@@ -31,7 +30,6 @@
         </activity>
         <activity android:name=".UserOptionsActivity" />
         <activity android:name=".LogInActivity" />
-        <activity android:name=".Loading" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".CreateFolderActivity" />
         <activity android:name=".MainActivity" />
