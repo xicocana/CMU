@@ -76,6 +76,7 @@ public class LogInActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
                         //get session key
+                        //TM DE SER O SERVER A MANDAR A CHAVE DE SESSAO
                         String myKey = "sessionkey";
                         SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
                         SharedPreferences.Editor edit = pref.edit();
