@@ -46,6 +46,7 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
                             dataHolder.setAlbum1DriveID(driveFolder.getDriveId().encodeToString());
                             showMessage(getString(R.string.file_created,
                                     driveFolder.getDriveId().encodeToString()));
+                            //cena
                             finish();
                         })
                 .addOnFailureListener(this, e -> {
