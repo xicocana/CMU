@@ -21,6 +21,7 @@ public class UserListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_list);
 
         final ArrayList<String> usersList = new ArrayList<String>();
+        //cenas
         usersList.add("user1");
         usersList.add("user2");
         usersList.add("user3");

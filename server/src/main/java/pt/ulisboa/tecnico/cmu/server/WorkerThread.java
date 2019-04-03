@@ -49,6 +49,9 @@ public class WorkerThread implements Runnable{
                         case "SIGN-UP":                                                       
                             serverLibrary.signUp();                           
                             break;
+                        case "ADD-ALBUM":
+                        	serverLibrary.addNewAlbum();
+                        	break;
                         case "EXIT":
                     		System.out.println("Ending communications with client. Bye!");           
                     		isRunning = false;

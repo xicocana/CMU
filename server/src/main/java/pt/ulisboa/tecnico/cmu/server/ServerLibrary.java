@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.server;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -198,6 +199,57 @@ public class ServerLibrary {
 		} catch (CommunicationsException ce) {
 			throw new ServerLibraryException("Communications module broke down...", ce, true);
 		}	
+	}
+	
+	public void addNewAlbum() throws ServerLibraryException {
+		try {
+			String data = (String) communication.receiveInChunks();
+			JSONObject obj = new JSONObject(data);
+			String userName = (String) obj.get("user-name");
+			String driveId = (String) obj.get("drive-id");
+			try {
+				try {
+					exceptionFile = "read";
+					BufferedReader br = new BufferedReader(new FileReader("users_albums.json"));
+					String jsonFileString = br.readLine();
+		        	if(jsonFileString==null || jsonFileString.equals("")) {
+		        		exceptionFile = "write";
+		        		BufferedWriter bw = new BufferedWriter(new FileWriter("users_albums.json"));	        		
+		        		
+		        		JSONArray user_tuple = new JSONArray();
+		        		user_tuple.put(0, "default_album");
+		        		user_tuple.put(1, "1");
+		        		
+		        		JSONArray albums_list = new JSONArray();
+		        		albums_list.put(user_tuple);
+		        		
+		        		JSONObject user_albums = new JSONObject();
+		        		user_albums.put("admin", albums_list);
+		        		
+		        		String firstTimeUser = user_albums.toString();
+						bw.write(firstTimeUser);
+						bw.close();
+		        	}				
+					
+				} catch (FileNotFoundException fnfe) {
+					exceptionFile = "write";
+		        	new FileWriter("users_albums.json");
+		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
+		        	obj = new JSONObject();
+					obj.put("conclusion", NOT_OK_MESSAGE);
+					obj.put("message", error);
+					data = obj.toString();
+					communication.sendInChunks(data);
+		        	throw new ServerLibraryException("Could not find the \"users_albums.json\" Aborting...", true);
+				}
+			}
+			catch (IOException e) {
+				throw new ServerLibraryException("Could not read the \"users_albums.json\" file...");
+			}
+		} catch (CommunicationsException ce) {
+			throw new ServerLibraryException("Communications module broke down...", ce, true);
+		} 
+		
 	}
 	
 	public void exit() throws ServerLibraryException {

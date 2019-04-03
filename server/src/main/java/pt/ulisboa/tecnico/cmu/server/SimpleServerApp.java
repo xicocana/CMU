@@ -37,11 +37,12 @@ public class SimpleServerApp {
 	}
 	
 	public static void main(String[] args) throws IOException {
-
+		
+		String hostname = "localhost";
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket = new ServerSocket();
 
-		InetSocketAddress endpoint = new InetSocketAddress("192.168.43.112", 8080);
+		InetSocketAddress endpoint = new InetSocketAddress(hostname, 8080);
 		serverSocket.bind(endpoint);
 
 		System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
