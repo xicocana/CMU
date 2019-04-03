@@ -48,7 +48,7 @@ public class LogInActivity extends AppCompatActivity {
         if(task.getStateOfRequest().equals("sucess")) {
             String message = task.getMessage();
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(LogInActivity.this, AlbumsListActivity.class);
+            Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
             LogInActivity.this.finish();
             startActivity(intent);
         } else if(task.getStateOfRequest().equals("failure")) {
@@ -61,7 +61,7 @@ public class LogInActivity extends AppCompatActivity {
                     if(task.getStateOfRequest().equals("sucess")) {
                         String message = task.getMessage();
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LogInActivity.this, AlbumsListActivity.class);
+                        Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
                         LogInActivity.this.finish();
                         startActivity(intent);
                         break;

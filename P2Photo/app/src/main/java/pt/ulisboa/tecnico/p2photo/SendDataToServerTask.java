@@ -47,7 +47,7 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         try {
-            String hostname = "192.168.43.141";
+            String hostname = "192.168.43.112";
 
             System.out.println("entra aqui");
             Socket socket = new Socket(hostname, 8080);
