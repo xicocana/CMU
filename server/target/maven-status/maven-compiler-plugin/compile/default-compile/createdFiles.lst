@@ -1,10 +1,6 @@
 pt/ulisboa/tecnico/cmu/server/WorkerThread.class
 pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.class
-<<<<<<< HEAD
 pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class
-=======
->>>>>>> 275227f27662ae23ba6f4968384fba25c7a2093f
 pt/ulisboa/tecnico/cmu/server/Parser.class
-pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class
 pt/ulisboa/tecnico/cmu/server/ServerLibrary.class
 pt/ulisboa/tecnico/cmu/server/exceptions/ParserException.class

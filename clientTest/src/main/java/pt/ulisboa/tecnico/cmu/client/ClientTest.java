@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.client;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,21 +18,23 @@ import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 public class ClientTest {
 
     public static void main(String[] args) throws IOException, CommunicationsException, JSONException {
-	String hostname = "localhost";
-	String command = "ADD-ALBUM";
-        System.out.println("entra aqui");
+		String hostname = "localhost";
+		String command = "GET-USERS";
+		
         Socket socket = new Socket(hostname, 8080);
-	System.out.println(socket.getInetAddress().getHostAddress());
-        Communications communication = new Communications(socket);
+
+        Communications communication = new Communications(socket);        
         
-        JSONObject obj = new JSONObject();
-        obj.put("user-name", "foo");
-	obj.put("album", "yeyeyeye");
-        obj.put("drive-id", "bar");
-        String data = obj.toString();
         communication.sendInChunks(command);
-        communication.sendInChunks(data);
+        String data = (String) communication.receiveInChunks();
+        JSONObject obj = new JSONObject(data);        
+        JSONArray array = (JSONArray) obj.get("user-list");
+        
+        for (int i = 0; i < array.length(); i++) {
+        	  System.out.println((String) array.get(i));
+        }
+        
+        data = (String) communication.receiveInChunks();
         communication.sendInChunks("EXIT");
-        communication.end();        
     }
 }

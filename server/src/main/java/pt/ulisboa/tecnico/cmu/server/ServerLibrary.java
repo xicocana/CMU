@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Random;
 
 import pt.ulisboa.tecnico.sec.communications.Communications;
@@ -23,6 +24,8 @@ public class ServerLibrary {
 	private static final String REGISTER_CLIENTS_FILE = "register_clients.json";
 	private static final String OK_MESSAGE = "OK";
 	private static final String NOT_OK_MESSAGE = "NOT-OK";
+	private static final String USERS_ALBUMS = "users_albums.json";
+	private static final String EMPTY = "";
 	
 	private String exceptionFile = null;
 	//TODO 
@@ -51,6 +54,53 @@ public class ServerLibrary {
 		String data = conclusionJSON.toString();
 		communication.sendInChunks(data);
 		System.out.println(message);
+	}
+	
+	private String getJSONFileString(String file) throws IOException, CommunicationsException {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String jsonFileString = br.readLine();
+			return jsonFileString;
+		} catch (FileNotFoundException e) {
+			
+        	new FileWriter("users_albums.json");
+        	String error = "Server faced a problem while processing your request. Try again later...";	        	
+        	JSONObject obj = new JSONObject();
+			obj.put("conclusion", NOT_OK_MESSAGE);
+			obj.put("message", error);
+			String data = obj.toString();
+			communication.sendInChunks(data); 
+			return null;
+		}
+	}
+	
+	private void initializeAlbum(String file) throws IOException {
+		byte[] bytes = new byte[96];
+		new Random().nextBytes(bytes);
+		
+		String adminPassword = Base64.getEncoder().withoutPadding().encodeToString(bytes);
+		exceptionFile = "write";
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+		JSONObject obj = new JSONObject();
+		obj.put("admin", adminPassword);
+		String firstTimeUser = obj.toString();
+		String jsonFileString = firstTimeUser;
+		bw.write(firstTimeUser);
+		bw.close();
+	}
+	
+	private JSONArray getJSONUsers(String content) {
+		JSONObject obj = new JSONObject(content.trim());
+		Iterator<String> keys = obj.keys();
+		JSONArray array = new JSONArray();
+		
+		while(keys.hasNext()) {
+		    String key = keys.next();
+		    if(key.equals("admin")) {} 
+		    else {array.put(key);}		    
+		}
+		
+		return array;
 	}
 	
 	public void login() throws ServerLibraryException {
@@ -279,10 +329,32 @@ public class ServerLibrary {
 		
 	}
 	
-	public void getUsers() {
-		for() {
-			
-		}
+	public void getUsers() throws ServerLibraryException {
+		JSONArray users_array = new JSONArray();
+		
+		try {
+			try {
+				exceptionFile = "read";
+				String jsonFileString = getJSONFileString(REGISTER_CLIENTS_FILE);
+				if(jsonFileString==null || jsonFileString.isEmpty()) {
+					initializeAlbum(jsonFileString);
+				}
+				
+				JSONArray array = getJSONUsers(jsonFileString);
+				JSONObject obj = new JSONObject();
+				obj.put("user-list", array);
+				String data = obj.toString();
+				communication.sendInChunks(data);
+				sendOkMessage(EMPTY);
+				
+			} catch (IOException ioe) {
+				String message = "The server faced an internal problem!";
+				sendNotOkMessage(message);
+				throw new ServerLibraryException("Could not " + exceptionFile + REGISTER_CLIENTS_FILE + " file. Aborting...");
+			} 
+		} catch (CommunicationsException ce) {
+			throw new ServerLibraryException("Communications module broke down...", ce, true);
+		} 
 	}
 	
 	public void exit() throws ServerLibraryException {
