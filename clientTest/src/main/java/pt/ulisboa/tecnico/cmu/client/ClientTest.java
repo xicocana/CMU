@@ -26,6 +26,7 @@ public class ClientTest {
         
         JSONObject obj = new JSONObject();
         obj.put("user-name", "foo");
+	obj.put("album", "yeyeyeye");
         obj.put("drive-id", "bar");
         String data = obj.toString();
         communication.sendInChunks(command);

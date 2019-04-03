@@ -35,6 +35,24 @@ public class ServerLibrary {
 		this.communication = communication;
 	}
 	
+	private void sendOkMessage(String message) throws CommunicationsException {
+		JSONObject conclusionJSON = new JSONObject();
+		conclusionJSON.put("conclusion", OK_MESSAGE);
+		conclusionJSON.put("message", message);
+		String data = conclusionJSON.toString();
+		communication.sendInChunks(data);
+		System.out.println(message);
+	}
+	
+	private void sendNotOkMessage(String message) throws CommunicationsException {
+		JSONObject conclusionJSON = new JSONObject();
+		conclusionJSON.put("conclusion", NOT_OK_MESSAGE);
+		conclusionJSON.put("message", message);
+		String data = conclusionJSON.toString();
+		communication.sendInChunks(data);
+		System.out.println(message);
+	}
+	
 	public void login() throws ServerLibraryException {
 		try {
 			try {
@@ -205,7 +223,8 @@ public class ServerLibrary {
 		try {
 			String data = (String) communication.receiveInChunks();
 			JSONObject obj = new JSONObject(data);
-			String userName = (String) obj.get("user-name");
+			String user = (String) obj.get("user-name");
+			String album = (String) obj.get("album");
 			String driveId = (String) obj.get("drive-id");
 			try {
 				try {
@@ -216,21 +235,29 @@ public class ServerLibrary {
 		        		exceptionFile = "write";
 		        		BufferedWriter bw = new BufferedWriter(new FileWriter("users_albums.json"));	        		
 		        		
-		        		JSONArray user_tuple = new JSONArray();
-		        		user_tuple.put(0, "default_album");
-		        		user_tuple.put(1, "1");
+		        		JSONObject drive_album = new JSONObject();
+		        		drive_album.put("default_album", "drive_id");		        		
 		        		
-		        		JSONArray albums_list = new JSONArray();
-		        		albums_list.put(user_tuple);
-		        		
-		        		JSONObject user_albums = new JSONObject();
-		        		user_albums.put("admin", albums_list);
+		        		JSONObject user_albums = new JSONObject();		
+		        		user_albums.put("admin", drive_album);
 		        		
 		        		String firstTimeUser = user_albums.toString();
 						bw.write(firstTimeUser);
 						bw.close();
 		        	}				
 					
+		        	exceptionFile = "write";
+		        	Parser parser = new Parser(jsonFileString, user);		        			        	
+		        	String message;
+		        	
+		        	if(parser.parseAlbum(album, driveId)) {
+		        		message = "Client album was sucessfully created!";
+		        		sendOkMessage(message);
+		        	} else {
+		        		message = "Could not create " + user + "'s album...";
+		        		sendOkMessage(message);
+		        	}
+		        	
 				} catch (FileNotFoundException fnfe) {
 					exceptionFile = "write";
 		        	new FileWriter("users_albums.json");
@@ -250,6 +277,12 @@ public class ServerLibrary {
 			throw new ServerLibraryException("Communications module broke down...", ce, true);
 		} 
 		
+	}
+	
+	public void getUsers() {
+		for() {
+			
+		}
 	}
 	
 	public void exit() throws ServerLibraryException {
