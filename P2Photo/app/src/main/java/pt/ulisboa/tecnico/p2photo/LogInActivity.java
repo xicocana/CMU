@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.p2photo;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,6 +50,17 @@ public class LogInActivity extends AppCompatActivity {
         if(task.getStateOfRequest().equals("sucess")) {
             String message = task.getMessage();
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+            //get session key
+            String myKey = "sessionkey";
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor edit = pref.edit();
+            // Set/Store data
+            edit.putString("session_key", myKey);
+            Log.i("SESSION", myKey);
+            // Commit the changes
+            edit.commit();
+
             Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
             LogInActivity.this.finish();
             startActivity(intent);
@@ -61,6 +74,17 @@ public class LogInActivity extends AppCompatActivity {
                     if(task.getStateOfRequest().equals("sucess")) {
                         String message = task.getMessage();
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+                        //get session key
+                        String myKey = "sessionkey";
+                        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor edit = pref.edit();
+                        // Set/Store data
+                        edit.putString("session_key", myKey);
+                        Log.i("SESSION", myKey);
+                        // Commit the changes
+                        edit.commit();
+
                         Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
                         LogInActivity.this.finish();
                         startActivity(intent);
@@ -83,11 +107,6 @@ public class LogInActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-
-        //intent.putExtra(NAME, name);
-        //intent.putExtra(PASSWORD, password);
-        //startActivity(intent);
-
     }
 
     public void cancelLogIn(View v) {
