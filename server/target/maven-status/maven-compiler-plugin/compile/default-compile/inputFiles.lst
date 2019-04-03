@@ -1,5 +1,5 @@
-/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
-/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java
-/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
-/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java
-/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
+/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
+/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java
+/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java
+/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
+/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java

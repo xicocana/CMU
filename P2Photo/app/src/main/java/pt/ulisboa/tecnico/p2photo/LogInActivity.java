@@ -57,6 +57,7 @@ public class LogInActivity extends AppCompatActivity {
             SharedPreferences.Editor edit = pref.edit();
             // Set/Store data
             edit.putString("session_key", myKey);
+            edit.putString("username", name);
             Log.i("SESSION", myKey);
             // Commit the changes
             edit.commit();

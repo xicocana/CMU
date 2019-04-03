@@ -28,6 +28,11 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         this.command = command;
     }
 
+    public SendDataToServerTask(String name, String command){
+        this.name = name;
+        this.command = command;
+    }
+
     public String getStateOfRequest() {
         return this.state;
     }
