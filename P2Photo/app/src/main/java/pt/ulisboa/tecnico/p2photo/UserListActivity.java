@@ -27,8 +27,6 @@ public class UserListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
 
-
-
         SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String name = pref.getString("username", null);
 

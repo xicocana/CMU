@@ -27,6 +27,7 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private int    port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
+    public ArrayList<String> userAlbums = new ArrayList<String>();
 
     public SendDataToServerTask(String name, String pswd, String command){
         this.name = name;
@@ -64,6 +65,8 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     public ArrayList<String> getUserList(){
         return this.userlist;
     }
+
+    public ArrayList<String> getUserAlbums() { return this.userAlbums; }
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -131,6 +134,52 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                     if (length > 0) {
                         for (int i = 0; i < length; i++) {
                             userlist.add(jsonArray.getString(i));
+                        }
+                    }
+                } else if (obj.get("conclusion").equals("NOT-OK")) {
+                    this.setStateOfRequest("failure");
+                    this.setMessage((String) obj.get("message"));
+                }
+
+                communication.sendInChunks("EXIT");
+                communication.end();
+
+            } catch (UnknownHostException uhe) {
+                uhe.printStackTrace();
+                System.out.println("Couldn't find the host.");
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                System.out.println("IOException");
+            } catch (CommunicationsException ce) {
+                ce.printStackTrace();
+                System.out.println("CommunicationsException");
+            } catch (JSONException je) {
+                je.printStackTrace();
+                System.out.println("JsonException");
+            }
+        }
+        if(command == "GET-ALBUMS"){
+            try {
+                Socket socket = new Socket(hostname, port);
+                System.out.println(socket.getInetAddress().getHostAddress());
+                Communications communication = new Communications(socket);
+
+                JSONObject obj = new JSONObject();
+                obj.put("user-name", name);
+
+                String data = obj.toString();
+                communication.sendInChunks(command);
+                communication.sendInChunks(data);
+
+                data = (String) communication.receiveInChunks();
+                obj = new JSONObject(data);
+                if (obj.get("conclusion").equals("OK")) {
+                    this.setStateOfRequest("sucess");
+                    JSONArray jsonArray = (JSONArray) obj.get("user-albums");
+                    int length = jsonArray.length();
+                    if (length > 0) {
+                        for (int i = 0; i < length; i++) {
+                            userAlbums.add(jsonArray.getString(i));
                         }
                     }
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
