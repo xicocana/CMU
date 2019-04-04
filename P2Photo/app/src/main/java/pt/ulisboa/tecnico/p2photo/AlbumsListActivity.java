@@ -20,42 +20,29 @@ import pt.ulisboa.tecnico.p2photo.teste.downloadTest;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
+    ArrayList<String> albums_from_server = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_albums_list);
 
-        ListView albums_list = (ListView) findViewById(R.id.albums_list);
-        ArrayList<String> albums_from_server = new ArrayList<String>();
-
-        albums_from_server.add("album 1");
-        albums_from_server.add("album 2");
-        albums_from_server.add("album 3");
-        albums_from_server.add("album 4");
-
-        /*SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String name = pref.getString("username", null);
 
         SendDataToServerTask task = new SendDataToServerTask(name, "GET-ALBUMS");
         task.execute();
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if(task.getStateOfRequest().equals("sucess")) {
-            String message = task.getMessage();
+            albums_from_server = task.getUserAlbums();
+        }
 
-            JSONArray jsonArray = null;
-            try {
-                jsonArray = new JSONArray(message);
-                int length = jsonArray.length();
-                if (length > 0) {
-                    for (int i = 0; i < length; i++) {
-                        albums_from_server.add(jsonArray.getString(i));
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }*/
-
+        ListView albums_list = (ListView) findViewById(R.id.albums_list);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albums_from_server);
         albums_list.setAdapter(arrayAdapter);
 
