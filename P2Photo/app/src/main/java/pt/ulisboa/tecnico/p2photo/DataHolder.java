@@ -12,6 +12,7 @@ public class DataHolder {
 
     private String album1DriveID = "";
     private String fileDriveID ="";
+    private String txtDriveID ="";
 
     private static DataHolder instance;
 
@@ -65,5 +66,13 @@ public class DataHolder {
 
     public void setFileDriveID(String fileDriveID) {
         this.fileDriveID = fileDriveID;
+    }
+
+    public String getTxtDriveID() {
+        return txtDriveID;
+    }
+
+    public void setTxtDriveID(String txtDriveID) {
+        this.txtDriveID = txtDriveID;
     }
 }

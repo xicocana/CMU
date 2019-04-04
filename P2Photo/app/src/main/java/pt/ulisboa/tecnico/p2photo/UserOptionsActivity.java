@@ -11,9 +11,11 @@ import android.widget.Button;
 
 import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleAddImageActivity;
 import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
+import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 
 public class UserOptionsActivity extends AppCompatActivity {
     private static final String TAG = "UserOptionsActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,36 +23,31 @@ public class UserOptionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_options);
 
         Button addAlbumBtn = (Button) findViewById(R.id.add_album_btn);
-        addAlbumBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(UserOptionsActivity.this, CreateFolderActivity.class));
-
-            }
-        });
+        addAlbumBtn.setOnClickListener(v ->
+                startActivity(new Intent(UserOptionsActivity.this, CreateFolderActivity.class)));
 
         Button listAlbumsBtn = (Button) findViewById(R.id.button7);
-        listAlbumsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(UserOptionsActivity.this, AlbumsListActivity.class));
-            }
-        });
+        listAlbumsBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, AlbumsListActivity.class)));
 
         Button logOutBtn = (Button) findViewById(R.id.log_out_btn);
-        logOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-                SharedPreferences.Editor edit = pref.edit();
-                // delete data
-                edit.clear();
-                // Commit the changes
-                edit.commit();
-                Intent intent = new Intent(UserOptionsActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
+        logOutBtn.setOnClickListener(v -> {
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor edit = pref.edit();
+            // delete data
+            edit.clear();
+            // Commit the changes
+            edit.commit();
+            Intent intent = new Intent(UserOptionsActivity.this, MainActivity.class);
+            startActivity(intent);
         });
+
+        Button teste1 = (Button) findViewById(R.id.teste1);
+        teste1.setOnClickListener(v ->
+                startActivity(new Intent(UserOptionsActivity.this, AlbumDisplayActivity.class)));
+        Button teste2 = (Button) findViewById(R.id.teste2);
+        teste2.setOnClickListener(v ->
+                startActivity(new Intent(UserOptionsActivity.this, GoogleImageDownloadActivity.class)));
+
     }
 
 }
