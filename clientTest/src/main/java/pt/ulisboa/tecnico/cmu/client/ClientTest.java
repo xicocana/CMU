@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 public class ClientTest {
 
     public static void main(String[] args) throws IOException, CommunicationsException, JSONException {
-		String hostname = "localhost";
+		String hostname = "192.168.43.80";
 		String command = "GET-ALBUMS";
 		
         Socket socket = new Socket(hostname, 8080);

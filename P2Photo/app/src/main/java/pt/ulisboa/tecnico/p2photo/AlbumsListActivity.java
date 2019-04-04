@@ -30,7 +30,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String name = pref.getString("username", null);
 
-        SendDataToServerTask task = new SendDataToServerTask(name, "GET-ALBUMS");
+        SendDataToServerTask task = new SendDataToServerTask("xicocana", "GET-ALBUMS");
         task.execute();
 
         try {
