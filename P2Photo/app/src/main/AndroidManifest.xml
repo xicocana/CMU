@@ -13,14 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".teste.downloadTest"></activity>
-        <activity android:name=".GoogleUtils.GoogleAlbumDisplayActivity" />
-        <activity android:name=".AlbumDisplayActivity" />
-        <activity android:name=".AlbumsListActivity" />
-        <activity android:name=".GoogleUtils.GoogleAddImageActivity" />
-        <activity android:name=".GoogleUtils.HomeActivity" />
-        <activity android:name=".GoogleUtils.GoogleCreateFolderActivity" />
-        <activity android:name=".UserListActivity" />
+
         <activity android:name=".ModeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,6 +21,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".GoogleUtils.GoogleAddImageActivity" />
+        <activity android:name=".GoogleUtils.HomeActivity" />
+        <activity android:name=".GoogleUtils.GoogleCreateFolderActivity" />
+        <activity android:name=".GoogleUtils.GoogleImageDownloadActivity" />
+
+        <activity android:name=".teste.downloadTest"></activity>
+
+        <activity android:name=".AlbumDisplayActivity" />
+        <activity android:name=".AlbumsListActivity" />
+        <activity android:name=".UserListActivity" />
         <activity android:name=".UserOptionsActivity" />
         <activity android:name=".LogInActivity" />
         <activity android:name=".SignUpActivity" />
