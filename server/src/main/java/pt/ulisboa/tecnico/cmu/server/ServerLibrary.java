@@ -128,18 +128,17 @@ public class ServerLibrary {
 		return array;
 	}
 	
-	private JSONArray getJSONUsersAlbums(String user, String content) throws CommunicationsException {
+	private JSONObject getJSONUsersAlbums(String user, String content) throws CommunicationsException {
 		JSONObject obj = new JSONObject(content);
-		JSONArray array = new JSONArray();
+		JSONObject albums_mapping = new JSONObject();
 		if(!obj.has(user)) {
 			System.err.println("User: \"" + user + "\" does not have a single album on the system");
-			return array;
+			return albums_mapping;
 		}
 		
-		JSONObject albums = obj.getJSONObject(user);
-		array = putJSONIntoArray(albums, array);
+		albums_mapping = obj.getJSONObject(user);		
 		
-		return array;
+		return albums_mapping;
 	}
 	
 	public void login() throws ServerLibraryException {
@@ -400,16 +399,16 @@ public class ServerLibrary {
 					initializeClientList(USERS_ALBUMS);
 				}
 				
-				JSONArray array = getJSONUsersAlbums(user, jsonFileString);
+				JSONObject albums_mapping = getJSONUsersAlbums(user, jsonFileString);
 				obj = new JSONObject();
-				if(array==null || array.isEmpty()) {
+				if(albums_mapping==null || albums_mapping.isEmpty()) {
 					String message = "You do not have a single album on the system!";
-					obj.put("album-list", array);
+					obj.put("album-list", albums_mapping);
 					data = obj.toString();
 					communication.sendInChunks(data);
 					sendNotOkMessage(message);
 				} else {
-					obj.put("album-list", array);
+					obj.put("album-list", albums_mapping);
 					data = obj.toString();
 					communication.sendInChunks(data);
 					sendOkMessage(EMPTY);

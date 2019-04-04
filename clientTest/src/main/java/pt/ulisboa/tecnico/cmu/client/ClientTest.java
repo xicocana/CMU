@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.Scanner;
 
 import pt.ulisboa.tecnico.sec.communications.Communications;
@@ -31,12 +32,17 @@ public class ClientTest {
         String data = obj.toString();
         communication.sendInChunks(data);
         data = (String) communication.receiveInChunks();
+        System.out.println("############### ###############");
+        System.out.println(data);
+        System.out.println("############### ###############");
         obj = new JSONObject(data);        
-        JSONArray array = (JSONArray) obj.get("album-list");
+        obj = obj.getJSONObject("album-list");
         
-        for (int i = 0; i < array.length(); i++) {
-        	  System.out.println((String) array.get(i));
+        Iterator<String> keys = obj.keys();
+        while(keys.hasNext()) {
+        	System.out.println(keys.next());
         }
+        
         
         data = (String) communication.receiveInChunks();
         communication.sendInChunks("EXIT");
