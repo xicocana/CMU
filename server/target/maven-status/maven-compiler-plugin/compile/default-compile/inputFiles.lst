@@ -1,6 +1,6 @@
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ParserException.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
+/home/jose-eduardo/Documentos/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ParserException.java

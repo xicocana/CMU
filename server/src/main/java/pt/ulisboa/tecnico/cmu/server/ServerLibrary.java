@@ -61,8 +61,7 @@ public class ServerLibrary {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String jsonFileString = br.readLine();
 			return jsonFileString;
-		} catch (FileNotFoundException e) {
-			
+		} catch (FileNotFoundException e) {			
         	new FileWriter("users_albums.json");
         	String error = "Server faced a problem while processing your request. Try again later...";	        	
         	JSONObject obj = new JSONObject();
@@ -74,7 +73,7 @@ public class ServerLibrary {
 		}
 	}
 	
-	private void initializeAlbum(String file) throws IOException {
+	private void initializeClientList(String file) throws IOException {
 		byte[] bytes = new byte[96];
 		new Random().nextBytes(bytes);
 		
@@ -89,6 +88,32 @@ public class ServerLibrary {
 		bw.close();
 	}
 	
+	private void initializeAlbum(String file) throws IOException {
+		exceptionFile = "write";
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file));	        		
+		
+		JSONObject drive_album = new JSONObject();
+		drive_album.put("default_album", "drive_id");		        		
+		
+		JSONObject user_albums = new JSONObject();		
+		user_albums.put("admin", drive_album);
+		
+		String firstTimeUser = user_albums.toString();
+		bw.write(firstTimeUser);
+		bw.close();
+	}
+	
+	private JSONArray putJSONIntoArray(JSONObject obj, JSONArray array) {
+		Iterator<String> keys = obj.keys();
+		
+		while(keys.hasNext()) {
+		    String key = keys.next();
+		    array.put(key);    
+		}
+		
+		return array;
+	}
+	
 	private JSONArray getJSONUsers(String content) {
 		JSONObject obj = new JSONObject(content.trim());
 		Iterator<String> keys = obj.keys();
@@ -99,6 +124,20 @@ public class ServerLibrary {
 		    if(key.equals("admin")) {} 
 		    else {array.put(key);}		    
 		}
+		
+		return array;
+	}
+	
+	private JSONArray getJSONUsersAlbums(String user, String content) throws CommunicationsException {
+		JSONObject obj = new JSONObject(content);
+		JSONArray array = new JSONArray();
+		if(!obj.has(user)) {
+			System.err.println("User: \"" + user + "\" does not have a single album on the system");
+			return array;
+		}
+		
+		JSONObject albums = obj.getJSONObject(user);
+		array = putJSONIntoArray(albums, array);
 		
 		return array;
 	}
@@ -279,21 +318,10 @@ public class ServerLibrary {
 			try {
 				try {
 					exceptionFile = "read";
-					BufferedReader br = new BufferedReader(new FileReader("users_albums.json"));
+					BufferedReader br = new BufferedReader(new FileReader(USERS_ALBUMS));
 					String jsonFileString = br.readLine();
 		        	if(jsonFileString==null || jsonFileString.equals("")) {
-		        		exceptionFile = "write";
-		        		BufferedWriter bw = new BufferedWriter(new FileWriter("users_albums.json"));	        		
-		        		
-		        		JSONObject drive_album = new JSONObject();
-		        		drive_album.put("default_album", "drive_id");		        		
-		        		
-		        		JSONObject user_albums = new JSONObject();		
-		        		user_albums.put("admin", drive_album);
-		        		
-		        		String firstTimeUser = user_albums.toString();
-						bw.write(firstTimeUser);
-						bw.close();
+		        		initializeAlbum(USERS_ALBUMS);
 		        	}				
 					
 		        	exceptionFile = "write";
@@ -337,7 +365,7 @@ public class ServerLibrary {
 				exceptionFile = "read";
 				String jsonFileString = getJSONFileString(REGISTER_CLIENTS_FILE);
 				if(jsonFileString==null || jsonFileString.isEmpty()) {
-					initializeAlbum(jsonFileString);
+					initializeClientList(REGISTER_CLIENTS_FILE);
 				}
 				
 				JSONArray array = getJSONUsers(jsonFileString);
@@ -356,6 +384,44 @@ public class ServerLibrary {
 		} catch (CommunicationsException ce) {
 			throw new ServerLibraryException("Communications module broke down...", ce, true);
 		} 
+	}
+	
+	public void getUserAlbms() throws ServerLibraryException {
+		String data;
+		try {
+			try {
+				data = (String) communication.receiveInChunks();
+				JSONObject obj = new JSONObject(data);
+				String user = obj.getString("user-name");
+				
+				exceptionFile = "read";
+				String jsonFileString = getJSONFileString(USERS_ALBUMS);
+				if(jsonFileString==null || jsonFileString.isEmpty()) {
+					initializeClientList(USERS_ALBUMS);
+				}
+				
+				JSONArray array = getJSONUsersAlbums(user, jsonFileString);
+				obj = new JSONObject();
+				if(array==null || array.isEmpty()) {
+					String message = "You do not have a single album on the system!";
+					obj.put("album-list", array);
+					data = obj.toString();
+					communication.sendInChunks(data);
+					sendNotOkMessage(message);
+				} else {
+					obj.put("album-list", array);
+					data = obj.toString();
+					communication.sendInChunks(data);
+					sendOkMessage(EMPTY);
+				}								
+			} catch(IOException ioe) {
+				String message = "The server faced an internal problem!";
+				sendNotOkMessage(message);
+				throw new ServerLibraryException("Could not " + exceptionFile + USERS_ALBUMS + " file. Aborting...");
+			}
+		} catch (CommunicationsException ce) {
+			throw new ServerLibraryException("Communications module broke down...", ce, true);
+		}				
 	}
 	
 	public void exit() throws ServerLibraryException {

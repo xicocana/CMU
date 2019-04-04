@@ -18,17 +18,21 @@ import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 public class ClientTest {
 
     public static void main(String[] args) throws IOException, CommunicationsException, JSONException {
-		String hostname = "192.168.43.80";
-		String command = "GET-USERS";
+		String hostname = "localhost";
+		String command = "GET-ALBUMS";
 		
         Socket socket = new Socket(hostname, 8080);
 
         Communications communication = new Communications(socket);        
         
         communication.sendInChunks(command);
-        String data = (String) communication.receiveInChunks();
-        JSONObject obj = new JSONObject(data);        
-        JSONArray array = (JSONArray) obj.get("user-list");
+        JSONObject obj = new JSONObject();
+        obj.put("user-name", "xicocana");
+        String data = obj.toString();
+        communication.sendInChunks(data);
+        data = (String) communication.receiveInChunks();
+        obj = new JSONObject(data);        
+        JSONArray array = (JSONArray) obj.get("album-list");
         
         for (int i = 0; i < array.length(); i++) {
         	  System.out.println((String) array.get(i));

@@ -54,7 +54,10 @@ public class WorkerThread implements Runnable{
                         	break;                        	
                         case "GET-USERS":
                         	serverLibrary.getUsers();
-                        	break;                        	
+                        	break;       
+                        case "GET-ALBUMS":
+                        	serverLibrary.getUserAlbms();
+                        	break;
                         case "EXIT":
                     		System.out.println("Ending communications with client. Bye!");           
                     		isRunning = false;
