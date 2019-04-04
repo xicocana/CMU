@@ -18,15 +18,13 @@ public class Parser {
 	private String user;
 	private String password;
 	
-	public Parser(String jsonString, String user, String password) {
-		this.jsonString = jsonString;
-		this.user = user;
-		this.password = password;
-	}
-	
 	public Parser(String jsonString, String user) {
 		this.jsonString = jsonString;
 		this.user = user;
+	}
+	
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	private void addUserToAlbum(JSONObject jsonFile, JSONObject user_albums, String album, String driveId) throws IOException {
@@ -79,7 +77,7 @@ public class Parser {
 		}
 	}
 	
-	public boolean parseChanges() throws IOException, JSONException {								
+	public boolean parseUser() throws IOException, JSONException {								
 	    	JSONObject jsonFile = new JSONObject(this.jsonString);
 	    	
 	    	if(jsonFile.has(this.user)==true) {
