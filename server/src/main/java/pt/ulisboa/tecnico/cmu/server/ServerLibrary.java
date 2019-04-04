@@ -11,6 +11,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.Random;
@@ -56,13 +60,13 @@ public class ServerLibrary {
 		System.out.println(message);
 	}
 	
-	private String getJSONFileString(String file) throws IOException, CommunicationsException {
+	private String getJSONFileString(String file) throws IOException, CommunicationsException, ServerLibraryException {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String jsonFileString = br.readLine();
 			return jsonFileString;
 		} catch (FileNotFoundException e) {			
-        	new FileWriter("users_albums.json");
+			writeFile(USERS_ALBUMS, EMPTY);
         	String error = "Server faced a problem while processing your request. Try again later...";	        	
         	JSONObject obj = new JSONObject();
 			obj.put("conclusion", NOT_OK_MESSAGE);
@@ -73,24 +77,21 @@ public class ServerLibrary {
 		}
 	}
 	
-	private void initializeClientList(String file) throws IOException {
+	private void initializeClientList(String file) throws IOException, ServerLibraryException {
 		byte[] bytes = new byte[96];
 		new Random().nextBytes(bytes);
 		
 		String adminPassword = Base64.getEncoder().withoutPadding().encodeToString(bytes);
 		exceptionFile = "write";
-		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
 		JSONObject obj = new JSONObject();
 		obj.put("admin", adminPassword);
-		String firstTimeUser = obj.toString();
-		String jsonFileString = firstTimeUser;
-		bw.write(firstTimeUser);
-		bw.close();
+		
+		atomicWriteJSONToFile(obj, file);
 	}
 	
-	private void initializeAlbum(String file) throws IOException {
-		exceptionFile = "write";
-		BufferedWriter bw = new BufferedWriter(new FileWriter(file));	        		
+	private void initializeAlbum(String file) throws IOException, ServerLibraryException {
+		exceptionFile = "write";        		
 		
 		JSONObject drive_album = new JSONObject();
 		drive_album.put("default_album", "drive_id");		        		
@@ -98,9 +99,7 @@ public class ServerLibrary {
 		JSONObject user_albums = new JSONObject();		
 		user_albums.put("admin", drive_album);
 		
-		String firstTimeUser = user_albums.toString();
-		bw.write(firstTimeUser);
-		bw.close();
+		atomicWriteJSONToFile(user_albums, file);
 	}
 	
 	private JSONArray putJSONIntoArray(JSONObject obj, JSONArray array) {
@@ -128,6 +127,20 @@ public class ServerLibrary {
 		return array;
 	}
 	
+	private boolean signUpJSON(String user, String password, String jsonString) throws IOException, ServerLibraryException {
+    	JSONObject jsonFile = new JSONObject(jsonString);
+    	
+    	if(jsonFile.has(user)==true) {
+    		return false;
+    	} else {
+    		jsonFile.put(user, password);
+	    	
+	    	atomicWriteJSONToFile(jsonFile, REGISTER_CLIENTS_FILE);
+			
+			return true; 	
+    	}
+	}
+	
 	private JSONObject getJSONUsersAlbums(String user, String content) throws CommunicationsException {
 		JSONObject obj = new JSONObject(content);
 		JSONObject albums_mapping = new JSONObject();
@@ -141,6 +154,115 @@ public class ServerLibrary {
 		return albums_mapping;
 	}
 	
+    static void writeFile(String filepath, String writeString) throws ServerLibraryException {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            bw.write(writeString);
+            bw.close();
+        } catch (FileNotFoundException fnfe) {
+            throw new ServerLibraryException("writeFile() exception: Could not find file '" + filepath + "'.", fnfe);
+        } catch (IOException ioe) {
+            throw new ServerLibraryException("writeFile() exception: Could not write to file '" + filepath + "'.", ioe);
+        }
+    }
+    static String readFile(String filepath) throws ServerLibraryException {
+        BufferedReader br;
+        StringBuilder stringBuilder  = new StringBuilder();
+        String line;
+        String ls = System.lineSeparator();
+        try {
+            br = new BufferedReader(new FileReader(filepath));
+            while ((line = br.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+            // delete the last new line separator
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            br.close();
+        } catch (FileNotFoundException fnfe) {
+            throw new ServerLibraryException("readFile() exception: Could not find file '" + filepath + "'.", fnfe);
+        } catch (IOException ioe) {
+            throw new ServerLibraryException("readFile() exception: Could not read file '" + filepath + "'.", ioe);
+        }
+        String content = stringBuilder.toString();
+        return content;
+    }
+    
+    //a. atomicity
+    private void atomicMoveFile(String originFilePath, String newFilePath) throws ServerLibraryException {
+        Path originFilePathObject = FileSystems.getDefault().getPath(originFilePath);
+        Path newFilePathObject = FileSystems.getDefault().getPath(newFilePath);
+        try{
+            Files.move(originFilePathObject, newFilePathObject, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException ioe) {
+            throw new ServerLibraryException("atomicMoveFile() exception: Couldn't move temporary database file into main database file.", ioe, true);
+        }
+    }
+    private void atomicWriteJSONToFile(JSONObject updatedDatabaseJSON, String databaseFilePath) throws ServerLibraryException {
+        // ATOMIC FUNCTION: CPU-ATOMIC AND FILE-WRITE-ATOMIC
+        // CPU-ATOMICITY
+        synchronized (this){
+            String updatedDatabaseString = updatedDatabaseJSON.toString();
+            String databaseTempFilePath = databaseFilePath + ".tmp";
+
+            // write updated database to our temporary file
+            writeFile(databaseTempFilePath, updatedDatabaseString);
+
+            // ATOMIC-WRITE to our main json file
+            // based on move operation:
+            // https://stackoverflow.com/questions/774098/atomicity-of-file-move
+            // https://stackoverflow.com/questions/29923008/how-to-create-then-atomically-rename-file-in-java-on-windows?rq=1
+            atomicMoveFile(databaseTempFilePath, databaseFilePath);
+        }
+    }
+    
+	private void addUserToAlbum(String user, JSONObject jsonFile, JSONObject user_albums, String album, String driveId) throws IOException, ServerLibraryException {
+		user_albums.put(album, driveId);
+		jsonFile.put(user, user_albums);
+		
+		atomicWriteJSONToFile(jsonFile, USERS_ALBUMS);
+	}
+	
+	private boolean hasUser(String user, String jsonString) {
+		JSONObject jsonFile = new JSONObject(jsonString);
+		
+		if(jsonFile.has(user)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean hasAlbum(String user, String album, String jsonString) {
+		JSONObject jsonFile = new JSONObject(jsonString);
+		JSONObject user_albums = (JSONObject) jsonFile.get(user);
+		
+		if(user_albums.has(album)==true) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean createAlbum(String user, String album, String driveId, String jsonString) throws IOException, ServerLibraryException {		
+		JSONObject jsonFile = new JSONObject(jsonString);
+		JSONObject user_albums;
+		
+		if(!hasUser(user, jsonString)) {
+			user_albums = new JSONObject();
+			addUserToAlbum(user, jsonFile, user_albums, album, driveId);
+			return true;
+		} else {
+			if(hasAlbum(user, album, jsonString)) {
+				return false;
+			} else {
+				user_albums = jsonFile.getJSONObject(user);
+				addUserToAlbum(user, jsonFile, user_albums, album, driveId);
+				return true;
+			}
+		}
+	}
+	
 	public void login() throws ServerLibraryException {
 		try {
 			try {
@@ -152,8 +274,7 @@ public class ServerLibrary {
 		        
 		        try {
 		        	exceptionFile = "read";
-		        	BufferedReader br = new BufferedReader(new FileReader(REGISTER_CLIENTS_FILE));
-		        	String jsonFileString = br.readLine();
+		        	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);
 		        	if(jsonFileString==null || jsonFileString.equals("")) {
 		        		initializeClientList(REGISTER_CLIENTS_FILE);
 		        	}
@@ -177,7 +298,7 @@ public class ServerLibrary {
 		        	}
 		        } catch (FileNotFoundException fnfe) {
 		        	exceptionFile = "write";
-		        	new FileWriter(REGISTER_CLIENTS_FILE);
+		        	writeFile(REGISTER_CLIENTS_FILE, EMPTY);
 		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
 		        	sendNotOkMessage(error);
 		        	throw new ServerLibraryException("Could not find: \"" + REGISTER_CLIENTS_FILE + "\". Aborting...", true);
@@ -207,18 +328,15 @@ public class ServerLibrary {
 		        
 		        try {
 		        	exceptionFile = "read";
-		        	BufferedReader br = new BufferedReader(new FileReader(REGISTER_CLIENTS_FILE));
-		        	String jsonFileString = br.readLine();
+		        	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);
 		        	if(jsonFileString==null || jsonFileString.equals("")) {
 		        		initializeClientList(REGISTER_CLIENTS_FILE);
 		        	}
 		        	
-		        	exceptionFile = "write";
-		        	Parser parser = new Parser(jsonFileString, user);
-		        	parser.setPassword(password);
-		        	
+		        	exceptionFile = "write";		        	
 		        	obj = new JSONObject();
-		        	if(parser.parseUser()==true) {
+		        			        	
+		        	if(signUpJSON(user, password, jsonFileString)) {
 		        		String message = "You were sucessfully registered";
 		        		sendOkMessage(message);
 		        		System.out.println("Client was sucessfully registered!");
@@ -229,7 +347,7 @@ public class ServerLibrary {
 		        	}
 		        } catch (FileNotFoundException fnfe) {
 		        	exceptionFile = "write";
-		        	new FileWriter(REGISTER_CLIENTS_FILE);
+		        	writeFile(REGISTER_CLIENTS_FILE, EMPTY);
 		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
 		        	sendNotOkMessage(error);
 		        	throw new ServerLibraryException("Could not find the register_clients.json file. Aborting...", true);
@@ -264,11 +382,10 @@ public class ServerLibrary {
 		        		initializeAlbum(USERS_ALBUMS);
 		        	}				
 					
-		        	exceptionFile = "write";
-		        	Parser parser = new Parser(jsonFileString, user);		        			        	
+		        	exceptionFile = "write";		        			        	
 		        	String message;
 		        	
-		        	if(parser.parseAlbum(album, driveId)) {
+		        	if(createAlbum(user, album, driveId, jsonFileString)) {
 		        		message = "Client album was sucessfully created!";
 		        		sendOkMessage(message);
 		        	} else {
@@ -278,7 +395,7 @@ public class ServerLibrary {
 		        	
 				} catch (FileNotFoundException fnfe) {
 					exceptionFile = "write";
-		        	new FileWriter("users_albums.json");
+					writeFile(REGISTER_CLIENTS_FILE, EMPTY);
 		        	String error = "Server faced a problem while processing your request. Try again later...";
 		        	sendNotOkMessage(error);
 		        	throw new ServerLibraryException("Could not find the \"users_albums.json\" Aborting...", true);
