@@ -19,13 +19,10 @@ public class CreateFolderActivity extends AppCompatActivity {
         Button create_btn = (Button) findViewById(R.id.button3);
         EditText folder_name = (EditText) findViewById(R.id.editText4);
 
-        create_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CreateFolderActivity.this, GoogleCreateFolderActivity.class);
-                intent.putExtra("foldername", folder_name.getText().toString());
-                startActivity(intent);
-            }
+        create_btn.setOnClickListener(v -> {
+            Intent intent = new Intent(CreateFolderActivity.this, GoogleCreateFolderActivity.class);
+            intent.putExtra("foldername", folder_name.getText().toString());
+            startActivity(intent);
         });
     }
 }

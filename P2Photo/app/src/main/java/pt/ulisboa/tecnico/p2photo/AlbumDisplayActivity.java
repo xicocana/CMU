@@ -16,27 +16,19 @@ public class AlbumDisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_display);
 
-        TextView title = (TextView) findViewById(R.id.textView2);
+        TextView title = findViewById(R.id.textView2);
         Intent intent = getIntent();
         String album_name = intent.getStringExtra("album_name");
         title.setText(album_name);
 
-        Button findUsersBtn = (Button) findViewById(R.id.button6);
-        findUsersBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class));
-            }
-        });
+        Button findUsersBtn = findViewById(R.id.button6);
+        findUsersBtn.setOnClickListener(v -> startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class)));
 
-        Button addImage = (Button) findViewById(R.id.add_image);
-        addImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AlbumDisplayActivity.this, GoogleAddImageActivity.class);
-                intent.putExtra("album_name",album_name);
-                startActivity(intent);
-            }
+        Button addImage = findViewById(R.id.add_image);
+        addImage.setOnClickListener(v -> {
+            Intent intent1 = new Intent(AlbumDisplayActivity.this, GoogleAddImageActivity.class);
+            intent1.putExtra("album_name",album_name);
+            startActivity(intent1);
         });
 
     }

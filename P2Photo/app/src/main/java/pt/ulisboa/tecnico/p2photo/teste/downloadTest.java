@@ -28,8 +28,7 @@ public class downloadTest extends AppCompatActivity {
                 .execute("https://drive.google.com/uc?export=download&id=CAESABi0CCD4j5LikVooAA==");
     }
 
-    public class
-    DownloadImageFromInternet extends AsyncTask<String, Void, Bitmap> {
+    public class DownloadImageFromInternet extends AsyncTask<String, Void, Bitmap> {
         ImageView imageView;
 
         public DownloadImageFromInternet(ImageView imageView) {
