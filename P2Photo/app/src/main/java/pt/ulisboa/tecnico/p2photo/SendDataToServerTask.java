@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import pt.ulisboa.tecnico.p2photo.Communications;
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
@@ -173,19 +174,16 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 data = (String) communication.receiveInChunks();
                 obj = new JSONObject(data);
-                if (obj.get("conclusion").equals("OK")) {
-                    this.setStateOfRequest("sucess");
-                    JSONArray jsonArray = (JSONArray) obj.get("user-albums");
-                    int length = jsonArray.length();
-                    if (length > 0) {
-                        for (int i = 0; i < length; i++) {
-                            userAlbums.add(jsonArray.getString(i));
-                        }
-                    }
-                } else if (obj.get("conclusion").equals("NOT-OK")) {
-                    this.setStateOfRequest("failure");
-                    this.setMessage((String) obj.get("message"));
+
+                this.setStateOfRequest("sucess");
+                //this.setMessage((String) obj.get("message"));
+                obj = obj.getJSONObject("album-list");
+                Iterator<String> keys = obj.keys();
+                while(keys.hasNext()) {
+                    //System.out.println(keys.next());
+                    userAlbums.add(keys.next());
                 }
+
 
                 communication.sendInChunks("EXIT");
                 communication.end();
