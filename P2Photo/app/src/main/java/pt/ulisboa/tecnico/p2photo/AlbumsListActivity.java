@@ -28,10 +28,15 @@ public class AlbumsListActivity extends AppCompatActivity {
         ListView albums_list = (ListView) findViewById(R.id.albums_list);
         ArrayList<String> albums_from_server = new ArrayList<String>();
 
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        albums_from_server.add("album 1");
+        albums_from_server.add("album 2");
+        albums_from_server.add("album 3");
+        albums_from_server.add("album 4");
+
+        /*SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String name = pref.getString("username", null);
 
-        SendDataToServerTask task = new SendDataToServerTask(name, "GET-USERS");
+        SendDataToServerTask task = new SendDataToServerTask(name, "GET-ALBUMS");
         task.execute();
 
         if(task.getStateOfRequest().equals("sucess")) {
@@ -49,7 +54,7 @@ public class AlbumsListActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albums_from_server);
         albums_list.setAdapter(arrayAdapter);

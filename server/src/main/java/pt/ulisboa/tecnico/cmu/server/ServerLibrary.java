@@ -343,9 +343,10 @@ public class ServerLibrary {
 				JSONArray array = getJSONUsers(jsonFileString);
 				JSONObject obj = new JSONObject();
 				obj.put("user-list", array);
+				obj.put("conclusion", OK_MESSAGE);
 				String data = obj.toString();
 				communication.sendInChunks(data);
-				sendOkMessage(EMPTY);
+				sendOkMessage("");
 				
 			} catch (IOException ioe) {
 				String message = "The server faced an internal problem!";
