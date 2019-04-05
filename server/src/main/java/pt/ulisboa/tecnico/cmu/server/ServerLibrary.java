@@ -326,36 +326,38 @@ public class ServerLibrary {
 		        String user = (String) obj.get("user-name");
 		        String password = (String) obj.get("password");
 		        
-		        try {
-		        	exceptionFile = "read";
-		        	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);
-		        	if(jsonFileString==null || jsonFileString.equals("")) {
-		        		initializeClientList(REGISTER_CLIENTS_FILE);
-		        	}
-		        	
-		        	exceptionFile = "write";		        	
-		        	obj = new JSONObject();
-		        			        	
-		        	if(signUpJSON(user, password, jsonFileString)) {
-		        		String message = "You were sucessfully registered";
-		        		sendOkMessage(message);
-		        		System.out.println("Client was sucessfully registered!");
-		        	} else {
-		        		String message = "There was a user with that user name already on the system! Pick another one.";
-		        		sendOkMessage(message);
-		        		System.out.println(message);
-		        	}
-		        } catch (FileNotFoundException fnfe) {
-		        	exceptionFile = "write";
-		        	writeFile(REGISTER_CLIENTS_FILE, EMPTY);
-		        	String error = "Server faced a problem while processing your request. Try again later...";	        	
-		        	sendNotOkMessage(error);
-		        	throw new ServerLibraryException("Could not find the register_clients.json file. Aborting...", true);
-				} catch (JSONException jsone) {
-					String error = "Server faced a problem while processing your request. Try again later...";	        	
-					sendNotOkMessage(error);
-					throw new ServerLibraryException("Server crashed while doing JSON Operations. Aborting...", true);
-				}
+		        synchronized(this) {
+			        try {
+			        	exceptionFile = "read";
+			        	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);
+			        	if(jsonFileString==null || jsonFileString.equals("")) {
+			        		initializeClientList(REGISTER_CLIENTS_FILE);
+			        	}
+			        	
+			        	exceptionFile = "write";		        	
+			        	obj = new JSONObject();
+			        			        	
+			        	if(signUpJSON(user, password, jsonFileString)) {
+			        		String message = "You were sucessfully registered";
+			        		sendOkMessage(message);
+			        		System.out.println("Client was sucessfully registered!");
+			        	} else {
+			        		String message = "There was a user with that user name already on the system! Pick another one.";
+			        		sendOkMessage(message);
+			        		System.out.println(message);
+			        	}
+			        } catch (FileNotFoundException fnfe) {
+			        	exceptionFile = "write";
+			        	writeFile(REGISTER_CLIENTS_FILE, EMPTY);
+			        	String error = "Server faced a problem while processing your request. Try again later...";	        	
+			        	sendNotOkMessage(error);
+			        	throw new ServerLibraryException("Could not find the register_clients.json file. Aborting...", true);
+					} catch (JSONException jsone) {
+						String error = "Server faced a problem while processing your request. Try again later...";	        	
+						sendNotOkMessage(error);
+						throw new ServerLibraryException("Server crashed while doing JSON Operations. Aborting...", true);
+					}
+		        }
 			} catch (IOException ioe) {
 				String error = "Server faced a problem while processing your request. Try again later...";	        	
 				sendNotOkMessage(error);
@@ -374,31 +376,33 @@ public class ServerLibrary {
 			String album = (String) obj.get("album");
 			String driveId = (String) obj.get("drive-id");
 			try {
-				try {
-					exceptionFile = "read";
-					BufferedReader br = new BufferedReader(new FileReader(USERS_ALBUMS));
-					String jsonFileString = br.readLine();
-		        	if(jsonFileString==null || jsonFileString.equals("")) {
-		        		initializeAlbum(USERS_ALBUMS);
-		        	}				
-					
-		        	exceptionFile = "write";		        			        	
-		        	String message;
-		        	
-		        	if(createAlbum(user, album, driveId, jsonFileString)) {
-		        		message = "Client album was sucessfully created!";
-		        		sendOkMessage(message);
-		        	} else {
-		        		message = "Could not create " + user + "'s album...";
-		        		sendOkMessage(message);
-		        	}
-		        	
-				} catch (FileNotFoundException fnfe) {
-					exceptionFile = "write";
-					writeFile(REGISTER_CLIENTS_FILE, EMPTY);
-		        	String error = "Server faced a problem while processing your request. Try again later...";
-		        	sendNotOkMessage(error);
-		        	throw new ServerLibraryException("Could not find the \"users_albums.json\" Aborting...", true);
+				synchronized(this) {
+					try {
+						exceptionFile = "read";
+						BufferedReader br = new BufferedReader(new FileReader(USERS_ALBUMS));
+						String jsonFileString = br.readLine();
+			        	if(jsonFileString==null || jsonFileString.equals("")) {
+			        		initializeAlbum(USERS_ALBUMS);
+			        	}				
+						
+			        	exceptionFile = "write";		        			        	
+			        	String message;
+			        	
+			        	if(createAlbum(user, album, driveId, jsonFileString)) {
+			        		message = "Client album was sucessfully created!";
+			        		sendOkMessage(message);
+			        	} else {
+			        		message = "Could not create " + user + "'s album...";
+			        		sendOkMessage(message);
+			        	}
+			        	
+					} catch (FileNotFoundException fnfe) {
+						exceptionFile = "write";
+						writeFile(REGISTER_CLIENTS_FILE, EMPTY);
+			        	String error = "Server faced a problem while processing your request. Try again later...";
+			        	sendNotOkMessage(error);
+			        	throw new ServerLibraryException("Could not find the \"users_albums.json\" Aborting...", true);
+					}
 				}
 			}
 			catch (IOException e) {
