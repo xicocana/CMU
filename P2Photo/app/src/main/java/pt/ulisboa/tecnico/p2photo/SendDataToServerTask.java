@@ -24,7 +24,7 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private String command = "";
     private String state = "waiting";
     private String message = null;
-    private String hostname = "192.168.43.80";
+    private String hostname = "194.210.180.59";
     private int    port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
@@ -184,7 +184,6 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                     userAlbums.add(keys.next());
                 }
 
-
                 communication.sendInChunks("EXIT");
                 communication.end();
 
@@ -203,4 +202,10 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
             }
         }
         return null;}
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+
+    }
 }

@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.p2photo.GoogleUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,13 +34,11 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
 
     private static final int REQUEST_GET_SINGLE_FILE = 5;
     private Bitmap mBitmapToSave;
-    private String albumName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_add_image);
-        albumName = getIntent().getStringExtra("album_name");
     }
 
     @Override
@@ -61,15 +60,8 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
                 // Called after a photo has been taken.
                 if (resultCode == Activity.RESULT_OK) {
                     Log.i(TAG, "Image captured successfully.");
-                    Uri imageUri = data.getData();
-
-                    try {
-                        mBitmapToSave = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    saveFileToDrive();
+                    saveFileToDrive(data);
+                    finish();
                 }
                 break;
 
@@ -79,19 +71,20 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
     /**
      * Create a new file and save it to Drive.
      */
-    private void saveFileToDrive() {
+    private void saveFileToDrive(final Intent data) {
         // Start by creating a new contents, and setting a callback.
-        Log.i(TAG, "Creating new contents.");
-        new ImportTask(mBitmapToSave).execute();
-        finish();
+        Log.i(TAG, "Calling Assync");
+        new uploadToDrive(data).execute();
+
     }
 
 
-    class ImportTask extends AsyncTask<Void, Void, Void> {
-        private Bitmap image = mBitmapToSave;
+    @SuppressLint("StaticFieldLeak")
+    private class uploadToDrive extends AsyncTask<Void, Void, Void> {
+        private Intent data;
 
-        public ImportTask(Bitmap image) {
-            this.image = image;
+        uploadToDrive(Intent data) {
+            this.data = data;
         }
 
 
@@ -102,10 +95,19 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
         }
 
         private void saveFileToDrive() {
+
+            Uri imageUri = data.getData();
+
+            try {
+                mBitmapToSave = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             // [START drive_android_create_file]
             final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
 
-            createContentsTask.continueWithTask(createContentsTaskk -> {
+            createContentsTask.continueWithTask(returnContentsTask -> {
                 DriveId driveId = DriveId.decodeFromString(DataHolder.getInstance().getAlbum1DriveID());
                 DriveFolder parent = driveId.asDriveFolder();
                 DriveContents contents = createContentsTask.getResult();
@@ -113,7 +115,7 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
                 OutputStream outputStream = contents.getOutputStream();
                 // Write the bitmap data from it.
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                image.compress(Bitmap.CompressFormat.PNG, 100, bitmapStream);
+                mBitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, bitmapStream);
 
                 try {
                     outputStream.write(bitmapStream.toByteArray());
@@ -138,7 +140,7 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
                 Log.i(TAG, "DriveID da Imagem: " + driveFile.getDriveId().encodeToString());
 
                 DriveId txtDriveId = DriveId.decodeFromString(dataHolder.getTxtDriveID());
-                appendContents(txtDriveId.asDriveFile(),driveFile.getDriveId().encodeToString());
+                appendContents(txtDriveId.asDriveFile(), driveFile.getDriveId().encodeToString());
 
             });
         }
@@ -161,7 +163,7 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
                     }
                 }
                 try (OutputStream out = new FileOutputStream(pfd.getFileDescriptor())) {
-                    String stringToWrite = "\n"+driveIdToWrite;
+                    String stringToWrite = "\n" + driveIdToWrite;
                     out.write(stringToWrite.getBytes());
                 }
                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -174,7 +176,8 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
 
             })
                     .addOnSuccessListener(aVoid -> {
-                        showMessage(getString(R.string.content_updated));
+                        Log.i(TAG, "Successfully added image");
+                        showMessage(getString(R.string.image_added));
                         finish();
                     })
                     .addOnFailureListener(e -> {

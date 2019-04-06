@@ -33,7 +33,7 @@ public class LogInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_in);
     }
 
-    public void logIn(View v) throws IOException, CommunicationsException, JSONException{
+    public void logIn(View v) throws IOException, CommunicationsException, JSONException, InterruptedException {
 
         //Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
 
@@ -46,6 +46,7 @@ public class LogInActivity extends AppCompatActivity {
 
         SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
         task.execute();
+
 
         if(task.getStateOfRequest().equals("sucess")) {
             String message = task.getMessage();
@@ -84,6 +85,7 @@ public class LogInActivity extends AppCompatActivity {
                         // Set/Store data
                         edit.putString("session_key", myKey);
                         Log.i("SESSION", myKey);
+                        edit.putString("username", name);
                         // Commit the changes
                         edit.commit();
 
