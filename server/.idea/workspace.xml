@@ -2,25 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="47b8ba59-cf69-476d-bf4d-a5765ce6db15" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/GoogleUtils/ImageAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/AlbumsListActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/AlbumsListActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/GoogleUtils/GoogleAddImageActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/GoogleUtils/GoogleAddImageActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/GoogleUtils/GoogleImageDownloadActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/GoogleUtils/GoogleImageDownloadActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/LogInActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/LogInActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/SendDataToServerTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/SendDataToServerTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/UserOptionsActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/UserOptionsActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/teste/downloadTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_album_display.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_album_display.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_download_test.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_google_image_download.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_google_image_download.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_user_options.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/res/layout/activity_user_options.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../P2Photo/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../P2Photo/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/register_clients.json" beforeDir="false" afterPath="$PROJECT_DIR$/register_clients.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users_albums.json" beforeDir="false" afterPath="$PROJECT_DIR$/users_albums.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/pt/ulisboa/tecnico/cmu/server/WorkerThread.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/pt/ulisboa/tecnico/cmu/server/WorkerThread.class" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -31,23 +19,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="19" column="8" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="379">
-              <caret line="356" column="13" lean-forward="true" selection-start-line="356" selection-start-column="13" selection-end-line="356" selection-end-column="13" />
+            <state relative-caret-position="6540">
+              <caret line="478" column="46" lean-forward="true" selection-start-line="478" selection-start-column="46" selection-end-line="478" selection-end-column="46" />
+              <folding>
+                <element signature="e#1293#1294#0" expanded="true" />
+                <element signature="e#1334#1335#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,7 +36,7 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="251">
-              <caret line="58" column="50" lean-forward="true" selection-start-line="58" selection-start-column="50" selection-end-line="58" selection-end-column="50" />
+              <caret line="58" column="50" selection-start-line="58" selection-start-column="50" selection-end-line="58" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -184,7 +164,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1554578496905" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1554579787919" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -202,8 +182,8 @@
     </option>
   </component>
   <component name="RunManager">
-    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="pt.ulisboa.tecnico.cmu.server.SimpleServerApp" />
+    <configuration name="ServerApp" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="pt.ulisboa.tecnico.cmu.server.ServerApp" />
       <module name="server" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -220,12 +200,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554575374339</updated>
-      <workItem from="1554575375543" duration="3121000" />
+      <workItem from="1554575375543" duration="3755000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3121000" />
+    <option name="totallyTimeSpent" value="3755000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
@@ -246,7 +226,7 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32937366" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32937366" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39956802" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -270,13 +250,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java</url>
-          <line>328</line>
+          <line>449</line>
           <properties />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java</url>
-          <line>330</line>
+          <line>451</line>
           <properties />
           <option name="timeStamp" value="2" />
         </line-breakpoint>
@@ -312,14 +292,18 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="251">
-          <caret line="58" column="50" lean-forward="true" selection-start-line="58" selection-start-column="50" selection-end-line="58" selection-end-column="50" />
+          <caret line="58" column="50" selection-start-line="58" selection-start-column="50" selection-end-line="58" selection-end-column="50" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="356" column="13" lean-forward="true" selection-start-line="356" selection-start-column="13" selection-end-line="356" selection-end-column="13" />
+        <state relative-caret-position="6540">
+          <caret line="478" column="46" lean-forward="true" selection-start-line="478" selection-start-column="46" selection-end-line="478" selection-end-column="46" />
+          <folding>
+            <element signature="e#1293#1294#0" expanded="true" />
+            <element signature="e#1334#1335#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

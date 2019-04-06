@@ -11,7 +11,7 @@ import java.io.*;
 import pt.ulisboa.tecnico.sec.communications.Communications;
 import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 
-public class SimpleServerApp {
+public class ServerApp {
 	
 	private static boolean isRunning = true;
 	
@@ -36,20 +36,25 @@ public class SimpleServerApp {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		
 		String hostname = "localhost";
 		System.out.println("############### CMU SERVER ###############");
-		ServerSocket serverSocket = new ServerSocket();
+		ServerSocket serverSocket;
+		try {
+			serverSocket = new ServerSocket();
+			InetSocketAddress endpoint = new InetSocketAddress("192.168.43.175", 8080);
+			serverSocket.bind(endpoint);
 
-		InetSocketAddress endpoint = new InetSocketAddress("194.210.180.59", 8080);
-		serverSocket.bind(endpoint);
+			System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
+		    waitForClients(serverSocket);
 
-		System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
-	    waitForClients(serverSocket);
-
-        serverSocket.close();
-        System.out.println("Connection closed");
+	        serverSocket.close();
+	        System.out.println("Connection closed");
+		} catch (IOException e) {
+			System.err.println("Could not initialize server socket! Aborting...");
+			System.exit(-1);
+		}		
 		
 	}
 }

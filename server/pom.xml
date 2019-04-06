@@ -46,7 +46,7 @@
 	    <configuration>
 	      <archive>
 	        <manifest>
-	          <mainClass>pt.ulisboa.tecnico.cmu.server.SimpleServerApp</mainClass>  
+	          <mainClass>pt.ulisboa.tecnico.cmu.server.ServerApp</mainClass>  
 	        </manifest>
 	      </archive>
 	      <descriptorRefs>
