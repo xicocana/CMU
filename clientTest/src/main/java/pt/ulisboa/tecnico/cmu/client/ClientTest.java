@@ -26,16 +26,15 @@ public class ClientTest {
 
         Communications communication = new Communications(socket);        
         
-        /*
-        communication.sendInChunks("LOGIN");
+        communication.sendInChunks("SIGN-UP");
         JSONObject obj = new JSONObject();
-        obj.put("user-name", "banana");
-        obj.put("password", "aaaa");
+        obj.put("user-name", "xicocana");
+        obj.put("password", "lalelilolu");
         String msg = obj.toString();
         communication.sendInChunks(msg);
         
         String data = (String) communication.receiveInChunks();
-        System.out.println(data);*/
+        System.out.println(data);
         
         /*communication.sendInChunks("ADD-ALBUM");
         
@@ -46,7 +45,7 @@ public class ClientTest {
 		obj.put("txt-id", "33fabc01");
 		String getAlbums = obj.toString();
 		communication.sendInChunks(getAlbums);*/
-        
+        /*
         communication.sendInChunks("GET-ALBUMS");
         
 		JSONObject obj = new JSONObject();
@@ -55,7 +54,7 @@ public class ClientTest {
 		communication.sendInChunks(getAlbums);
         
         String data = (String) communication.receiveInChunks();
-        System.out.println(data);
+        System.out.println(data);*/
         /*JSONObject obj = new JSONObject();
         obj.put("user-name", "xicocana");
         String data = obj.toString();

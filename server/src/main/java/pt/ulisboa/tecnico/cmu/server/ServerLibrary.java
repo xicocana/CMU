@@ -228,19 +228,17 @@ public class ServerLibrary {
     private void atomicWriteJSONToFile(JSONObject updatedDatabaseJSON, String databaseFilePath) throws ServerLibraryException {
         // ATOMIC FUNCTION: CPU-ATOMIC AND FILE-WRITE-ATOMIC
         // CPU-ATOMICITY
-        synchronized (this){
-            String updatedDatabaseString = updatedDatabaseJSON.toString();
-            String databaseTempFilePath = databaseFilePath + ".tmp";
+        String updatedDatabaseString = updatedDatabaseJSON.toString();
+        String databaseTempFilePath = databaseFilePath + ".tmp";
 
-            // write updated database to our temporary file
-            writeFile(databaseTempFilePath, updatedDatabaseString);
+        // write updated database to our temporary file
+        writeFile(databaseTempFilePath, updatedDatabaseString);
 
-            // ATOMIC-WRITE to our main json file
-            // based on move operation:
-            // https://stackoverflow.com/questions/774098/atomicity-of-file-move
-            // https://stackoverflow.com/questions/29923008/how-to-create-then-atomically-rename-file-in-java-on-windows?rq=1
-            atomicMoveFile(databaseTempFilePath, databaseFilePath);
-        }
+        // ATOMIC-WRITE to our main json file
+        // based on move operation:
+        // https://stackoverflow.com/questions/774098/atomicity-of-file-move
+        // https://stackoverflow.com/questions/29923008/how-to-create-then-atomically-rename-file-in-java-on-windows?rq=1
+        atomicMoveFile(databaseTempFilePath, databaseFilePath);        
     }
     
 	private void addUserToAlbum(String user, JSONObject jsonFile, JSONArray album_info, JSONArray user_albums, String album, String driveId, String txtId) throws IOException, ServerLibraryException {
@@ -389,6 +387,7 @@ public class ServerLibrary {
 			        	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);
 			        	if(jsonFileString==null || jsonFileString.equals("")) {
 			        		initializeClientList(REGISTER_CLIENTS_FILE);
+			        		jsonFileString = readFile(REGISTER_CLIENTS_FILE);
 			        	}
 			        	
 			        	exceptionFile = "write";		        	
