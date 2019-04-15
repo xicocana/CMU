@@ -114,13 +114,18 @@ public class ServerLibrary {
 	private void initializeAlbum(String file) throws IOException, ServerLibraryException {
 		exceptionFile = "write";        		
 		
-		JSONObject drive_album = new JSONObject();
-		drive_album.put("default_album", "drive_id");		        		
+		JSONArray albums = new JSONArray();
 		
-		JSONObject user_albums = new JSONObject();		
-		user_albums.put("admin", drive_album);
+		JSONArray drive_album = new JSONArray();
+		drive_album.put(0, "default_album");
+		drive_album.put(1, "drive_id");
+		drive_album.put(2, "txt_id");
 		
-		atomicWriteJSONToFile(user_albums, file);
+		albums.put(0, drive_album);
+		JSONObject user_mapping = new JSONObject();		
+		user_mapping.put("admin", albums);
+		
+		atomicWriteJSONToFile(user_mapping, file);
 	}
 	
 	private JSONArray putJSONIntoArray(JSONObject obj, JSONArray array) {
@@ -162,17 +167,18 @@ public class ServerLibrary {
     	}
 	}
 	
-	private JSONObject getJSONUsersAlbums(String user, String content) throws CommunicationsException {
+	private JSONArray getJSONUsersAlbums(String user, String content) throws CommunicationsException {
+		System.out.println(content);
 		JSONObject obj = new JSONObject(content);
-		JSONObject albums_mapping = new JSONObject();
+		JSONArray user_albums = new JSONArray();
 		if(!obj.has(user)) {
 			System.err.println("User: \"" + user + "\" does not have a single album on the system");
-			return albums_mapping;
+			return user_albums;
 		}
 		
-		albums_mapping = obj.getJSONObject(user);		
+		user_albums = obj.getJSONArray(user);		
 
-		return albums_mapping;
+		return user_albums;
 	}
 	
     static void writeFile(String filepath, String writeString) throws ServerLibraryException {
@@ -237,10 +243,15 @@ public class ServerLibrary {
         }
     }
     
-	private void addUserToAlbum(String user, JSONObject jsonFile, JSONObject user_albums, String album, String driveId) throws IOException, ServerLibraryException {
-		user_albums.put(album, driveId);
-		jsonFile.put(user, user_albums);
+	private void addUserToAlbum(String user, JSONObject jsonFile, JSONArray album_info, JSONArray user_albums, String album, String driveId, String txtId) throws IOException, ServerLibraryException {
+		album_info.put(0, album);
+		album_info.put(1, driveId);
+		album_info.put(2, txtId);
 		
+		user_albums.put(album_info);
+		
+		jsonFile.put(user, user_albums);
+					
 		atomicWriteJSONToFile(jsonFile, USERS_ALBUMS);
 	}
 	
@@ -254,31 +265,48 @@ public class ServerLibrary {
 		}
 	}
 	
+	private boolean checkForExistingAlbum(String albumName, JSONArray user_albums) {
+		Iterator iter = user_albums.iterator();
+		
+		while(iter.hasNext()) {
+			JSONArray album_info = (JSONArray) iter.next();
+			if(album_info.get(0).equals(albumName)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	private boolean hasAlbum(String user, String album, String jsonString) {
 		JSONObject jsonFile = new JSONObject(jsonString);
-		JSONObject user_albums = (JSONObject) jsonFile.get(user);
+		JSONArray user_albums = (JSONArray) jsonFile.get(user);
 		
-		if(user_albums.has(album)==true) {
+		
+		if(checkForExistingAlbum(album, user_albums)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	public boolean createAlbum(String user, String album, String driveId, String jsonString) throws IOException, ServerLibraryException {		
+	public boolean createAlbum(String user, String album, String driveId, String txtId, String jsonString) throws IOException, ServerLibraryException {	
 		JSONObject jsonFile = new JSONObject(jsonString);
-		JSONObject user_albums;
+		JSONArray album_info;
+		JSONArray user_albums;
 		
 		if(!hasUser(user, jsonString)) {
-			user_albums = new JSONObject();
-			addUserToAlbum(user, jsonFile, user_albums, album, driveId);
+			album_info = new JSONArray();
+			user_albums = new JSONArray();			
+			addUserToAlbum(user, jsonFile, album_info, user_albums, album, driveId, txtId);
 			return true;
 		} else {
 			if(hasAlbum(user, album, jsonString)) {
 				return false;
 			} else {
-				user_albums = jsonFile.getJSONObject(user);
-				addUserToAlbum(user, jsonFile, user_albums, album, driveId);
+				album_info = new JSONArray();
+				user_albums = jsonFile.getJSONArray(user);
+				addUserToAlbum(user, jsonFile, album_info, user_albums, album, driveId, txtId);
 				return true;
 			}
 		}
@@ -404,20 +432,21 @@ public class ServerLibrary {
 			String user = (String) obj.get("user-name");
 			String album = (String) obj.get("album");
 			String driveId = (String) obj.get("drive-id");
+			String txtId = (String) obj.get("txt-id");
 			try {
 				synchronized(this) {
 					try {
 						exceptionFile = "read";
-						BufferedReader br = new BufferedReader(new FileReader(USERS_ALBUMS));
-						String jsonFileString = br.readLine();
-			        	if(jsonFileString==null || jsonFileString.equals("")) {
-			        		initializeAlbum(USERS_ALBUMS);
-			        	}				
+						String jsonFileString = getJSONFileString(USERS_ALBUMS);
+						if(jsonFileString==null || jsonFileString.isEmpty()) {
+							initializeAlbum(USERS_ALBUMS);
+							jsonFileString = getJSONFileString(USERS_ALBUMS);
+						}		
 						
 			        	exceptionFile = "write";		        			        	
 			        	String message;
 			        	
-			        	if(createAlbum(user, album, driveId, jsonFileString)) {
+			        	if(createAlbum(user, album, driveId, txtId, jsonFileString)) {
 			        		message = "Client album was sucessfully created!";
 			        		sendOkMessage(message);
 			        	} else {
@@ -482,19 +511,20 @@ public class ServerLibrary {
 				exceptionFile = "read";
 				String jsonFileString = getJSONFileString(USERS_ALBUMS);
 				if(jsonFileString==null || jsonFileString.isEmpty()) {
-					initializeClientList(USERS_ALBUMS);
+					initializeAlbum(USERS_ALBUMS);
+					jsonFileString = getJSONFileString(USERS_ALBUMS);
 				}
 				
-				JSONObject albums_mapping = getJSONUsersAlbums(user, jsonFileString);
+				JSONArray user_albums = getJSONUsersAlbums(user, jsonFileString);
 				obj = new JSONObject();
-				if(albums_mapping==null || albums_mapping.isEmpty()) {
+				if(user_albums==null || user_albums.isEmpty()) {
 					String message = "You do not have a single album on the system!";
-					obj.put("album-list", albums_mapping);
+					obj.put("album-list", user_albums);
 					data = obj.toString();
 					communication.sendInChunks(data);
 					sendNotOkMessage(message);
 				} else {
-					obj.put("album-list", albums_mapping);
+					obj.put("album-list", user_albums);
 					data = obj.toString();
 					communication.sendInChunks(data);
 					sendOkMessage(EMPTY);
