@@ -1,6 +1,5 @@
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/SimpleServerApp.java
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ParserException.java
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Parser.java
-/home/dc/Desktop/IST/CMU/Project1/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
+/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java
+/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
+/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
+/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
+/afs/.ist.utl.pt/users/6/9/ist182069/Documents/CMU/Projecto/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ParserException.java

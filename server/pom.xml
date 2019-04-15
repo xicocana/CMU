@@ -36,7 +36,7 @@
 	      </execution>  
 	    </executions> 
 	     <configuration>  
-	        <mainClass>pt.ulisboa.tecnico.cmu.server.SimpleServerApp</mainClass>
+	        <mainClass>pt.ulisboa.tecnico.cmu.server.ServerApp</mainClass>
              </configuration>   
 	  </plugin> 
 	  <plugin>

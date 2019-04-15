@@ -19,15 +19,23 @@ import pt.ulisboa.tecnico.sec.communications.exceptions.CommunicationsException;
 public class ClientTest {
 
     public static void main(String[] args) throws IOException, CommunicationsException, JSONException {
-		String hostname = "192.168.43.80";
-		String command = "GET-ALBUMS";
+		String hostname = "localhost";
+		//String command = "GET-ALBUMS";
 		
         Socket socket = new Socket(hostname, 8080);
 
         Communications communication = new Communications(socket);        
         
-        communication.sendInChunks(command);
+        communication.sendInChunks("LOGIN");
         JSONObject obj = new JSONObject();
+        obj.put("user-name", "banana");
+        obj.put("password", "aaaa");
+        String msg = obj.toString();
+        communication.sendInChunks(msg);
+        
+        String data = (String) communication.receiveInChunks();
+        System.out.println(data);
+        /*JSONObject obj = new JSONObject();
         obj.put("user-name", "xicocana");
         String data = obj.toString();
         communication.sendInChunks(data);
@@ -44,7 +52,7 @@ public class ClientTest {
         }
         
         
-        data = (String) communication.receiveInChunks();
-        communication.sendInChunks("EXIT");
+        data = (String) communication.receiveInChunks();*/
+        communication.sendInChunks("EXIT"); 
     }
 }

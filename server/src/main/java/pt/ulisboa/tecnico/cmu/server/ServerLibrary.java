@@ -60,6 +60,27 @@ public class ServerLibrary {
 		System.out.println(message);
 	}
 	
+    private static String bytesToHex(byte[] hashInBytes) {
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashInBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+
+    }
+    
+	//Assumimos nao existir colisoes entre os numeros gerados
+	private String generateLoginToken() {
+		
+		byte[] randomByteArray = new byte[8];
+		new Random().nextBytes(randomByteArray);
+		
+		String hexByteArray = bytesToHex(randomByteArray);
+		
+		return hexByteArray;
+	}
+	
 	private String getJSONFileString(String file) throws IOException, CommunicationsException, ServerLibraryException {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
@@ -284,7 +305,15 @@ public class ServerLibrary {
 		        		String registeredPassword = (String) obj.get(user);
 			        	if(registeredPassword.equals(password)) {
 			        		String message = "You were sucessfully logged into the system!";
-			        		sendOkMessage(message);
+			        		
+			        		String loginToken = generateLoginToken();
+			        		
+			        		obj= new JSONObject();
+			                obj.put("status", OK_MESSAGE);
+			                obj.put("token", loginToken);
+			                data = obj.toString();
+			        
+			        		communication.sendInChunks(data);
 			        		System.out.println("Client: " + user + "was sucessfully logged into the system!");			        		
 			        	} else {
 			        		String message = "Incorrect password. Try again!";
@@ -431,7 +460,6 @@ public class ServerLibrary {
 				obj.put("conclusion", OK_MESSAGE);
 				String data = obj.toString();
 				communication.sendInChunks(data);
-				sendOkMessage("");
 				
 			} catch (IOException ioe) {
 				String message = "The server faced an internal problem!";
