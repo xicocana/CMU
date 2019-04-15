@@ -46,6 +46,7 @@ public class GoogleImageDownloadActivity extends BaseGoogleActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_display);
 
+        this.bitmapList = new ArrayList<>();
         TextView title = findViewById(R.id.textView2);
         Intent intent = getIntent();
         String album_name = intent.getStringExtra("album_name");
@@ -63,7 +64,7 @@ public class GoogleImageDownloadActivity extends BaseGoogleActivity {
 
         imageView = findViewById(R.id.image_view);
 
-        this.bitmapList = new ArrayList<>();
+
         this.imageGrid = findViewById(R.id.gridview);
 
         imageGrid.setAdapter(new ImageAdapter(this, bitmapList));

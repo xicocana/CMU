@@ -88,7 +88,7 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
             String name = pref.getString("username", null);
 
             //CHAMAR FUNCAO DO SERVER PARA CRIAR FOLDER E TXT
-            SendDataToServerTask task = new SendDataToServerTask(name, "ADD_ALBUM", dataHolder.getAlbum1DriveID(), dataHolder.getTxtDriveID(), folder_name);
+            SendDataToServerTask task = new SendDataToServerTask(name, "ADD-ALBUM", dataHolder.getAlbum1DriveID(), dataHolder.getTxtDriveID(), folder_name);
             task.execute();
 
             return null;
