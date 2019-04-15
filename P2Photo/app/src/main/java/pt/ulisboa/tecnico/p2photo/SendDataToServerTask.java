@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.p2photo;
 
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,9 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import pt.ulisboa.tecnico.p2photo.Communications;
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
@@ -28,7 +24,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private int    port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
-    public ArrayList<String> userAlbums = new ArrayList<String>();
+    public ArrayList<JSONArray> JSONuserAlbums = new ArrayList<JSONArray>();
 
     public String folderID = "";
     public String fileID = "";
@@ -79,7 +75,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         return this.userlist;
     }
 
-    public ArrayList<String> getUserAlbums() { return this.userAlbums; }
+    public ArrayList<JSONArray> getJSONuserAlbums() { return this.JSONuserAlbums; }
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -99,7 +95,10 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 data = (String) communication.receiveInChunks();
                 obj = new JSONObject(data);
-                if (obj.get("conclusion").equals("OK")) {
+                if (obj.get("status").equals("OK")) {
+
+                    //obj.get("token");
+
                     this.setStateOfRequest("sucess");
                     this.setMessage((String) obj.get("message"));
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
@@ -171,7 +170,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 System.out.println("JsonException");
             }
         }
-        if(command == "ADD_ALBUM"){
+        if(command == "ADD-ALBUM"){
             try {
                 Socket socket = new Socket(hostname, port);
                 System.out.println(socket.getInetAddress().getHostAddress());
@@ -232,11 +231,12 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 this.setStateOfRequest("sucess");
                 //this.setMessage((String) obj.get("message"));
-                obj = obj.getJSONObject("album-list");
-                Iterator<String> keys = obj.keys();
-                while(keys.hasNext()) {
-                    //System.out.println(keys.next());
-                    userAlbums.add(keys.next());
+                JSONArray jsonArray = new JSONArray();
+                jsonArray = obj.getJSONArray("album-list");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONArray jsonArray2 =  jsonArray.getJSONArray(i);
+                    JSONuserAlbums.add(jsonArray2);
                 }
 
                 communication.sendInChunks("EXIT");
