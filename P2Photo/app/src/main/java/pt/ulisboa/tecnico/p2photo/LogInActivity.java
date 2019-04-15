@@ -44,6 +44,9 @@ public class LogInActivity extends AppCompatActivity {
         EditText pwdView = findViewById(R.id.editText2);
         String password = pwdView.getText().toString();
 
+        //Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+
+
         SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
         task.execute();
 

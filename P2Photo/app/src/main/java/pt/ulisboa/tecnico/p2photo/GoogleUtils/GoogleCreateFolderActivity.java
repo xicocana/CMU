@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.p2photo.GoogleUtils;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -11,6 +13,7 @@ import com.google.android.gms.tasks.Task;
 
 import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
+import pt.ulisboa.tecnico.p2photo.SendDataToServerTask;
 
 /**
  * An activity to illustrate how to create a new folder.
@@ -45,6 +48,7 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
                         driveFolder -> {
                             DataHolder dataHolder = DataHolder.getInstance();
                             dataHolder.setAlbum1DriveID(driveFolder.getDriveId().encodeToString());
+
                             showMessage(getString(R.string.file_created,
                                     driveFolder.getDriveId().encodeToString()));
 
@@ -78,6 +82,15 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
         ).onSuccessTask(driveFile -> {
             DataHolder dataHolder = DataHolder.getInstance();
             dataHolder.setTxtDriveID(driveFile.getDriveId().encodeToString());
+
+
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            String name = pref.getString("username", null);
+
+            //CHAMAR FUNCAO DO SERVER PARA CRIAR FOLDER E TXT
+            SendDataToServerTask task = new SendDataToServerTask(name, "ADD_ALBUM", dataHolder.getAlbum1DriveID(), dataHolder.getTxtDriveID(), folder_name);
+            task.execute();
+
             return null;
         });
     }

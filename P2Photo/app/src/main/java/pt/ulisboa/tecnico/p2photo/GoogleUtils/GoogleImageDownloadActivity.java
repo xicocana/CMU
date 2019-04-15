@@ -60,16 +60,13 @@ public class GoogleImageDownloadActivity extends BaseGoogleActivity {
             intent1.putExtra("album_name",album_name);
             startActivity(intent1);
         });
+
         imageView = findViewById(R.id.image_view);
 
         this.bitmapList = new ArrayList<>();
         this.imageGrid = findViewById(R.id.gridview);
 
-
         imageGrid.setAdapter(new ImageAdapter(this, bitmapList));
-
-
-
     }
 
     @Override

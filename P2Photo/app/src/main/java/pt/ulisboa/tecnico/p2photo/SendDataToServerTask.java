@@ -17,18 +17,22 @@ import java.util.Iterator;
 import pt.ulisboa.tecnico.p2photo.Communications;
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
-class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
+public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
     private String name = "";
     private String pswd = "";
     private String command = "";
     private String state = "waiting";
     private String message = null;
-    private String hostname = "194.210.180.59";
+    private String hostname = "192.168.43.80";
     private int    port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
     public ArrayList<String> userAlbums = new ArrayList<String>();
+
+    public String folderID = "";
+    public String fileID = "";
+    public String album = "";
 
     public SendDataToServerTask(String name, String pswd, String command){
         this.name = name;
@@ -39,6 +43,14 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     public SendDataToServerTask(String name, String command){
         this.name = name;
         this.command = command;
+    }
+
+    public SendDataToServerTask(String name, String command, String folderId, String fileId, String album){
+        this.name = name;
+        this.command = command;
+        this.folderID = folderId;
+        this.fileID = fileId;
+        this.album = album;
     }
 
     public String getStateOfRequest() {
@@ -137,6 +149,49 @@ class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                             userlist.add(jsonArray.getString(i));
                         }
                     }
+                } else if (obj.get("conclusion").equals("NOT-OK")) {
+                    this.setStateOfRequest("failure");
+                    this.setMessage((String) obj.get("message"));
+                }
+
+                communication.sendInChunks("EXIT");
+                communication.end();
+
+            } catch (UnknownHostException uhe) {
+                uhe.printStackTrace();
+                System.out.println("Couldn't find the host.");
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                System.out.println("IOException");
+            } catch (CommunicationsException ce) {
+                ce.printStackTrace();
+                System.out.println("CommunicationsException");
+            } catch (JSONException je) {
+                je.printStackTrace();
+                System.out.println("JsonException");
+            }
+        }
+        if(command == "ADD_ALBUM"){
+            try {
+                Socket socket = new Socket(hostname, port);
+                System.out.println(socket.getInetAddress().getHostAddress());
+                Communications communication = new Communications(socket);
+
+                JSONObject obj = new JSONObject();
+                obj.put("user-name", name);
+                obj.put("album", album);
+                obj.put("drive-id", folderID);
+                obj.put("txt-id", fileID);
+
+                String data = obj.toString();
+                communication.sendInChunks(command);
+                communication.sendInChunks(data);
+
+                data = (String) communication.receiveInChunks();
+                obj = new JSONObject(data);
+                if (obj.get("conclusion").equals("OK")) {
+                    this.setStateOfRequest("sucess");
+
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
                     this.setStateOfRequest("failure");
                     this.setMessage((String) obj.get("message"));

@@ -27,8 +27,6 @@
         <activity android:name=".GoogleUtils.GoogleCreateFolderActivity" />
         <activity android:name=".GoogleUtils.GoogleImageDownloadActivity" />
 
-        <activity android:name=".teste.downloadTest"></activity>
-
         <activity android:name=".AlbumDisplayActivity" />
         <activity android:name=".AlbumsListActivity" />
         <activity android:name=".UserListActivity" />
