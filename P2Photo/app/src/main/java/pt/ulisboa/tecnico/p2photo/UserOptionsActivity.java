@@ -42,21 +42,6 @@ public class UserOptionsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
-
-
-
-
-        // TODO - PARA APAGAR
-
-        Button teste1 = (Button) findViewById(R.id.teste1);
-        teste1.setOnClickListener(v ->
-                startActivity(new Intent(UserOptionsActivity.this, AlbumDisplayActivity.class)));
-        Button teste2 = (Button) findViewById(R.id.teste2);
-        teste2.setOnClickListener(v ->
-                startActivity(new Intent(UserOptionsActivity.this, GoogleImageDownloadActivity.class)));
-
-
     }
 
 }

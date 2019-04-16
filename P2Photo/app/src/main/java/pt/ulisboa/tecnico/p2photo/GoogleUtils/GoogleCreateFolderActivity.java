@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
 import pt.ulisboa.tecnico.p2photo.SendDataToServerTask;
+import pt.ulisboa.tecnico.p2photo.UserOptionsActivity;
 
 /**
  * An activity to illustrate how to create a new folder.
@@ -30,6 +31,8 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
             folder_name = extras.getString("foldername");
             createFolder();
         }
+        Intent ret = new Intent(GoogleCreateFolderActivity.this, UserOptionsActivity.class);
+        startActivity(ret);
     }
 
     private void createFolder() {

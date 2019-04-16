@@ -35,8 +35,9 @@ public class LogInActivity extends AppCompatActivity {
 
     public void logIn(View v) throws IOException, CommunicationsException, JSONException, InterruptedException {
 
-        //Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
-
+        Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+        startActivity(intent);
+        /*
         //Vai buscar os nomes e a password
         EditText nameView = findViewById(R.id.editText);
         String name = nameView.getText().toString();
@@ -113,7 +114,7 @@ public class LogInActivity extends AppCompatActivity {
                 LogInActivity.this.finish();
                 startActivity(intent);
             }
-        }
+        }*/
     }
 
     public void cancelLogIn(View v) {
