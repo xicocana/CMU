@@ -26,6 +26,17 @@ public class ClientTest {
 
         Communications communication = new Communications(socket);        
         
+        communication.sendInChunks("LOGIN");
+        JSONObject obj = new JSONObject();
+        obj.put("user-name", "xicocana");
+        obj.put("password", "2345");
+        String msg = obj.toString();
+        communication.sendInChunks(msg);
+        
+        String data = (String) communication.receiveInChunks();
+        System.out.println(data);
+        
+        /*
         communication.sendInChunks("SIGN-UP");
         JSONObject obj = new JSONObject();
         obj.put("user-name", "xicocana");
