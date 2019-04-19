@@ -23,14 +23,22 @@ import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class LogInActivity extends AppCompatActivity {
 
+    private static final String MY_PREFERENCES = "MyPrefs";
+
     public final static String NAME = "pt.ulisboa.tecnico.p2photo.NAME";
     public final static String PASSWORD = "pt.ulisboa.tecnico.p2photo.PASSWORD";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        PersistentLogin persistentLogin = new PersistentLogin(pref, getApplicationContext());
+        if(persistentLogin.tryToLogin()) {
+            Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void logIn(View v) throws IOException, CommunicationsException, JSONException, InterruptedException {

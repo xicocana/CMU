@@ -318,6 +318,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 JSONObject obj = new JSONObject();
                 obj.put("user-name", name);
+                obj.put("password", pswd);
 
                 String data = obj.toString();
                 communication.sendInChunks(command);

@@ -20,16 +20,16 @@ public class ClientTest {
 
     public static void main(String[] args) throws IOException, CommunicationsException, JSONException {
 		String hostname = "localhost";
-		//String command = "GET-ALBUMS";
+		String command = "GET-TOKEN";
 		
         Socket socket = new Socket(hostname, 8080);
 
         Communications communication = new Communications(socket);        
         
-        communication.sendInChunks("LOGIN");
+        communication.sendInChunks(command);
         JSONObject obj = new JSONObject();
         obj.put("user-name", "xicocana");
-        obj.put("password", "2345");
+        obj.put("password", "2435");
         String msg = obj.toString();
         communication.sendInChunks(msg);
         

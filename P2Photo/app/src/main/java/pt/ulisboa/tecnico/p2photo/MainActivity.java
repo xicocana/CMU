@@ -11,9 +11,6 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity {
 
     private static final String MY_PREFERENCES = "MyPrefs";
-    private static final String SESSION_KEY = "session_key";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,13 +18,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        String sessionKey = pref.getString(SESSION_KEY, null);
-        String username = pref.getString(USERNAME, null);
-        String password = pref.getString(PASSWORD, null);
-
-        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-        boolean state = clientServerComms.sendGetToken(username, password);
-        proceedAccordingToState(clientServerComms, state);
+        PersistentLogin persistentLogin = new PersistentLogin(pref, getApplicationContext());
+        if(persistentLogin.tryToLogin()) {
+            Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void logInActivity(View v) {
@@ -40,19 +35,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void proceedAccordingToState(ClientServerComms clientServerComms, boolean state) {
-        if(state) {
-            //get session key
-            String sessionKey = (String) clientServerComms.getContent();
-
-            if(sessionKey != null) {
-                if (sessionKey.equals(sessionKey)) {
-                    Log.i("SESSION", "entreiii");
-                    Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
-                    startActivity(intent);
-                }
-            }
-        }
-        else {}
-    }
 }

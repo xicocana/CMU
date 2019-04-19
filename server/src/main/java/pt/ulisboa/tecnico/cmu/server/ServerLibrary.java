@@ -480,7 +480,6 @@ public class ServerLibrary {
 							jsonObject.put("token", token);
 							String sendData = jsonObject.toString();
 							Utils.sendMessage(communication, sendData);
-							sendOkMessage(EMPTY);
 						}
 		        	} else {
 		        		String message = "Your password was changed on the meantime...!";
