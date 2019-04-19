@@ -20,8 +20,9 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private String command = "";
     private String state = "waiting";
     private String message = null;
-    private String hostname = "192.168.43.80";
-    private int    port = 8080;
+    private String hostname = "192.168.43.141";
+
+    private int port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
     public ArrayList<JSONArray> JSONuserAlbums = new ArrayList<JSONArray>();
@@ -95,10 +96,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 data = (String) communication.receiveInChunks();
                 obj = new JSONObject(data);
-                if (obj.get("status").equals("OK")) {
-
-                    //obj.get("token");
-
+                if (obj.get("conclusion").equals("OK")) {
                     this.setStateOfRequest("sucess");
                     this.setMessage((String) obj.get("message"));
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
@@ -261,6 +259,6 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-
     }
+
 }
