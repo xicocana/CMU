@@ -15,7 +15,7 @@ public class TimerThread implements Runnable {
 		ServerLibrary lib = new ServerLibrary();
 		while(true) {			
 			try {
-				Thread.sleep(5*60*1000);
+				Thread.sleep(1*60*1000);
 				System.out.println("Ready to wipe out all available tokens...");
 				lib.wipeOutSessionKeys(REGISTER_CLIENTS_FILE);
 			} catch (ServerLibraryException sle) {
