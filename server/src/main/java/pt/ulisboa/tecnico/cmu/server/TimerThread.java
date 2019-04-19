@@ -12,11 +12,12 @@ public class TimerThread implements Runnable {
 
 	@Override
 	public void run() {
+		ServerLibrary lib = new ServerLibrary();
 		while(true) {			
 			try {
-				Thread.sleep(30*60*1000);
+				Thread.sleep(5*60*1000);
 				System.out.println("Ready to wipe out all available tokens...");
-				Utils.readFile(REGISTER_CLIENTS_FILE);
+				lib.wipeOutSessionKeys(REGISTER_CLIENTS_FILE);
 			} catch (ServerLibraryException sle) {
 				System.out.println("run(): Something went wrong with the Utils class...");
 				break;

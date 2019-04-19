@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -123,6 +124,53 @@ public class Utils {
             throw new UtilsException("jsonGetObjectByKey(): Key '" + key + "'  does not exist.");
         }
         return jsonObject.get(key);
+	}
+	
+	static Object getObjectByJSONArrayAttribute(JSONArray jsonArray, String attribute) throws UtilsException {
+		Object object = null;
+        switch(attribute) {
+        	case "password":
+        		object = jsonArray.get(0);
+        		break;
+        	case "email":
+        		object = jsonArray.get(1);
+        		break;
+        	case "token":
+        		object = jsonArray.get(2);
+        		break;
+        	default:
+        		throw new UtilsException("getObjectByJSONArrayObject(): Attribute '" + attribute + "'  does not exist.");
+
+        }
+		return object;
+	}
+	
+	static JSONArray changeJSONArrayAttributeByIndex(JSONArray jsonArray, String key, String attribute) throws UtilsException {
+		switch(key) {
+	    	case "password":
+	    		jsonArray.put(0, attribute);
+	    		break;
+	    	case "email":
+	    		jsonArray.put(1, attribute);
+	    		break;
+	    	case "token":
+	    		jsonArray.put(2, attribute);
+	    		break;
+	    	default:
+	    		throw new UtilsException("changeJSONArrayAttributeByIndex(): Attribute '" + attribute + "'  does not exist.");
+		}
+		
+		return jsonArray;
+	}
+	
+	static JSONObject changeJSONObjectKeyAttribute(JSONObject jsonObject, String key, Object attribute) throws UtilsException {
+		if (!jsonKeyExists(jsonObject, key)) {
+            throw new UtilsException("changeJSONObjectKeyAttribute(): Key '" + key + "'  does not exist.");
+        }
+        jsonObject.remove(key);
+        jsonObject.put(key, attribute);
+        
+        return jsonObject;
 	}
 
 }

@@ -34,6 +34,9 @@ public class ServerLibrary {
 
 	Communications communication;
 	
+	public ServerLibrary() {
+	}
+	
 	public ServerLibrary(Communications communication) {
 		this.communication = communication;
 	}
@@ -137,7 +140,12 @@ public class ServerLibrary {
 	    	if(jsonFile.has(user)==true) {
 	    		return false;
 	    	} else {
-	    		jsonFile.put(user, password);
+	    		JSONArray userAtributes = new JSONArray();
+	    		userAtributes.put(0, password);
+	    		userAtributes.put(1, "default_email");
+	    		userAtributes.put(2, "default_token");
+	    		
+	    		jsonFile.put(user, userAtributes);
 		    	
 		    	Utils.atomicWriteJSONToFile(jsonFile, REGISTER_CLIENTS_FILE);
 				
@@ -236,6 +244,35 @@ public class ServerLibrary {
 		}
 	}
 	
+	private void loopWipeOut(JSONObject jsonClientsList) throws ServerLibraryException {
+		Iterator<String> iter = jsonClientsList.keys();
+		try {
+			while(iter.hasNext()) {
+				JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(jsonClientsList, iter.toString());
+				userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", "default_token");
+				jsonClientsList = Utils.changeJSONObjectKeyAttribute(jsonClientsList, iter.toString(), userAttributes);
+				
+				iter.next();
+			}
+			
+		Utils.atomicWriteJSONToFile(jsonClientsList, REGISTER_CLIENTS_FILE);
+		} catch(UtilsException ue) {
+			throw new ServerLibraryException("loopWipeOut(): something went wrong with the Utils class...", ue, true);
+		}
+		
+	}
+	
+	public void wipeOutSessionKeys(String registeredClients) throws ServerLibraryException {
+		try {
+			JSONObject jsonClients = Utils.getJSONFromString(registeredClients);
+			
+			loopWipeOut(jsonClients);
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("wipeOutSessionKeys(): Something went wrong with the utils class...", ue, true);
+		}
+		
+	}
+	
 	public void login() throws ServerLibraryException {						
 		try {
 			String receivedData = Utils.receiveMessage(communication);
@@ -249,10 +286,16 @@ public class ServerLibrary {
         	JSONObject clientsJSON = new JSONObject(registeredClients);
         	
         	if(clientsJSON.has(userName)) {
-        		String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
+        		JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(clientsJSON, userName);
+        		String registeredPassword = (String) Utils.getObjectByJSONArrayAttribute(userAttributes, "password");
+        		//String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
 	        	if(registeredPassword.equals(password)) {
 	        		String message = "You were sucessfully logged into the system!";			        		
 	        		String loginToken = generateLoginToken();			        		
+	        		
+					userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", loginToken);
+					clientsJSON = Utils.changeJSONObjectKeyAttribute(clientsJSON, userName, userAttributes);
+					Utils.atomicWriteJSONToFile(clientsJSON, REGISTER_CLIENTS_FILE);
 	        		
 	        		JSONObject tokenJSON = new JSONObject();
 	                tokenJSON.put("conclusion", OK_MESSAGE);
