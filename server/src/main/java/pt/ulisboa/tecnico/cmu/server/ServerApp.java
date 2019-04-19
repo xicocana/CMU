@@ -38,7 +38,7 @@ public class ServerApp {
 	
 	public static void main(String[] args) {
 		
-		String hostname = "localhost";
+		String hostname = "192.168.43.141";
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket;
 		try {
