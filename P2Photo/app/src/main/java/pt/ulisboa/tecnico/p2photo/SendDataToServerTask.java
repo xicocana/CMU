@@ -73,7 +73,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     }
 
     public String setLoginToken(String loginToken) {
-        this.loginToken = token;
+        this.loginToken = loginToken;
     }
 
     public void setUsers(JSONArray users) { this.users = users; }
