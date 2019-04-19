@@ -21,13 +21,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String sessionKey = pref.getString(SESSION_KEY, null);
 
-        if(sessionKey != null) {
-            if (sessionKey.equals("sessionkey")) {
-                Log.i("SESSION", "entreiii");
-                Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
-                startActivity(intent);
-            }
-        }
+        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
+        boolean state = clientServerComms.sendGetToken("xicocana");
+        proceedAccordingToState(clientServerComms, state);
     }
 
     public void logInActivity(View v) {
@@ -38,5 +34,21 @@ public class MainActivity extends AppCompatActivity {
     public void signUpActivity(View v) {
         Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
         startActivity(intent);
+    }
+
+    private void proceedAccordingToState(ClientServerComms clientServerComms, boolean state) {
+        if(state) {
+            //get session key
+            String sessionKey = (String) clientServerComms.getContent();
+
+            if(sessionKey != null) {
+                if (sessionKey.equals(sessionKey)) {
+                    Log.i("SESSION", "entreiii");
+                    Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
+                    startActivity(intent);
+                }
+            }
+        }
+        else {}
     }
 }

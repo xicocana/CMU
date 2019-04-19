@@ -245,6 +245,20 @@ public class ServerLibrary {
 		}
 	}
 	
+	private String getToken(String userName, String registeredClients) throws ServerLibraryException {
+		JSONObject jsonClients;
+		try {
+			jsonClients = Utils.getJSONFromString(registeredClients);
+			JSONArray user_attributes = (JSONArray) Utils.getObjectByJSONKey(jsonClients, userName);
+			String token = (String) Utils.getObjectByJSONArrayAttribute(user_attributes, "token");
+			
+			return token;
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("getToken(): something went wrong with the Utils class...", ue, true);
+		}
+
+	}
+	
 	private void loopWipeOut(JSONObject jsonClientsList) throws ServerLibraryException {
 		Iterator<String> iter = jsonClientsList.keys();		
 		try {
@@ -436,6 +450,35 @@ public class ServerLibrary {
 			throw new ServerLibraryException("getUserAlbums(): Something went wrong with the Utils function...", ue, false);
 		}
 										
+	}
+	
+	public void getToken() throws ServerLibraryException {
+		try {
+			String receivedData = Utils.receiveMessage(communication);
+			
+			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
+			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
+			
+			//TODO adicionar envio da password tambem
+			synchronized(this) {
+				String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);
+				
+				String token = getToken(userName, jsonFileString);
+				
+				JSONObject jsonObject = new JSONObject();
+				if(token.equals("default_token")) {
+					String message = "Token has already expired!";
+					sendNotOkMessage(message);
+				} else {
+					jsonObject.put("token", token);
+					String sendData = jsonObject.toString();
+					Utils.sendMessage(communication, sendData);
+					sendOkMessage(EMPTY);
+				}
+			}
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("getToken(): Something went wrong with the Utils function...", ue, false);
+		}				
 	}
 	
 	public void exit() throws ServerLibraryException {

@@ -22,7 +22,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private String message = null;
     private String hostname = "192.168.43.141";
 
-    private String loginToken;
+    private String loginToken = "not_received";
 
     private int port = 8080;
     private JSONArray users = null;
@@ -109,6 +109,8 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 if (obj.get("conclusion").equals("OK")) {
                     this.setStateOfRequest("sucess");
                     this.setMessage((String) obj.get("message"));
+                    String token = (String) obj.get("token");
+                    this.setLoginToken(token);
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
                     this.setStateOfRequest("failure");
                     this.setMessage((String) obj.get("message"));
@@ -288,6 +290,50 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONArray jsonArray2 =  jsonArray.getJSONArray(i);
                     JSONuserAlbums.add(jsonArray2);
+                }
+
+                communication.sendInChunks("EXIT");
+                communication.end();
+
+            } catch (UnknownHostException uhe) {
+                uhe.printStackTrace();
+                System.out.println("Couldn't find the host.");
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                System.out.println("IOException");
+            } catch (CommunicationsException ce) {
+                ce.printStackTrace();
+                System.out.println("CommunicationsException");
+            } catch (JSONException je) {
+                je.printStackTrace();
+                System.out.println("JsonException");
+            }
+        }
+
+        if(command.equals("GET-TOKEN")) {
+            try {
+                Socket socket = new Socket(hostname, port);
+                System.out.println(socket.getInetAddress().getHostAddress());
+                Communications communication = new Communications(socket);
+
+                JSONObject obj = new JSONObject();
+                obj.put("user-name", name);
+
+                String data = obj.toString();
+                communication.sendInChunks(command);
+                communication.sendInChunks(data);
+
+                data = (String) communication.receiveInChunks();
+                obj = new JSONObject(data);
+
+                if (obj.get("conclusion").equals("OK")) {
+                    this.setStateOfRequest("sucess");
+                    this.setMessage((String) obj.get("message"));
+                    String token = (String) obj.get("token");
+                    this.setLoginToken(token);
+                } else if (obj.get("conclusion").equals("NOT-OK")) {
+                    this.setStateOfRequest("failure");
+                    this.setMessage((String) obj.get("message"));
                 }
 
                 communication.sendInChunks("EXIT");

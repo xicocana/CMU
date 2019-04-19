@@ -14,6 +14,7 @@ public class ClientServerComms {
 
     private final static String LOGIN = "LOGIN";
     private final static String SIGN_UP = "SIGN-UP";
+    private final static String TOKEN = "GET-TOKEN";
 
     private Object content;
 
@@ -67,6 +68,19 @@ public class ClientServerComms {
 
     public boolean sendLogin(String name, String password) {
         SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
+        task.execute();
+        if(getPublisherState(task)) {
+            String loginToken = task.getLoginToken();
+            setContent(loginToken);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //TODO terei de passar a password tambem
+    public boolean sendGetToken(String name) {
+        SendDataToServerTask task = new SendDataToServerTask(name, TOKEN);
         task.execute();
         if(getPublisherState(task)) {
             String loginToken = task.getLoginToken();
