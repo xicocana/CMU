@@ -10,19 +10,19 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    //public static final String MyPREFERENCES = "MyPrefs";
-    //SharedPreferences sharedpreferences;
+    private static final String MY_PREFERENCES = "MyPrefs";
+    private static final String SESSION_KEY = "session_key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        String myKey = pref.getString("session_key", null);
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String sessionKey = pref.getString(SESSION_KEY, null);
 
-        if(myKey != null) {
-            if (myKey.equals("sessionkey")) {
+        if(sessionKey != null) {
+            if (sessionKey.equals("sessionkey")) {
                 Log.i("SESSION", "entreiii");
                 Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
                 startActivity(intent);

@@ -43,18 +43,34 @@ public class LogInActivity extends AppCompatActivity {
 
         ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
         boolean state = clientServerComms.sendLogin(name, password);
-        proceedAccordingToState(state);
+        proceedAccordingToState(clientServerComms, state);
     }
 
     public void cancelLogIn(View v) {
         LogInActivity.this.finish();
     }
 
-    private void proceedAccordingToState(boolean state) {
+    private void proceedAccordingToState(ClientServerComms clientServerComms, boolean state) {
         if(state) {
+            //get session key
+            String sessionKey = (String) clientServerComms.getContent();
+            setSessionKey(sessionKey);
+
             Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+            LogInActivity.this.finish();
             startActivity(intent);
         }
         else {}
+    }
+
+    private void setSessionKey(String sessionKey) {
+        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = pref.edit();
+        // Set/Store data
+        edit.putString("session_key", sessionKey);
+        edit.putString("username", sessionKey);
+        Log.i("SESSION", sessionKey);
+        // Commit the changes
+        edit.commit();
     }
 }

@@ -22,6 +22,8 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private String message = null;
     private String hostname = "192.168.43.141";
 
+    private String loginToken;
+
     private int port = 8080;
     private JSONArray users = null;
     public ArrayList<String> userlist = new ArrayList<String>();
@@ -66,6 +68,14 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         return this.message;
     }
 
+    public String getLoginToken() {
+        return this.loginToken;
+    }
+
+    public String setLoginToken(String loginToken) {
+        this.loginToken = token;
+    }
+
     public void setUsers(JSONArray users) { this.users = users; }
 
     public JSONArray getUsers(){
@@ -80,7 +90,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        if(command == "LOGIN" || command == "SIGN-UP") {
+        if(command == "LOGIN") {
             try {
                 Socket socket = new Socket(hostname, port);
                 System.out.println(socket.getInetAddress().getHostAddress());
@@ -121,6 +131,49 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 System.out.println("JsonException");
             }
         }
+
+        if(command == "SIGN-UP") {
+            try {
+                Socket socket = new Socket(hostname, port);
+                System.out.println(socket.getInetAddress().getHostAddress());
+                Communications communication = new Communications(socket);
+
+                JSONObject obj = new JSONObject();
+                obj.put("user-name", name);
+                obj.put("password", pswd);
+
+                String data = obj.toString();
+                communication.sendInChunks(command);
+                communication.sendInChunks(data);
+
+                data = (String) communication.receiveInChunks();
+                obj = new JSONObject(data);
+                if (obj.get("conclusion").equals("OK")) {
+                    this.setStateOfRequest("sucess");
+                    this.setMessage((String) obj.get("message"));
+                } else if (obj.get("conclusion").equals("NOT-OK")) {
+                    this.setStateOfRequest("failure");
+                    this.setMessage((String) obj.get("message"));
+                }
+
+                communication.sendInChunks("EXIT");
+                communication.end();
+
+            } catch (UnknownHostException uhe) {
+                uhe.printStackTrace();
+                System.out.println("Couldn't find the host.");
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                System.out.println("IOException");
+            } catch (CommunicationsException ce) {
+                ce.printStackTrace();
+                System.out.println("CommunicationsException");
+            } catch (JSONException je) {
+                je.printStackTrace();
+                System.out.println("JsonException");
+            }
+        }
+
         if(command == "GET-USERS") {
             try {
                 Socket socket = new Socket(hostname, port);
