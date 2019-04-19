@@ -108,7 +108,6 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 obj = new JSONObject(data);
                 if (obj.get("conclusion").equals("OK")) {
                     this.setStateOfRequest("sucess");
-                    this.setMessage((String) obj.get("message"));
                     String token = (String) obj.get("token");
                     this.setLoginToken(token);
                 } else if (obj.get("conclusion").equals("NOT-OK")) {
@@ -329,7 +328,6 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                 if (obj.get("conclusion").equals("OK")) {
                     this.setStateOfRequest("sucess");
-                    this.setMessage((String) obj.get("message"));
                     String token = (String) obj.get("token");
                     this.setLoginToken(token);
                 } else if (obj.get("conclusion").equals("NOT-OK")) {

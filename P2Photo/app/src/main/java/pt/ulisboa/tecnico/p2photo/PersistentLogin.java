@@ -44,7 +44,11 @@ public class PersistentLogin {
             //get session key
             String fetchedSessionKey = (String) clientServerComms.getContent();
             if(sessionKey != null) {
-                if (sessionKey.equals(clientServerComms)) {
+                System.out.println("$$$");
+                System.out.println(sessionKey);
+                System.out.println(fetchedSessionKey);
+                System.out.println("$$$");
+                if (sessionKey.equals(fetchedSessionKey)) {
                     return true;
                 } else {
                     return false;
