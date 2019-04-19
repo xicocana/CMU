@@ -72,7 +72,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         return this.loginToken;
     }
 
-    public String setLoginToken(String loginToken) {
+    public void setLoginToken(String loginToken) {
         this.loginToken = loginToken;
     }
 
