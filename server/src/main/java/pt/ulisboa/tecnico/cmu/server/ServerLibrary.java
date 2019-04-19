@@ -15,6 +15,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.Random;
@@ -245,16 +246,23 @@ public class ServerLibrary {
 	}
 	
 	private void loopWipeOut(JSONObject jsonClientsList) throws ServerLibraryException {
-		Iterator<String> iter = jsonClientsList.keys();
+		Iterator<String> iter = jsonClientsList.keys();		
 		try {
+			ArrayList<String> intermediateList = new ArrayList<String>();
 			while(iter.hasNext()) {
-				JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(jsonClientsList, iter.toString());
-				userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", "default_token");
-				jsonClientsList = Utils.changeJSONObjectKeyAttribute(jsonClientsList, iter.toString(), userAttributes);
-				
-				iter.next();
+				String key = iter.next();
+				intermediateList.add(key);
 			}
 			
+			Iterator<String> listIter = intermediateList.iterator();
+			synchronized(this) {
+				while(listIter.hasNext()) {
+					String key = listIter.next();
+					JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(jsonClientsList, key);
+					userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", "default_token");
+					jsonClientsList = Utils.changeJSONObjectKeyAttribute(jsonClientsList, key, userAttributes);
+				}
+			}
 		Utils.atomicWriteJSONToFile(jsonClientsList, REGISTER_CLIENTS_FILE);
 		} catch(UtilsException ue) {
 			throw new ServerLibraryException("loopWipeOut(): something went wrong with the Utils class...", ue, true);
@@ -262,14 +270,11 @@ public class ServerLibrary {
 		
 	}
 	
-	public void wipeOutSessionKeys(String registeredClients) throws ServerLibraryException {
-		try {
-			JSONObject jsonClients = Utils.getJSONFromString(registeredClients);
-			
-			loopWipeOut(jsonClients);
-		} catch (UtilsException ue) {
-			throw new ServerLibraryException("wipeOutSessionKeys(): Something went wrong with the utils class...", ue, true);
-		}
+	public void wipeOutSessionKeys(String registeredClientsFile) throws ServerLibraryException {
+		String registeredClients = Utils.readFile(registeredClientsFile);
+		JSONObject jsonClients = new JSONObject(registeredClients);
+		
+		loopWipeOut(jsonClients);
 		
 	}
 	

@@ -16,7 +16,6 @@ public class ServerApp {
 	private static boolean isRunning = true;
 	
 	public static void waitForClients(ServerSocket serverSocket) {
-		new Thread(new TimerThread()).start();
 		Socket clientSocket = null;
 		
 		while(isRunning) {
@@ -44,7 +43,7 @@ public class ServerApp {
 		ServerSocket serverSocket;
 		try {
 			serverSocket = new ServerSocket();
-			InetSocketAddress endpoint = new InetSocketAddress("192.168.43.141", 8080);
+			InetSocketAddress endpoint = new InetSocketAddress(hostname, 8080);
 			serverSocket.bind(endpoint);
 
 			System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
