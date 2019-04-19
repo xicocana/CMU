@@ -458,23 +458,41 @@ public class ServerLibrary {
 			
 			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
 			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
+			String password = (String) Utils.getObjectByJSONKey(receivedJSON, "password");
 			
-			//TODO adicionar envio da password tambem
 			synchronized(this) {
+				
 				String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);
+				JSONObject clientsJSON = new JSONObject(jsonFileString);
 				
-				String token = getToken(userName, jsonFileString);
-				
-				JSONObject jsonObject = new JSONObject();
-				if(token.equals("default_token")) {
-					String message = "Token has already expired!";
-					sendNotOkMessage(message);
-				} else {
-					jsonObject.put("token", token);
-					String sendData = jsonObject.toString();
-					Utils.sendMessage(communication, sendData);
-					sendOkMessage(EMPTY);
-				}
+				if(clientsJSON.has(userName)) {
+	        		JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(clientsJSON, userName);
+	        		String registeredPassword = (String) Utils.getObjectByJSONArrayAttribute(userAttributes, "password");
+	        		//String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
+		        	if(registeredPassword.equals(password)) {
+		        		String token = getToken(userName, jsonFileString);
+						
+						JSONObject jsonObject = new JSONObject();
+						if(token.equals("default_token")) {
+							String message = "Token has already expired!";
+							sendNotOkMessage(message);
+						} else {
+							jsonObject.put("token", token);
+							String sendData = jsonObject.toString();
+							Utils.sendMessage(communication, sendData);
+							sendOkMessage(EMPTY);
+						}
+		        	} else {
+		        		String message = "Your password was changed on the meantime...!";
+		        		sendNotOkMessage(message);
+		        		System.out.println(message);
+		        	}
+	        	} else {
+	        		String message = "You are not registered on the system...";
+	        		sendNotOkMessage(message);
+	        		System.out.println("Client: " + userName + " is not registered on the system...");
+	        	}
+
 			}
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("getToken(): Something went wrong with the Utils function...", ue, false);

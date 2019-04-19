@@ -79,8 +79,8 @@ public class ClientServerComms {
     }
 
     //TODO terei de passar a password tambem
-    public boolean sendGetToken(String name) {
-        SendDataToServerTask task = new SendDataToServerTask(name, TOKEN);
+    public boolean sendGetToken(String name, String password) {
+        SendDataToServerTask task = new SendDataToServerTask(name, password, TOKEN);
         task.execute();
         if(getPublisherState(task)) {
             String loginToken = task.getLoginToken();

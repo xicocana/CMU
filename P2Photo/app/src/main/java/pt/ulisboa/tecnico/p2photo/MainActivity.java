@@ -12,6 +12,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String MY_PREFERENCES = "MyPrefs";
     private static final String SESSION_KEY = "session_key";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +22,11 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String sessionKey = pref.getString(SESSION_KEY, null);
+        String username = pref.getString(USERNAME, null);
+        String password = pref.getString(PASSWORD, null);
 
         ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-        boolean state = clientServerComms.sendGetToken("xicocana");
+        boolean state = clientServerComms.sendGetToken(username, password);
         proceedAccordingToState(clientServerComms, state);
     }
 
