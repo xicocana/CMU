@@ -477,6 +477,7 @@ public class ServerLibrary {
 							String message = "Token has already expired!";
 							sendNotOkMessage(message);
 						} else {
+							jsonObject.put("conclusion", OK_MESSAGE);
 							jsonObject.put("token", token);
 							String sendData = jsonObject.toString();
 							Utils.sendMessage(communication, sendData);
