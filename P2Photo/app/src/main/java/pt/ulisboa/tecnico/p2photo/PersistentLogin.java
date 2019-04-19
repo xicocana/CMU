@@ -33,21 +33,19 @@ public class PersistentLogin {
         if(username!=null && password!=null) {
             ClientServerComms clientServerComms = new ClientServerComms(context);
             boolean state = clientServerComms.sendGetToken(username, password);
-            return proceedAccordingToState(clientServerComms, state);
+            return proceedAccordingToState(clientServerComms, state, sessionKey);
         }
 
         return false;
     }
 
-    private boolean proceedAccordingToState(ClientServerComms clientServerComms, boolean state) {
+    private boolean proceedAccordingToState(ClientServerComms clientServerComms, boolean state, String sessionKey) {
         if(state) {
             //get session key
-            String sessionKey = (String) clientServerComms.getContent();
+            String fetchedSessionKey = (String) clientServerComms.getContent();
             if(sessionKey != null) {
-                if (sessionKey.equals(sessionKey)) {
+                if (sessionKey.equals(clientServerComms)) {
                     return true;
-                    /*Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
-                    startActivity(intent);*/
                 } else {
                     return false;
                 }
