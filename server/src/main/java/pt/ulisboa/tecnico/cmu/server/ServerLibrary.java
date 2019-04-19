@@ -299,13 +299,13 @@ public class ServerLibrary {
         	JSONObject clientsJSON = new JSONObject(registeredClients);
         	
         	if(clientsJSON.has(userName)) {
-        		String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, password);
+        		String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
 	        	if(registeredPassword.equals(password)) {
 	        		String message = "You were sucessfully logged into the system!";			        		
 	        		String loginToken = generateLoginToken();			        		
 	        		
 	        		JSONObject tokenJSON = new JSONObject();
-	                tokenJSON.put("status", OK_MESSAGE);
+	                tokenJSON.put("conclusion", OK_MESSAGE);
 	                tokenJSON.put("token", loginToken);
 	                String sendData = tokenJSON.toString();
 	        
