@@ -3,21 +3,15 @@ package pt.ulisboa.tecnico.p2photo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
@@ -49,19 +43,19 @@ public class LogInActivity extends AppCompatActivity {
         EditText pwdView = findViewById(R.id.editText2);
         String password = pwdView.getText().toString();
 
-        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-        boolean state = clientServerComms.sendLogin(name, password);
-        proceedAccordingToState(clientServerComms, state, name, password);
+        CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+        boolean state = communicationUtilities.sendLogin(name, password);
+        proceedAccordingToState(communicationUtilities, state, name, password);
     }
 
     public void cancelLogIn(View v) {
         LogInActivity.this.finish();
     }
 
-    private void proceedAccordingToState(ClientServerComms clientServerComms, boolean state, String username, String password) {
+    private void proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state, String username, String password) {
         if(state) {
             //get session key
-            String sessionKey = (String) clientServerComms.getContent();
+            String sessionKey = (String) communicationUtilities.getContent();
             setSharedPreferences(sessionKey, username, password);
 
             Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);

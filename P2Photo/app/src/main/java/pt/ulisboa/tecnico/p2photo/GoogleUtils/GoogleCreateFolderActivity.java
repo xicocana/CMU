@@ -11,9 +11,9 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Task;
 
+import pt.ulisboa.tecnico.p2photo.CommunicationTask;
 import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
-import pt.ulisboa.tecnico.p2photo.SendDataToServerTask;
 import pt.ulisboa.tecnico.p2photo.UserOptionsActivity;
 
 /**
@@ -91,9 +91,12 @@ public class GoogleCreateFolderActivity extends BaseGoogleActivity {
             String name = pref.getString("username", null);
 
             //CHAMAR FUNCAO DO SERVER PARA CRIAR FOLDER E TXT
-            SendDataToServerTask task = new SendDataToServerTask(name, "ADD-ALBUM", dataHolder.getAlbum1DriveID(), dataHolder.getTxtDriveID(), folder_name);
+            CommunicationTask task = new CommunicationTask("ADD-ALBUM");
+            task.setName(name);
+            task.setFolderId(dataHolder.getAlbum1DriveID());
+            task.setFileId(dataHolder.getTxtDriveID());
+            task.setAlbum(folder_name);
             task.execute();
-
             return null;
         });
     }

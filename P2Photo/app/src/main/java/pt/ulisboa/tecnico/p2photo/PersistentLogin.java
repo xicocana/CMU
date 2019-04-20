@@ -1,9 +1,7 @@
 package pt.ulisboa.tecnico.p2photo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 /**
  * Created by ist182069 on 19-04-2019.
@@ -31,18 +29,18 @@ public class PersistentLogin {
         System.out.println(username);
         System.out.println(password);
         if(username!=null && password!=null) {
-            ClientServerComms clientServerComms = new ClientServerComms(context);
-            boolean state = clientServerComms.sendGetToken(username, password);
-            return proceedAccordingToState(clientServerComms, state, sessionKey);
+            CommunicationUtilities communicationUtilities = new CommunicationUtilities(context);
+            boolean state = communicationUtilities.sendGetToken(username, password);
+            return proceedAccordingToState(communicationUtilities, state, sessionKey);
         }
 
         return false;
     }
 
-    private boolean proceedAccordingToState(ClientServerComms clientServerComms, boolean state, String sessionKey) {
+    private boolean proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state, String sessionKey) {
         if(state) {
             //get session key
-            String fetchedSessionKey = (String) clientServerComms.getContent();
+            String fetchedSessionKey = (String) communicationUtilities.getContent();
             if(sessionKey != null) {
                 System.out.println("$$$");
                 System.out.println(sessionKey);

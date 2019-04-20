@@ -1,25 +1,14 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
-import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -81,8 +70,8 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         else {
-            ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-            boolean state = clientServerComms.sendSignUp(name, password);
+            CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+            boolean state = communicationUtilities.sendSignUp(name, password);
             proceedAccordingToState(state);
         }
 

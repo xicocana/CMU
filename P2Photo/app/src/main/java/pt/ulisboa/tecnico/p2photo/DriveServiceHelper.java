@@ -274,7 +274,7 @@ public class DriveServiceHelper {
             this.createTextFile(folderName, "", googleFile.getId());
 
             //CHAMAR FUNCAO DO SERVER PARA ADICIONR FOLDER E TXT
-            //SendDataToServerTask task = new SendDataToServerTask(name, "ADD-ALBUM", googleFile.getId(), fileId, folderName);
+            //CommunicationTask task = new CommunicationTask(name, "ADD-ALBUM", googleFile.getId(), fileId, folderName);
             //task.execute();
 
             return googleDriveFileHolder;

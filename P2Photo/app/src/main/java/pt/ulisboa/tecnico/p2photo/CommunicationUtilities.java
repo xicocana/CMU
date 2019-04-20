@@ -1,11 +1,7 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import android.content.Intent;
 import android.widget.Toast;
 import android.content.Context;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -13,7 +9,7 @@ import java.util.ArrayList;
  * Created by ist182069 on 19-04-2019.
  */
 
-public class ClientServerComms {
+public class CommunicationUtilities {
 
     private final static String LOGIN = "LOGIN";
     private final static String SIGN_UP = "SIGN-UP";
@@ -25,7 +21,7 @@ public class ClientServerComms {
 
     private Context context;
 
-    public ClientServerComms(Context context) {
+    public CommunicationUtilities(Context context) {
         this.context = context;
     }
 
@@ -37,17 +33,17 @@ public class ClientServerComms {
         return this.content;
     }
 
-    private void displayMessage(SendDataToServerTask task) {
+    private void displayMessage(CommunicationTask task) {
         String message = task.getMessage();
         Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean getPublisherState(SendDataToServerTask task) {
+    private boolean getPublisherState(CommunicationTask task) {
         for(int i = 1; i<=10; i++) {
             try {
                 //numero de segundos que fica a espera: millis*10
                 Thread.sleep(650);
-                if(task.getStateOfRequest().equals("sucess")) {
+                if(task.getStateOfRequest().equals("success")) {
                     displayMessage(task);
                     return true;
                 } else if(task.getStateOfRequest().equals("failure")) {
@@ -66,13 +62,17 @@ public class ClientServerComms {
     }
 
     public boolean sendSignUp(String name, String password) {
-        SendDataToServerTask task = new SendDataToServerTask(name, password, SIGN_UP);
+        CommunicationTask task = new CommunicationTask(SIGN_UP);
+        task.setName(name);
+        task.setPassword(password);
         task.execute();
         return getPublisherState(task);
     }
 
     public boolean sendLogin(String name, String password) {
-        SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
+        CommunicationTask task = new CommunicationTask(LOGIN);
+        task.setName(name);
+        task.setPassword(password);
         task.execute();
         if(getPublisherState(task)) {
             String loginToken = task.getLoginToken();
@@ -84,7 +84,9 @@ public class ClientServerComms {
     }
 
     public boolean sendGetToken(String name, String password) {
-        SendDataToServerTask task = new SendDataToServerTask(name, password, TOKEN);
+        CommunicationTask task = new CommunicationTask(TOKEN);
+        task.setName(name);
+        task.setPassword(password);
         task.execute();
         if(getPublisherState(task)) {
             String loginToken = task.getLoginToken();
@@ -96,7 +98,7 @@ public class ClientServerComms {
     }
 
     public boolean sendGetUsers() {
-        SendDataToServerTask task = new SendDataToServerTask(GET_USERS);
+        CommunicationTask task = new CommunicationTask(GET_USERS);
         task.execute();
         if(getPublisherState(task)) {
             ArrayList<String> users = task.getUsers();
@@ -107,8 +109,9 @@ public class ClientServerComms {
         }
     }
 
-    public boolean sendGetAlbums(String userName) {
-        SendDataToServerTask task = new SendDataToServerTask(userName, GET_ALBUMS);
+    public boolean sendGetAlbums(String name) {
+        CommunicationTask task = new CommunicationTask(GET_ALBUMS);
+        task.setName(name);
         task.execute();
         if(getPublisherState(task)) {
             ArrayList<ArrayList <String>> userAlbums = task.getUserAlbums();

@@ -1,23 +1,15 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class UserListActivity extends AppCompatActivity {
 
@@ -32,15 +24,15 @@ public class UserListActivity extends AppCompatActivity {
     }
 
     public void getUserList() {
-        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-        boolean state = clientServerComms.sendGetUsers();
-        proceedAccordingToState(clientServerComms, state);
+        CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+        boolean state = communicationUtilities.sendGetUsers();
+        proceedAccordingToState(communicationUtilities, state);
     }
 
-    private void proceedAccordingToState(ClientServerComms clientServerComms, boolean state) {
+    private void proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state) {
         if(state) {
             //get session key
-            this.usersList = (ArrayList<String>) clientServerComms.getContent();
+            this.usersList = (ArrayList<String>) communicationUtilities.getContent();
 
             for(int i = 0; i<this.usersList.size(); i++) {
                 System.out.println(usersList.get(i));

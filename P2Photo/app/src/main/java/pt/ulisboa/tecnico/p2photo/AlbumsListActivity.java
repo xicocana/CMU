@@ -8,12 +8,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 
@@ -21,7 +16,7 @@ import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 public class AlbumsListActivity extends AppCompatActivity {
 
     private static final String MY_PREFERENCES = "MyPrefs";
-    private SendDataToServerTask task;
+    private CommunicationTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +30,11 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     private void getUserAlbums(String userName) {
 
-        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
-        boolean state = clientServerComms.sendGetAlbums(userName);
+        CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+        boolean state = communicationUtilities.sendGetAlbums(userName);
 
         if(state) {
-            ArrayList<ArrayList<String>> albumsList = (ArrayList<ArrayList<String>>) clientServerComms.getContent();
+            ArrayList<ArrayList<String>> albumsList = (ArrayList<ArrayList<String>>) communicationUtilities.getContent();
 
             ArrayList<String> albumsFromServer = new ArrayList<String>();
             for (ArrayList<String> iter: albumsList) {
