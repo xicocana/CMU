@@ -434,16 +434,17 @@ public class ServerLibrary {
 				JSONObject jsonObject = new JSONObject();
 				if(userAlbums==null || userAlbums.isEmpty()) {
 					String message = "You do not have a single album on the system!";
+					jsonObject.put("conclusion", NOT_OK_MESSAGE);
+					jsonObject.put("message", message);
 					jsonObject.put("album-list", userAlbums);
 					String sendData = jsonObject.toString();
 									
 					Utils.sendMessage(communication, sendData);
-					sendNotOkMessage(message);
 				} else {
+					jsonObject.put("conclusion", OK_MESSAGE);
 					jsonObject.put("album-list", userAlbums);
 					String sendData = jsonObject.toString();
 					Utils.sendMessage(communication, sendData);
-					sendOkMessage(EMPTY);
 				}
 			}
 		} catch (UtilsException ue) {

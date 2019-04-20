@@ -58,7 +58,7 @@ public class UserListActivity extends AppCompatActivity {
                      int len = usersViewList.getCount();
                      SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
                      for (int i = 0; i < len; i++)
-                         //TODO por isto a adicionar alguma coisa
+                         //TODO por isto a adicionar os utilizadores a drive e tambem no servidor
                          if (checked.get(i)) {
                              checkedList.add(usersList.get(i));
                              Log.i("OnClickAddUsers", usersList.get(i));

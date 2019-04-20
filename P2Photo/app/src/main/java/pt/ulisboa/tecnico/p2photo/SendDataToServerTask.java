@@ -29,7 +29,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     private JSONArray users = null;
 
     private ArrayList<String> userNames = null;
-    public ArrayList<JSONArray> JSONuserAlbums = new ArrayList<JSONArray>();
+    public ArrayList<ArrayList <String>> userAlbums = new ArrayList<ArrayList<String>>();
 
     public String folderID = "";
     public String fileID = "";
@@ -88,7 +88,9 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         return this.userNames;
     }
 
-    public ArrayList<JSONArray> getJSONuserAlbums() { return this.JSONuserAlbums; }
+    public void setUserAlbums(ArrayList<ArrayList <String>> userAlbums) { this.userAlbums = userAlbums; }
+
+    public ArrayList<ArrayList <String>> getUserAlbums() { return this.userAlbums; }
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -200,6 +202,7 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
                     setUsers(userNames);
                 } else {
+                    this.setStateOfRequest("failure");
                     this.setMessage("Something went wrong with the server while processing your request...");
                 }
 
@@ -279,14 +282,13 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 data = (String) communication.receiveInChunks();
                 obj = new JSONObject(data);
 
-                this.setStateOfRequest("sucess");
-                //this.setMessage((String) obj.get("message"));
-                JSONArray jsonArray = new JSONArray();
-                jsonArray = obj.getJSONArray("album-list");
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONArray jsonArray2 =  jsonArray.getJSONArray(i);
-                    JSONuserAlbums.add(jsonArray2);
+                if (obj.get("conclusion").equals("OK")) {
+                    this.setStateOfRequest("sucess");
+                    JSONArray jsonAlbumList = (JSONArray) obj.get("album-list");
+                    UserAlbumsJSONArrayToArrayList(jsonAlbumList);
+                } else {
+                    this.setStateOfRequest("failure");
+                    this.setMessage((String) obj.get("message"));
                 }
 
                 communication.sendInChunks("EXIT");
@@ -355,6 +357,22 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
+    }
+
+    private void UserAlbumsJSONArrayToArrayList(JSONArray jsonAlbumList) throws JSONException {
+
+        ArrayList<ArrayList<String>> albums = new ArrayList<ArrayList<String>>();
+        for(int i = 0; i<jsonAlbumList.length(); i++) {
+            JSONArray jsonAlbumAttributes = (JSONArray) jsonAlbumList.get(i);
+            ArrayList<String> albumAttributes = new ArrayList<String>();
+            for(int j = 0; j<jsonAlbumAttributes.length(); j++) {
+                String attribute = (String) jsonAlbumAttributes.get(j);
+                albumAttributes.add(attribute);
+            }
+            albums.add(albumAttributes);
+        }
+
+        setUserAlbums(albums);
     }
 
 }

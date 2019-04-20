@@ -19,6 +19,7 @@ public class ClientServerComms {
     private final static String SIGN_UP = "SIGN-UP";
     private final static String TOKEN = "GET-TOKEN";
     private final static String GET_USERS = "GET-USERS";
+    private final static String GET_ALBUMS = "GET-ALBUMS";
 
     private Object content;
 
@@ -98,7 +99,19 @@ public class ClientServerComms {
         SendDataToServerTask task = new SendDataToServerTask(GET_USERS);
         task.execute();
         if(getPublisherState(task)) {
-            ArrayList<String> userAlbums = task.getUsers();
+            ArrayList<String> users = task.getUsers();
+            setContent(users);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean sendGetAlbums(String userName) {
+        SendDataToServerTask task = new SendDataToServerTask(userName, GET_ALBUMS);
+        task.execute();
+        if(getPublisherState(task)) {
+            ArrayList<ArrayList <String>> userAlbums = task.getUserAlbums();
             setContent(userAlbums);
             return true;
         } else {

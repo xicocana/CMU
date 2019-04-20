@@ -20,66 +20,42 @@ import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
-    private ArrayList<String> albums_from_server = new ArrayList<>();
+    private static final String MY_PREFERENCES = "MyPrefs";
     private SendDataToServerTask task;
-    private ListView albums_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_albums_list);
 
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String name = pref.getString("username", null);
+        getUserAlbums(name);
+    }
 
+    private void getUserAlbums(String userName) {
 
-        task = new SendDataToServerTask(name, "GET-ALBUMS");
-        try {
-            task.execute().get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        ClientServerComms clientServerComms = new ClientServerComms(this.getApplicationContext());
+        clientServerComms.sendGetAlbums(userName);
+        ArrayList<ArrayList<String>> albumsList = (ArrayList<ArrayList<String>>) clientServerComms.getContent();
+
+        ArrayList<String> albumsFromServer = new ArrayList<String>();
+        for (ArrayList<String> iter: albumsList) {
+            albumsFromServer.add(iter.get(0));
         }
-        List<String> albunsName = new ArrayList<>();
-
-        task.getJSONuserAlbums();
-
-        for (JSONArray jsonArray: task.getJSONuserAlbums()
-              ) {
-            try {
-                albunsName.add((String)jsonArray.get(0));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-        if(task.getStateOfRequest().equals("sucess")) {
-            albums_from_server = (ArrayList<String>) albunsName;
-        }
-
-        albums_list = (ListView) findViewById(R.id.albums_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albums_from_server);
+        ListView albums_list = (ListView) findViewById(R.id.albums_list);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumsFromServer);
         albums_list.setAdapter(arrayAdapter);
 
         albums_list.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(AlbumsListActivity.this, GoogleImageDownloadActivity.class);
 
             DataHolder dataHolder = DataHolder.getInstance();
-            try {
-                dataHolder.setTxtDriveID((String) task.getJSONuserAlbums().get(position).get(1));
-                dataHolder.setTxtDriveID((String) task.getJSONuserAlbums().get(position).get(2));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            intent.putExtra("album_name", albums_from_server.get(position));
+            dataHolder.setTxtDriveID((String) albumsList.get(position).get(1));
+            dataHolder.setTxtDriveID((String) albumsList.get(position).get(2));
+
+            intent.putExtra("album_name", albumsFromServer.get(position));
             startActivity(intent);
         });
-
-
     }
-
-
 }
