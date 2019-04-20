@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -26,12 +27,17 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
 
     private int port = 8080;
     private JSONArray users = null;
-    public ArrayList<String> userlist = new ArrayList<String>();
+
+    private ArrayList<String> userNames = null;
     public ArrayList<JSONArray> JSONuserAlbums = new ArrayList<JSONArray>();
 
     public String folderID = "";
     public String fileID = "";
     public String album = "";
+
+    public SendDataToServerTask(String command){
+        this.command = command;
+    }
 
     public SendDataToServerTask(String name, String pswd, String command){
         this.name = name;
@@ -76,14 +82,10 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
         this.loginToken = loginToken;
     }
 
-    public void setUsers(JSONArray users) { this.users = users; }
+    public void setUsers(ArrayList<String> userNames) { this.userNames = userNames; }
 
-    public JSONArray getUsers(){
-        return this.users;
-    }
-
-    public ArrayList<String> getUserList(){
-        return this.userlist;
+    public ArrayList<String> getUsers(){
+        return this.userNames;
     }
 
     public ArrayList<JSONArray> getJSONuserAlbums() { return this.JSONuserAlbums; }
@@ -181,28 +183,24 @@ public class SendDataToServerTask extends AsyncTask<Void, Void, Void> {
                 System.out.println(socket.getInetAddress().getHostAddress());
                 Communications communication = new Communications(socket);
 
-                JSONObject obj = new JSONObject();
-                obj.put("user-name", name);
-
-                String data = obj.toString();
                 communication.sendInChunks(command);
-                communication.sendInChunks(data);
 
-                data = (String) communication.receiveInChunks();
-                obj = new JSONObject(data);
+                String data = (String) communication.receiveInChunks();
+                JSONObject obj = new JSONObject(data);
                 if (obj.get("conclusion").equals("OK")) {
                     this.setStateOfRequest("sucess");
-                    //this.setMessage((String) obj.get("message"));
+
                     JSONArray jsonArray = (JSONArray) obj.get("user-list");
-                    int length = jsonArray.length();
-                    if (length > 0) {
-                        for (int i = 0; i < length; i++) {
-                            userlist.add(jsonArray.getString(i));
-                        }
+
+                    ArrayList<String> userNames = new ArrayList<String>();
+                    for(int i = 0; i<jsonArray.length(); i++) {
+                        String userName = (String) jsonArray.get(i);
+                        userNames.add(userName);
                     }
-                } else if (obj.get("conclusion").equals("NOT-OK")) {
-                    this.setStateOfRequest("failure");
-                    this.setMessage((String) obj.get("message"));
+
+                    setUsers(userNames);
+                } else {
+                    this.setMessage("Something went wrong with the server while processing your request...");
                 }
 
                 communication.sendInChunks("EXIT");

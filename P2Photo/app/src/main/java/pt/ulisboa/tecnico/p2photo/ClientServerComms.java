@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.widget.Toast;
 import android.content.Context;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by ist182069 on 19-04-2019.
@@ -15,6 +18,7 @@ public class ClientServerComms {
     private final static String LOGIN = "LOGIN";
     private final static String SIGN_UP = "SIGN-UP";
     private final static String TOKEN = "GET-TOKEN";
+    private final static String GET_USERS = "GET-USERS";
 
     private Object content;
 
@@ -78,13 +82,24 @@ public class ClientServerComms {
         }
     }
 
-    //TODO terei de passar a password tambem
     public boolean sendGetToken(String name, String password) {
         SendDataToServerTask task = new SendDataToServerTask(name, password, TOKEN);
         task.execute();
         if(getPublisherState(task)) {
             String loginToken = task.getLoginToken();
             setContent(loginToken);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean sendGetUsers() {
+        SendDataToServerTask task = new SendDataToServerTask(GET_USERS);
+        task.execute();
+        if(getPublisherState(task)) {
+            ArrayList<String> userAlbums = task.getUsers();
+            setContent(userAlbums);
             return true;
         } else {
             return false;

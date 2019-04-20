@@ -41,6 +41,9 @@ public class ServerApp {
 		String hostname = "192.168.43.141";
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket;
+		
+		Thread timerThread = new Thread(new TimerThread());
+		timerThread.start();
 		try {
 			serverSocket = new ServerSocket();
 			InetSocketAddress endpoint = new InetSocketAddress(hostname, 8080);
@@ -56,5 +59,6 @@ public class ServerApp {
 			System.exit(-1);
 		}		
 		
+		timerThread.interrupt();		
 	}
 }

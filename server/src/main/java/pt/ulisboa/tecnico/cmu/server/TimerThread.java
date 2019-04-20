@@ -21,8 +21,9 @@ public class TimerThread implements Runnable {
 			} catch (ServerLibraryException sle) {
 				System.out.println("run(): Something went wrong with the Utils class...");
 				break;
-			} catch (InterruptedException e) {
-				System.out.println("run(): Something went wrong with the Thread class...");
+			} catch (InterruptedException ie) {
+				System.out.println("run(): Thread was shut down...");
+				break;
 			}
 		}
 	}
