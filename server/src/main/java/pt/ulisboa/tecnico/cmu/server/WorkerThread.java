@@ -61,6 +61,9 @@ public class WorkerThread implements Runnable{
                         case "GET-TOKEN":
                         	serverLibrary.getToken();
                         	break;
+                        case "ADD-USER":
+                        	serverLibrary.addUserToAlbum();
+                        	break;
                         case "EXIT":
                     		System.out.println("Ending communications with client. Bye!");           
                     		isRunning = false;

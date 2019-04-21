@@ -32,6 +32,7 @@ public class ServerLibrary {
 	private static final String NOT_OK_MESSAGE = "NOT-OK";
 	private static final String USERS_ALBUMS = "users_albums.json";
 	private static final String EMPTY = ""; 
+	private static final String SHARED_ALBUMS = "shared_albums";
 
 	Communications communication;
 	
@@ -172,7 +173,7 @@ public class ServerLibrary {
 		return user_albums;
 	}
     
-	private void addUserToAlbum(String user, JSONObject jsonFile, JSONArray album_info, JSONArray user_albums, String album, String driveId, String txtId) throws ServerLibraryException {
+	private void addAlbumToUserAlbums(String user, JSONObject jsonFile, JSONArray album_info, JSONArray user_albums, String album, String driveId, String txtId) throws ServerLibraryException {
 		album_info.put(0, album);
 		album_info.put(1, driveId);
 		album_info.put(2, txtId);
@@ -184,7 +185,7 @@ public class ServerLibrary {
 		try {
 			Utils.atomicWriteJSONToFile(jsonFile, USERS_ALBUMS);
 		} catch (UtilsException ue) {
-			throw new ServerLibraryException("addUserToAlbum(): Something went wrong while doing an atomic write...", ue, true);
+			throw new ServerLibraryException("addAlbumToUserAlbums(): Something went wrong while doing an atomic write...", ue, true);
 		}
 	}
 	
@@ -231,7 +232,8 @@ public class ServerLibrary {
 		if(!hasUser(user, jsonString)) {
 			album_info = new JSONArray();
 			user_albums = new JSONArray();			
-			addUserToAlbum(user, jsonFile, album_info, user_albums, album, driveId, txtId);
+			addAlbumToUserAlbums(user, jsonFile, album_info, user_albums, album, driveId, txtId);						
+			createSharedFile(user, album);
 			return true;
 		} else {
 			if(hasAlbum(user, album, jsonString)) {
@@ -239,7 +241,8 @@ public class ServerLibrary {
 			} else {
 				album_info = new JSONArray();
 				user_albums = jsonFile.getJSONArray(user);
-				addUserToAlbum(user, jsonFile, album_info, user_albums, album, driveId, txtId);
+				addAlbumToUserAlbums(user, jsonFile, album_info, user_albums, album, driveId, txtId);
+				createSharedFile(user, album);
 				return true;
 			}
 		}
@@ -284,12 +287,82 @@ public class ServerLibrary {
 		
 	}
 	
+	private void shareAlbumWithUser(String user, String share, String album) throws ServerLibraryException {
+		try {
+			String jsonFileString = Utils.readFile(SHARED_ALBUMS + File.separator + album + ".json");
+			JSONObject sharedAlbum = new JSONObject(jsonFileString);
+			JSONArray sharedList = (JSONArray) sharedAlbum.get("shared");
+			sharedList.put(share);
+			
+			sharedAlbum.remove("shared");
+			sharedAlbum.put("shared", sharedList);
+			
+			Utils.atomicWriteJSONToFile(sharedAlbum, SHARED_ALBUMS + File.separator + album + ".json");
+			
+			jsonFileString = Utils.readFile(USERS_ALBUMS);
+			createAlbum(share, album, "", "", jsonFileString);
+		} catch (ServerLibraryException sle) {
+			System.out.println("shareAlbumWithUser(): something went wrong with the Utils function...");
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("shareAlbumWithUser(): something went wrong while atomically writing a JSON to the file..."); 
+		}
+	}
+	
+	private boolean albumExists(JSONArray albumsList, String album) {
+		Iterator iter = albumsList.iterator();
+		while(iter.hasNext()) {
+			JSONArray iterAlbum = (JSONArray) iter.next();
+			if(iterAlbum.get(0).equals(album)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean userExists(String user) {
+		try {
+			String registeredUsers = Utils.readFile(REGISTER_CLIENTS_FILE);
+			JSONObject jsonFile = new JSONObject(registeredUsers);
+			
+	    	if(jsonFile.has(user)==true) {
+	    		return true;
+	    	} else {
+	    		return false;
+	    	}	    		    	
+		} catch (ServerLibraryException sle) {
+			System.out.println("userExists(): something went wrong with the Utils function...");
+		}
+		
+		return false;
+	}
+	
 	public void wipeOutSessionKeys(String registeredClientsFile) throws ServerLibraryException {
 		String registeredClients = Utils.readFile(registeredClientsFile);
 		JSONObject jsonClients = new JSONObject(registeredClients);
 		
 		loopWipeOut(jsonClients);
 		
+	}
+	
+	
+	private void createSharedFile(String user, String album) {
+		JSONObject sharedFile = new JSONObject();
+		JSONArray sharedList = new JSONArray();
+		sharedList.put(user);
+		
+		sharedFile.put("owner", user);
+		sharedFile.put("shared", sharedList);
+		
+		File file = new File(SHARED_ALBUMS + File.separator + album + ".json");
+		if(file.exists() && !file.isDirectory()) { 
+		} else {
+			try {
+				Utils.atomicWriteJSONToFile(sharedFile, SHARED_ALBUMS + File.separator + album + ".json");
+			} catch (UtilsException e) {
+				System.out.println("dreateSharedFile(): something went wrong with the Utils class...");
+			}
+		}
 	}
 	
 	public void login() throws ServerLibraryException {						
@@ -469,7 +542,7 @@ public class ServerLibrary {
 				if(clientsJSON.has(userName)) {
 	        		JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(clientsJSON, userName);
 	        		String registeredPassword = (String) Utils.getObjectByJSONArrayAttribute(userAttributes, "password");
-	        		//String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
+
 		        	if(registeredPassword.equals(password)) {
 		        		String token = getToken(userName, jsonFileString);
 						
@@ -498,6 +571,57 @@ public class ServerLibrary {
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("getToken(): Something went wrong with the Utils function...", ue, false);
 		}				
+	}
+	
+	public void addUserToAlbum() throws ServerLibraryException {
+		try {
+			String receivedData = Utils.receiveMessage(communication);
+			
+			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
+			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
+			String shareName = (String) Utils.getObjectByJSONKey(receivedJSON, "share-name");
+			String album = (String) Utils.getObjectByJSONKey(receivedJSON, "album");
+			
+			synchronized(this) {
+				JSONObject jsonObject = new JSONObject();
+				if(userExists(shareName)) {
+					String jsonFileString = Utils.readFile(USERS_ALBUMS);
+					
+					JSONArray userAlbums = getJSONUsersAlbums(userName, jsonFileString);							
+					if(userAlbums==null || userAlbums.isEmpty()) {
+						String message = "You do not have a single album on the system!";
+						jsonObject.put("conclusion", NOT_OK_MESSAGE);
+						jsonObject.put("message", message);
+						String sendData = jsonObject.toString();
+										
+						Utils.sendMessage(communication, sendData);
+					} else {
+						if(albumExists(userAlbums, album)) { 
+							String message = shareName + " sucessfully added to album!";
+							shareAlbumWithUser(userName, shareName, album);
+							
+							sendOkMessage(message);
+						} else {
+							String message = album + " does not exist on the system...";
+							jsonObject.put("conclusion", NOT_OK_MESSAGE);
+							jsonObject.put("message", message);
+							String sendData = jsonObject.toString();
+											
+							Utils.sendMessage(communication, sendData);
+						}						
+					}
+				} else {
+					String message = shareName + " does not exist in the system!";
+					jsonObject.put("conclusion", NOT_OK_MESSAGE);
+					jsonObject.put("message", message);
+					String sendData = jsonObject.toString();
+					
+					Utils.sendMessage(communication, sendData);
+				}				
+			}
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("getUserAlbums(): Something went wrong with the Utils function...", ue, false);
+		}					
 	}
 	
 	public void exit() throws ServerLibraryException {

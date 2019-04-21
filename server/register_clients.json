@@ -1,1 +1,5 @@
+<<<<<<< HEAD
+{"admin":["admin_pwd","admin_email","default_token"],"xicocana":["2435","xicocana@traceur.pt","default_token"], "dc": ["dcrocks", "diogo@cardoso.pt", "default_token"]}
+=======
 {"admin":["admin_pwd","admin_email","default_token"],"xicocana":["2435","xicocana@traceur.pt","eb9055459598b110"]}
+>>>>>>> 3c49f4e923ed38efe2a26ad3440b3f054e51dd91
