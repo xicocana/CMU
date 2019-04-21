@@ -9,25 +9,35 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
+import android.util.Log;
+
+import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
+import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.ByteArrayContent;
+import com.google.api.client.http.FileContent;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.Permission;
+
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 
 
 /**
@@ -60,6 +70,7 @@ public class DriveServiceHelper {
     }
 
     public String fileId = "";
+
     /**
      * Creates a text file in the user's My Drive folder and returns its file ID.
      */
@@ -141,7 +152,7 @@ public class DriveServiceHelper {
     public Intent createFilePickerIntent() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
+        intent.setType("image/jpeg");
 
         return intent;
     }
@@ -197,8 +208,33 @@ public class DriveServiceHelper {
                 googleDriveFileHolder.setSize(result.getFiles().get(0).getSize());
             }
 
-
             return googleDriveFileHolder;
+        });
+    }
+
+    public Task<ArrayList<GoogleDriveFileHolder>> searchFileInFolder(String folderName, String mimeType) {
+        return Tasks.call(mExecutor, () -> {
+
+            ArrayList<GoogleDriveFileHolder> files = new ArrayList<>();
+
+            FileList result = mDriveService.files().list()
+                    .setQ("parents in '" + folderName + "' and mimeType ='" + mimeType + "'")
+                    .setSpaces("drive")
+                    .setFields("files(id, name,size,createdTime,modifiedTime,starred)")
+                    .execute();
+
+            List<File> filez = result.getFiles();
+            for (File f : filez) {
+                GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
+                googleDriveFileHolder.setId(f.getId());
+                googleDriveFileHolder.setName(f.getName());
+                googleDriveFileHolder.setModifiedTime(f.getModifiedTime());
+                googleDriveFileHolder.setSize(f.getSize());
+
+                files.add(googleDriveFileHolder);
+            }
+            Log.i("lista", files.size() + "");
+            return files;
         });
     }
 
@@ -207,7 +243,7 @@ public class DriveServiceHelper {
 
             // Retrive the metadata as a File object.
             FileList result = mDriveService.files().list()
-                    .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "' ")
+                    .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'")
                     .setSpaces("drive")
                     .execute();
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
@@ -281,16 +317,18 @@ public class DriveServiceHelper {
         });
     }
 
-    public Task<GoogleDriveFileHolder> uploadFile(File googleDiveFile, AbstractInputStreamContent content) {
+    public Task<GoogleDriveFileHolder> uploadFile(File googleDriveFile, AbstractInputStreamContent content) {
         return Tasks.call(mExecutor, () -> {
             // Retrieve the metadata as a File object.
-            File fileMeta = mDriveService.files().create(googleDiveFile, content).execute();
+            File fileMeta = mDriveService.files().create(googleDriveFile, content).execute();
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
             googleDriveFileHolder.setId(fileMeta.getId());
+            Log.i("TAAAG", fileMeta.getId());
             googleDriveFileHolder.setName(fileMeta.getName());
             return googleDriveFileHolder;
         });
     }
+
 
     public Task<Void> downloadFile(java.io.File targetFile, String fileId) {
         return Tasks.call(mExecutor, () -> {
@@ -313,8 +351,45 @@ public class DriveServiceHelper {
         });
     }
 
+    public Task<Void> setPermission(String email, String folderId) {
+        return Tasks.call(mExecutor, () -> {
+            // Retrieve the metadata as a File object.
+            if (folderId != null) {
+                try {
+                    JsonBatchCallback<Permission> callback = new JsonBatchCallback<Permission>() {
+                        @Override
+                        public void onFailure(GoogleJsonError e,
+                                              HttpHeaders responseHeaders)
+                                throws IOException {
+                            // Handle error
+                            System.err.println(e.getMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(Permission permission,
+                                              HttpHeaders responseHeaders)
+                                throws IOException {
+                            System.out.println("Permission ID: " + permission.getId());
+                        }
+                    };
+
+                    BatchRequest batch = mDriveService.batch();
+                    Permission permission = new Permission()
+                            .setEmailAddress(email)
+                            .setRole("reader")
+                            .setType("user");
+                    mDriveService.permissions().create(folderId, permission).queue(batch, callback);
+                    batch.execute();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        });
+    }
+
     /* // REMARK
-    
+
     // create G drive file instance
     com.google.api.services.drive.model.File metadata = new com.google.api.services.drive.model.File()
                             .setParents(Collections.singletonList(task.getResult().getId()))

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Task;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -99,7 +101,7 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
             Uri imageUri = data.getData();
 
             try {
-                mBitmapToSave = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                mBitmapToSave = getBitmapFromUri(imageUri);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -188,5 +190,15 @@ public class GoogleAddImageActivity extends BaseGoogleActivity {
 
         }
     }
+
+    public Bitmap getBitmapFromUri(Uri uri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor =
+                getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
+    }
+
 
 }
