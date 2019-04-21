@@ -38,7 +38,7 @@ public class ServerApp {
 	
 	public static void main(String[] args) {
 		
-		String hostname = "192.168.43.141";
+		String hostname = "192.168.43.80";
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket;
 		
