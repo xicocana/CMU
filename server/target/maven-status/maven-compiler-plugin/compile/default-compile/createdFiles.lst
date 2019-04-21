@@ -1,6 +1,7 @@
-pt/ulisboa/tecnico/cmu/server/WorkerThread.class
+pt/ulisboa/tecnico/cmu/server/TimerThread.class
 pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.class
 pt/ulisboa/tecnico/cmu/server/exceptions/UtilsException.class
-pt/ulisboa/tecnico/cmu/server/ServerLibrary.class
 pt/ulisboa/tecnico/cmu/server/Utils.class
+pt/ulisboa/tecnico/cmu/server/WorkerThread.class
+pt/ulisboa/tecnico/cmu/server/ServerLibrary.class
 pt/ulisboa/tecnico/cmu/server/ServerApp.class

@@ -14,6 +14,8 @@ import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
 import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 
 public class UserOptionsActivity extends AppCompatActivity {
+
+    private static final String MY_PREFERENCES = "MyPrefs";
     private static final String TAG = "UserOptionsActivity";
 
     @Override
@@ -23,25 +25,26 @@ public class UserOptionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_options);
 
         Button addAlbumBtn = (Button) findViewById(R.id.add_album_btn);
-        addAlbumBtn.setOnClickListener(v ->
-                startActivity(new Intent(UserOptionsActivity.this, CreateFolderActivity.class)));
+        addAlbumBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, CreateFolderActivity.class)));
 
         Button listAlbumsBtn = (Button) findViewById(R.id.get_album_btn);
         listAlbumsBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, AlbumsListActivity.class)));
 
+        Button listUsersBtn = (Button) findViewById(R.id.list_users);
+        listUsersBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, UserListActivity.class)));
 
         Button logOutBtn = (Button) findViewById(R.id.log_out_btn);
         logOutBtn.setOnClickListener(v -> {
-            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
             SharedPreferences.Editor edit = pref.edit();
             // delete data
             edit.clear();
             // Commit the changes
             edit.commit();
             Intent intent = new Intent(UserOptionsActivity.this, MainActivity.class);
+            UserOptionsActivity.this.finish();
             startActivity(intent);
         });
 
     }
-
 }

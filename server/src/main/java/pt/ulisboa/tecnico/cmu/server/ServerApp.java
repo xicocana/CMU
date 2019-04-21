@@ -38,12 +38,15 @@ public class ServerApp {
 	
 	public static void main(String[] args) {
 		
-		String hostname = "localhost";
+		String hostname = "192.168.43.141";
 		System.out.println("############### CMU SERVER ###############");
 		ServerSocket serverSocket;
+		
+		Thread timerThread = new Thread(new TimerThread());
+		timerThread.start();
 		try {
 			serverSocket = new ServerSocket();
-			InetSocketAddress endpoint = new InetSocketAddress("192.168.43.80", 8080);
+			InetSocketAddress endpoint = new InetSocketAddress(hostname, 8080);
 			serverSocket.bind(endpoint);
 
 			System.out.printf("My hostname is %s, my IP is %s and my service port is %d %n", serverSocket.getInetAddress().getHostName(), serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
@@ -56,5 +59,6 @@ public class ServerApp {
 			System.exit(-1);
 		}		
 		
+		timerThread.interrupt();		
 	}
 }

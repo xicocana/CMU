@@ -1,31 +1,20 @@
 package pt.ulisboa.tecnico.p2photo;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
-import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private final static String PATTERN = "^[a-zA-Z0-9_.-]*$";
     private final static String NAME = "pt.ulisboa.tecnico.p2photo.NAME";
     private final static String PASSWORD = "pt.ulisboa.tecnico.p2photo.PASSWORD";
-    private final static String SIGN_UP = "SIGN-UP";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +33,21 @@ public class SignUpActivity extends AppCompatActivity {
         EditText rptpwdView = findViewById(R.id.editText3);
         String repeatpwd = rptpwdView.getText().toString();
 
-        Pattern pattern = Pattern.compile(PATTERN);
+        signUp(name, password, repeatpwd);
+    }
 
-        // Now create matcher object.
+    public void cancelSignUp(View v) {
+        SignUpActivity.this.finish();
+    }
+
+    private void signUp(String name, String password, String repeatpwd) {
+
+        Pattern pattern = Pattern.compile(PATTERN);
         Matcher m = pattern.matcher(name);
 
-        //checks basicos que vao ter de ser melhorados mas ja esta aqui a ideia
         if(name==null || name.isEmpty()) {
             Toast.makeText(getApplicationContext(), "You must insert a valid name!", Toast.LENGTH_SHORT).show();
         }
-
 
         else if(m.find()==false) {
             Toast.makeText(getApplicationContext(), "You are using invalid characters in your username", Toast.LENGTH_SHORT).show();
@@ -76,52 +70,19 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         else {
-            SendDataToServerTask task = new SendDataToServerTask(name, password, SIGN_UP);
-            task.execute();
-
-            if(task.getStateOfRequest().equals("sucess")) {
-                String message = task.getMessage();
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                SignUpActivity.this.finish();
-                startActivity(intent);
-            } else if(task.getStateOfRequest().equals("failure")) {
-                String message = task.getMessage();
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            } else {
-                for(int i = 1; i<10; i++) {
-                    try {
-                        Thread.sleep(500);
-                        if(task.getStateOfRequest().equals("sucess")) {
-                            String message = task.getMessage();
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                            SignUpActivity.this.finish();
-                            startActivity(intent);
-                            break;
-                        } else if(task.getStateOfRequest().equals("failure")) {
-                            String message = task.getMessage();
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    } catch(InterruptedException ie) {
-                        System.err.println("Could not properly put the thread to sleep...");
-                        Toast.makeText(getApplicationContext(), "Critical error!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                        SignUpActivity.this.finish();
-                        startActivity(intent);
-                    }
-                    Toast.makeText(getApplicationContext(), "Could not obtain an answer back from the server!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                    SignUpActivity.this.finish();
-                    startActivity(intent);
-                }
-            }
+            CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+            boolean state = communicationUtilities.sendSignUp(name, password);
+            proceedAccordingToState(state);
         }
+
     }
 
-    public void cancelSignUp(View v) {
-        SignUpActivity.this.finish();
+    private void proceedAccordingToState(boolean state) {
+        if(state) {
+            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+            SignUpActivity.this.finish();
+            startActivity(intent);
+        } else {}
     }
 
 }

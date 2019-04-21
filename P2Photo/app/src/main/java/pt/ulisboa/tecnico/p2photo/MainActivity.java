@@ -10,23 +10,18 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    //public static final String MyPREFERENCES = "MyPrefs";
-    //SharedPreferences sharedpreferences;
+    private static final String MY_PREFERENCES = "MyPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        String myKey = pref.getString("session_key", null);
-
-        if(myKey != null) {
-            if (myKey.equals("sessionkey")) {
-                Log.i("SESSION", "entreiii");
-                Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
-                startActivity(intent);
-            }
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        PersistentLogin persistentLogin = new PersistentLogin(pref, getApplicationContext());
+        if(persistentLogin.tryToLogin()) {
+            Intent intent = new Intent(MainActivity.this, UserOptionsActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -39,4 +34,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
         startActivity(intent);
     }
+
 }

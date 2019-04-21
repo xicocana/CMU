@@ -15,6 +15,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.Random;
@@ -33,6 +34,9 @@ public class ServerLibrary {
 	private static final String EMPTY = ""; 
 
 	Communications communication;
+	
+	public ServerLibrary() {
+	}
 	
 	public ServerLibrary(Communications communication) {
 		this.communication = communication;
@@ -89,7 +93,11 @@ public class ServerLibrary {
 			String jsonFileString = br.readLine();
 			return jsonFileString;
 		} catch (FileNotFoundException e) {			
-			writeFile(USERS_ALBUMS, EMPTY);
+			try {
+				Utils.writeFile(USERS_ALBUMS, EMPTY);
+			} catch (UtilsException ue) {
+				throw new ServerLibraryException("getJSONFileString(): something went wrong with the Utils function while writing to a file", ue, true);				
+			}
         	String error = "Server faced a problem while processing your request. Try again later...";	        	
         	JSONObject obj = new JSONObject();
 			obj.put("conclusion", NOT_OK_MESSAGE);
@@ -133,15 +141,22 @@ public class ServerLibrary {
 	    	if(jsonFile.has(user)==true) {
 	    		return false;
 	    	} else {
-	    		jsonFile.put(user, password);
+	    		JSONArray userAtributes = new JSONArray();
+	    		userAtributes.put(0, password);
+	    		userAtributes.put(1, "default_email");
+	    		userAtributes.put(2, "default_token");
+	    		
+	    		jsonFile.put(user, userAtributes);
 		    	
-		    	atomicWriteJSONToFile(jsonFile, REGISTER_CLIENTS_FILE);
+		    	Utils.atomicWriteJSONToFile(jsonFile, REGISTER_CLIENTS_FILE);
 				
 				return true; 	
 	    	}
     	} catch(JSONException jsone) {
     		throw new ServerLibraryException("signUpJSON(): Something went wrong while doing JSON operations...", jsone, false);
-    	}
+    	} catch (UtilsException ue) {
+    		throw new ServerLibraryException("signUpJSON(): Something went wrong while doing an atomic write...", ue, true);
+		}
 	}
 	
 	private JSONArray getJSONUsersAlbums(String user, String content) {
@@ -156,66 +171,6 @@ public class ServerLibrary {
 
 		return user_albums;
 	}
-	
-    static void writeFile(String filepath, String writeString) throws ServerLibraryException {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
-            bw.write(writeString);
-            bw.close();
-        } catch (FileNotFoundException fnfe) {
-            throw new ServerLibraryException("writeFile() exception: Could not find file '" + filepath + "'.", fnfe);
-        } catch (IOException ioe) {
-            throw new ServerLibraryException("writeFile() exception: Could not write to file '" + filepath + "'.", ioe);
-        }
-    }
-    static String readFile(String filepath) throws ServerLibraryException {
-        BufferedReader br;
-        StringBuilder stringBuilder  = new StringBuilder();
-        String line;
-        String ls = System.lineSeparator();
-        try {
-            br = new BufferedReader(new FileReader(filepath));
-            while ((line = br.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-            // delete the last new line separator
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-            br.close();
-        } catch (FileNotFoundException fnfe) {
-            throw new ServerLibraryException("readFile() exception: Could not find file '" + filepath + "'.", fnfe);
-        } catch (IOException ioe) {
-            throw new ServerLibraryException("readFile() exception: Could not read file '" + filepath + "'.", ioe);
-        }
-        String content = stringBuilder.toString();
-        return content;
-    }
-    
-    //a. atomicity
-    private void atomicMoveFile(String originFilePath, String newFilePath) throws ServerLibraryException {
-        Path originFilePathObject = FileSystems.getDefault().getPath(originFilePath);
-        Path newFilePathObject = FileSystems.getDefault().getPath(newFilePath);
-        try{
-            Files.move(originFilePathObject, newFilePathObject, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException ioe) {
-            throw new ServerLibraryException("atomicMoveFile() exception: Couldn't move temporary database file into main database file.", ioe, true);
-        }
-    }
-    private void atomicWriteJSONToFile(JSONObject updatedDatabaseJSON, String databaseFilePath) throws ServerLibraryException {
-        // ATOMIC FUNCTION: CPU-ATOMIC AND FILE-WRITE-ATOMIC
-        // CPU-ATOMICITY
-        String updatedDatabaseString = updatedDatabaseJSON.toString();
-        String databaseTempFilePath = databaseFilePath + ".tmp";
-
-        // write updated database to our temporary file
-        writeFile(databaseTempFilePath, updatedDatabaseString);
-
-        // ATOMIC-WRITE to our main json file
-        // based on move operation:
-        // https://stackoverflow.com/questions/774098/atomicity-of-file-move
-        // https://stackoverflow.com/questions/29923008/how-to-create-then-atomically-rename-file-in-java-on-windows?rq=1
-        atomicMoveFile(databaseTempFilePath, databaseFilePath);        
-    }
     
 	private void addUserToAlbum(String user, JSONObject jsonFile, JSONArray album_info, JSONArray user_albums, String album, String driveId, String txtId) throws ServerLibraryException {
 		album_info.put(0, album);
@@ -226,7 +181,11 @@ public class ServerLibrary {
 		
 		jsonFile.put(user, user_albums);
 					
-		atomicWriteJSONToFile(jsonFile, USERS_ALBUMS);
+		try {
+			Utils.atomicWriteJSONToFile(jsonFile, USERS_ALBUMS);
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("addUserToAlbum(): Something went wrong while doing an atomic write...", ue, true);
+		}
 	}
 	
 	private boolean hasUser(String user, String jsonString) {
@@ -286,6 +245,53 @@ public class ServerLibrary {
 		}
 	}
 	
+	private String getToken(String userName, String registeredClients) throws ServerLibraryException {
+		JSONObject jsonClients;
+		try {
+			jsonClients = Utils.getJSONFromString(registeredClients);
+			JSONArray user_attributes = (JSONArray) Utils.getObjectByJSONKey(jsonClients, userName);
+			String token = (String) Utils.getObjectByJSONArrayAttribute(user_attributes, "token");
+			
+			return token;
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("getToken(): something went wrong with the Utils class...", ue, true);
+		}
+
+	}
+	
+	private void loopWipeOut(JSONObject jsonClientsList) throws ServerLibraryException {
+		Iterator<String> iter = jsonClientsList.keys();		
+		try {
+			ArrayList<String> intermediateList = new ArrayList<String>();
+			while(iter.hasNext()) {
+				String key = iter.next();
+				intermediateList.add(key);
+			}
+			
+			Iterator<String> listIter = intermediateList.iterator();
+			synchronized(this) {
+				while(listIter.hasNext()) {
+					String key = listIter.next();
+					JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(jsonClientsList, key);
+					userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", "default_token");
+					jsonClientsList = Utils.changeJSONObjectKeyAttribute(jsonClientsList, key, userAttributes);
+				}
+			}
+		Utils.atomicWriteJSONToFile(jsonClientsList, REGISTER_CLIENTS_FILE);
+		} catch(UtilsException ue) {
+			throw new ServerLibraryException("loopWipeOut(): something went wrong with the Utils class...", ue, true);
+		}
+		
+	}
+	
+	public void wipeOutSessionKeys(String registeredClientsFile) throws ServerLibraryException {
+		String registeredClients = Utils.readFile(registeredClientsFile);
+		JSONObject jsonClients = new JSONObject(registeredClients);
+		
+		loopWipeOut(jsonClients);
+		
+	}
+	
 	public void login() throws ServerLibraryException {						
 		try {
 			String receivedData = Utils.receiveMessage(communication);
@@ -294,33 +300,41 @@ public class ServerLibrary {
 	        String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
 			String password = (String) Utils.getObjectByJSONKey(receivedJSON, "password");
 	        
-        	String registeredClients = readFile(REGISTER_CLIENTS_FILE);
-        			        	
-        	JSONObject clientsJSON = new JSONObject(registeredClients);
-        	
-        	if(clientsJSON.has(userName)) {
-        		String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, password);
-	        	if(registeredPassword.equals(password)) {
-	        		String message = "You were sucessfully logged into the system!";			        		
-	        		String loginToken = generateLoginToken();			        		
-	        		
-	        		JSONObject tokenJSON = new JSONObject();
-	                tokenJSON.put("status", OK_MESSAGE);
-	                tokenJSON.put("token", loginToken);
-	                String sendData = tokenJSON.toString();
-	        
-	        		Utils.sendMessage(communication, sendData);
-	        		System.out.println("Client: " + userName + "was sucessfully logged into the system!");			        		
+			synchronized(this) {
+	        	String registeredClients = Utils.readFile(REGISTER_CLIENTS_FILE);
+	        			        	
+	        	JSONObject clientsJSON = new JSONObject(registeredClients);
+	        	
+	        	if(clientsJSON.has(userName)) {
+	        		JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(clientsJSON, userName);
+	        		String registeredPassword = (String) Utils.getObjectByJSONArrayAttribute(userAttributes, "password");
+	        		//String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
+		        	if(registeredPassword.equals(password)) {
+		        		String message = "You were sucessfully logged into the system!";			        		
+		        		String loginToken = generateLoginToken();			        		
+		        		
+						userAttributes = Utils.changeJSONArrayAttributeByIndex(userAttributes, "token", loginToken);
+						clientsJSON = Utils.changeJSONObjectKeyAttribute(clientsJSON, userName, userAttributes);
+						Utils.atomicWriteJSONToFile(clientsJSON, REGISTER_CLIENTS_FILE);
+		        		
+		        		JSONObject tokenJSON = new JSONObject();
+		                tokenJSON.put("conclusion", OK_MESSAGE);
+		                tokenJSON.put("token", loginToken);
+		                String sendData = tokenJSON.toString();
+		        
+		        		Utils.sendMessage(communication, sendData);
+		        		System.out.println("Client: " + userName + "was sucessfully logged into the system!");			        		
+		        	} else {
+		        		String message = "Incorrect password. Try again!";
+		        		sendNotOkMessage(message);
+		        		System.out.println(message);
+		        	}
 	        	} else {
-	        		String message = "Incorrect password. Try again!";
+	        		String message = "You are not registered on the system...";
 	        		sendNotOkMessage(message);
-	        		System.out.println(message);
+	        		System.out.println("Client: " + userName + " is not registered on the system...");
 	        	}
-        	} else {
-        		String message = "You are not registered on the system...";
-        		sendNotOkMessage(message);
-        		System.out.println("Client: " + userName + " is not registered on the system...");
-        	}
+			}
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("login(): Something went wrong with the Utils function...", ue, true);
 		}
@@ -335,18 +349,19 @@ public class ServerLibrary {
 	        String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
 			String password = (String) Utils.getObjectByJSONKey(receivedJSON, "password");
 	        
-		        	
-	    	String jsonFileString = readFile(REGISTER_CLIENTS_FILE);			        			        
-	    			        	
-	    	if(signUpJSON(userName, password, jsonFileString)) {
-	    		String message = "You were sucessfully registered";
-	    		sendOkMessage(message);
-	    		System.out.println("Client was sucessfully registered!");
-	    	} else {
-	    		String message = "There was a user with that user name already on the system! Pick another one.";
-	    		sendOkMessage(message);
-	    		System.err.println(message);
-	    	}
+		    synchronized(this) {
+		    	String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);			        			        
+		    			        	
+		    	if(signUpJSON(userName, password, jsonFileString)) {
+		    		String message = "You were sucessfully registered";
+		    		sendOkMessage(message);
+		    		System.out.println("Client was sucessfully registered!");
+		    	} else {
+		    		String message = "There was a user with that user name already on the system! Pick another one.";
+		    		sendOkMessage(message);
+		    		System.err.println(message);
+		    	}
+		    }
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("signUp(): Something went wrong with the Utils function...", ue, true);
 		}
@@ -365,17 +380,18 @@ public class ServerLibrary {
 			String driveId = (String) Utils.getObjectByJSONKey(receivedJSON, "drive-id");
 			String txtId = (String) Utils.getObjectByJSONKey(receivedJSON, "txt-id");
 
-
-			String jsonFileString = readFile(USERS_ALBUMS);	
-	    	String message = null;
-			
-	    	if(createAlbum(userName, albumName, driveId, txtId, jsonFileString)) {
-	    		message = "Client album was sucessfully created!";
-	    		sendOkMessage(message);
-	    	} else {
-	    		message = "Could not create " + userName + "'s album...";
-	    		sendOkMessage(message);
-	    	}
+			synchronized(this) {
+				String jsonFileString = Utils.readFile(USERS_ALBUMS);	
+		    	String message = null;
+				
+		    	if(createAlbum(userName, albumName, driveId, txtId, jsonFileString)) {
+		    		message = "Client album was sucessfully created!";
+		    		sendOkMessage(message);
+		    	} else {
+		    		message = "Could not create " + userName + "'s album...";
+		    		sendOkMessage(message);
+		    	}
+			}
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("addNewAlbum(): Something went wrong with the Utils function...", ue, true);
 		}
@@ -386,16 +402,18 @@ public class ServerLibrary {
 	public void getUsers() throws ServerLibraryException {
 		try {
 			JSONArray users_array = new JSONArray();
-
-			String jsonFileString = readFile(REGISTER_CLIENTS_FILE);	
 			
-			JSONArray array = getJSONUsers(jsonFileString);
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("user-list", array);
-			jsonObject.put("conclusion", OK_MESSAGE);
-			String sendData = jsonObject.toString();
-			
-			Utils.sendMessage(communication, sendData);
+			synchronized(this) {
+				String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);	
+				
+				JSONArray array = getJSONUsers(jsonFileString);
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("user-list", array);
+				jsonObject.put("conclusion", OK_MESSAGE);
+				String sendData = jsonObject.toString();
+				
+				Utils.sendMessage(communication, sendData);
+			}
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("getUsers(): Something went wrong with the Utils function...", ue, false);
 		}			
@@ -408,28 +426,78 @@ public class ServerLibrary {
 			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
 			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
 			
-			String jsonFileString = readFile(USERS_ALBUMS);
-			
-			JSONArray userAlbums = getJSONUsersAlbums(userName, jsonFileString);
-			
-			JSONObject jsonObject = new JSONObject();
-			if(userAlbums==null || userAlbums.isEmpty()) {
-				String message = "You do not have a single album on the system!";
-				jsonObject.put("album-list", userAlbums);
-				String sendData = jsonObject.toString();
-								
-				Utils.sendMessage(communication, sendData);
-				sendNotOkMessage(message);
-			} else {
-				jsonObject.put("album-list", userAlbums);
-				String sendData = jsonObject.toString();
-				Utils.sendMessage(communication, sendData);
-				sendOkMessage(EMPTY);
-			}	
+			synchronized(this) {
+				String jsonFileString = Utils.readFile(USERS_ALBUMS);
+				
+				JSONArray userAlbums = getJSONUsersAlbums(userName, jsonFileString);
+				
+				JSONObject jsonObject = new JSONObject();
+				if(userAlbums==null || userAlbums.isEmpty()) {
+					String message = "You do not have a single album on the system!";
+					jsonObject.put("conclusion", NOT_OK_MESSAGE);
+					jsonObject.put("message", message);
+					jsonObject.put("album-list", userAlbums);
+					String sendData = jsonObject.toString();
+									
+					Utils.sendMessage(communication, sendData);
+				} else {
+					jsonObject.put("conclusion", OK_MESSAGE);
+					jsonObject.put("album-list", userAlbums);
+					String sendData = jsonObject.toString();
+					Utils.sendMessage(communication, sendData);
+				}
+			}
 		} catch (UtilsException ue) {
 			throw new ServerLibraryException("getUserAlbums(): Something went wrong with the Utils function...", ue, false);
 		}
 										
+	}
+	
+	public void getToken() throws ServerLibraryException {
+		try {
+			String receivedData = Utils.receiveMessage(communication);
+			
+			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
+			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
+			String password = (String) Utils.getObjectByJSONKey(receivedJSON, "password");
+			
+			synchronized(this) {
+				
+				String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);
+				JSONObject clientsJSON = new JSONObject(jsonFileString);
+				
+				if(clientsJSON.has(userName)) {
+	        		JSONArray userAttributes = (JSONArray) Utils.getObjectByJSONKey(clientsJSON, userName);
+	        		String registeredPassword = (String) Utils.getObjectByJSONArrayAttribute(userAttributes, "password");
+	        		//String registeredPassword = (String) Utils.getObjectByJSONKey(clientsJSON, userName);
+		        	if(registeredPassword.equals(password)) {
+		        		String token = getToken(userName, jsonFileString);
+						
+						JSONObject jsonObject = new JSONObject();
+						if(token.equals("default_token")) {
+							String message = "Token has already expired!";
+							sendNotOkMessage(message);
+						} else {
+							jsonObject.put("conclusion", OK_MESSAGE);
+							jsonObject.put("token", token);
+							String sendData = jsonObject.toString();
+							Utils.sendMessage(communication, sendData);
+						}
+		        	} else {
+		        		String message = "Your password was changed on the meantime...!";
+		        		sendNotOkMessage(message);
+		        		System.out.println(message);
+		        	}
+	        	} else {
+	        		String message = "You are not registered on the system...";
+	        		sendNotOkMessage(message);
+	        		System.out.println("Client: " + userName + " is not registered on the system...");
+	        	}
+
+			}
+		} catch (UtilsException ue) {
+			throw new ServerLibraryException("getToken(): Something went wrong with the Utils function...", ue, false);
+		}				
 	}
 	
 	public void exit() throws ServerLibraryException {

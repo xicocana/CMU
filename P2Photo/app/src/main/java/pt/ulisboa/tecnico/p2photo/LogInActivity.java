@@ -3,41 +3,39 @@ package pt.ulisboa.tecnico.p2photo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class LogInActivity extends AppCompatActivity {
 
+    private static final String MY_PREFERENCES = "MyPrefs";
+
     public final static String NAME = "pt.ulisboa.tecnico.p2photo.NAME";
     public final static String PASSWORD = "pt.ulisboa.tecnico.p2photo.PASSWORD";
-    public final static String LOGIN = "LOGIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        PersistentLogin persistentLogin = new PersistentLogin(pref, getApplicationContext());
+        if(persistentLogin.tryToLogin()) {
+            Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void logIn(View v) throws IOException, CommunicationsException, JSONException, InterruptedException {
-
-        Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
-        startActivity(intent);
-        /*
         //Vai buscar os nomes e a password
         EditText nameView = findViewById(R.id.editText);
         String name = nameView.getText().toString();
@@ -45,79 +43,37 @@ public class LogInActivity extends AppCompatActivity {
         EditText pwdView = findViewById(R.id.editText2);
         String password = pwdView.getText().toString();
 
-        //Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
-
-
-        SendDataToServerTask task = new SendDataToServerTask(name, password, LOGIN);
-        task.execute();
-
-
-        if(task.getStateOfRequest().equals("sucess")) {
-            String message = task.getMessage();
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-
-            //get session key
-            String myKey = "sessionkey";
-            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor edit = pref.edit();
-            // Set/Store data
-            edit.putString("session_key", myKey);
-            edit.putString("username", name);
-            Log.i("SESSION", myKey);
-            // Commit the changes
-            edit.commit();
-
-            Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
-            LogInActivity.this.finish();
-            startActivity(intent);
-        } else if(task.getStateOfRequest().equals("failure")) {
-            String message = task.getMessage();
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        } else {
-            for(int i = 1; i<10; i++) {
-                try {
-                    Thread.sleep(500);
-                    if(task.getStateOfRequest().equals("sucess")) {
-                        String message = task.getMessage();
-                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-
-                        //get session key
-                        //TM DE SER O SERVER A MANDAR A CHAVE DE SESSAO
-                        String myKey = "sessionkey";
-                        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor edit = pref.edit();
-                        // Set/Store data
-                        edit.putString("session_key", myKey);
-                        Log.i("SESSION", myKey);
-                        edit.putString("username", name);
-                        // Commit the changes
-                        edit.commit();
-
-                        Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
-                        LogInActivity.this.finish();
-                        startActivity(intent);
-                        break;
-                    } else if(task.getStateOfRequest().equals("failure")) {
-                        String message = task.getMessage();
-                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                } catch(InterruptedException ie) {
-                    System.err.println("Could not properly put the thread to sleep...");
-                    Toast.makeText(getApplicationContext(), "Critical error!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LogInActivity.this, MainActivity.class);
-                    LogInActivity.this.finish();
-                    startActivity(intent);
-                }
-                Toast.makeText(getApplicationContext(), "Could not obtain an answer back from the server!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LogInActivity.this, MainActivity.class);
-                LogInActivity.this.finish();
-                startActivity(intent);
-            }
-        }*/
+        CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+        boolean state = communicationUtilities.sendLogin(name, password);
+        proceedAccordingToState(communicationUtilities, state, name, password);
     }
 
     public void cancelLogIn(View v) {
         LogInActivity.this.finish();
+    }
+
+    private void proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state, String username, String password) {
+        if(state) {
+            //get session key
+            String sessionKey = (String) communicationUtilities.getContent();
+            setSharedPreferences(sessionKey, username, password);
+
+            Intent intent = new Intent(LogInActivity.this, UserOptionsActivity.class);
+            LogInActivity.this.finish();
+            startActivity(intent);
+        }
+        else {}
+    }
+
+    private void setSharedPreferences(String sessionKey, String username, String password) {
+        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = pref.edit();
+        // Set/Store data
+        edit.putString("session_key", sessionKey);
+        edit.putString("username", username);
+        edit.putString("password", password);
+        Log.i("SESSION", sessionKey);
+        // Commit the changes
+        edit.commit();
     }
 }
