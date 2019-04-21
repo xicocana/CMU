@@ -21,6 +21,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swiperefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <GridView
         android:id="@+id/gridview"
         android:layout_width="match_parent"
@@ -34,6 +40,8 @@
         android:stretchMode="columnWidth"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         tools:layout_editor_absoluteX="0dp" />
+
+</android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout"

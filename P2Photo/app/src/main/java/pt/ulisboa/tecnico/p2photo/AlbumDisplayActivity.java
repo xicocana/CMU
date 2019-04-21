@@ -48,6 +48,8 @@ public class AlbumDisplayActivity extends AppCompatActivity{
     public static Uri uri = null;
     private ArrayList<Bitmap> bitmapList = new ArrayList<>();
     ProgressDialog pDialog;
+    String album_name;
+    String album_id;
 
 
     @Override
@@ -57,7 +59,8 @@ public class AlbumDisplayActivity extends AppCompatActivity{
 
         TextView title = findViewById(R.id.textView2);
         Intent intent = getIntent();
-        String album_name = intent.getStringExtra("album_name");
+        album_name = intent.getStringExtra("album_name");
+        album_id = intent.getStringExtra("album_id");
         title.setText(album_name);
 
         requestSignIn();
@@ -76,10 +79,26 @@ public class AlbumDisplayActivity extends AppCompatActivity{
         vista_imagens.setAdapter(new ImageAdapter(this, bitmapList));
         Log.i("lista", bitmapList.size()+"::" );
 
+        /*
+         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
+         * performs a swipe-to-refresh gesture.
+         */
+        SwipeRefreshLayout mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        //Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        updateImages();
+                        mySwipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
+
     }
-
-
-
 
 
     @Override
@@ -99,7 +118,7 @@ public class AlbumDisplayActivity extends AppCompatActivity{
                         Log.i(TAG, "Uri: " + uri.toString());
 
                         File metadata = new File()
-                                .setParents(Collections.singletonList("root"))
+                                .setParents(Collections.singletonList(album_id))
                                 .setMimeType("image/jpeg")
                                 .setStarred(false)
                                 .setName("teste.jpg");
@@ -183,9 +202,8 @@ public class AlbumDisplayActivity extends AppCompatActivity{
     }
 
     private void updateImages(){
-
-
-        mDriveServiceHelper.searchFolder("gghjf").onSuccessTask(task -> {
+        pDialog = ProgressDialog.show(this, "Loading Data", "Please Wait...", true);
+        mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
             mDriveServiceHelper.searchFileInFolder(task.getId(), "image/jpeg").onSuccessTask(task1 -> {
                 int i=0;
                 for (GoogleDriveFileHolder f: task1) {
@@ -198,15 +216,19 @@ public class AlbumDisplayActivity extends AppCompatActivity{
                         Log.i("lista", bitmapList.size() + ":::::::");
                         Log.i("lista", "antesinvalll");
                         vista_imagens.invalidateViews();
+                        if(f.getId().equals(task1.get(task1.size()-1).getId())) {
+                            pDialog.dismiss();
+                        }
                         return null;
                     });
                 }
-
                 return null;
             });
             return null;
         });
     }
+
+
 }
 
 //EXEMPLO DE LOADING

@@ -69,8 +69,6 @@ public class DriveServiceHelper {
         mDriveService = driveService;
     }
 
-    public String fileId = "";
-
     /**
      * Creates a text file in the user's My Drive folder and returns its file ID.
      */
@@ -280,7 +278,6 @@ public class DriveServiceHelper {
             }
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
             googleDriveFileHolder.setId(googleFile.getId());
-            fileId = googleFile.getId();
             return googleDriveFileHolder;
         });
     }
@@ -307,11 +304,18 @@ public class DriveServiceHelper {
             }
 
             googleDriveFileHolder.setId(googleFile.getId());
-            this.createTextFile(folderName, "", googleFile.getId());
+            this.createTextFile(folderName, "", googleFile.getId()).onSuccessTask(GoogleDriveFileHolder -> {
+                //CHAMAR FUNCAO DO SERVER PARA ADICIONR FOLDER E TXT
+                CommunicationTask task = new CommunicationTask("ADD-ALBUM");
+                task.setFileId(GoogleDriveFileHolder.getId());
+                task.setFolderId(googleFile.getId());
+                task.setName(name);
+                task.setAlbum(folderName);
+                task.execute();
+                return null;
+            });
 
-            //CHAMAR FUNCAO DO SERVER PARA ADICIONR FOLDER E TXT
-            //CommunicationTask task = new CommunicationTask(name, "ADD-ALBUM", googleFile.getId(), fileId, folderName);
-            //task.execute();
+
 
             return googleDriveFileHolder;
         });
