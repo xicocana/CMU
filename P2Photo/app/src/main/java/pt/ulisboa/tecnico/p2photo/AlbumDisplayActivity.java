@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -76,28 +77,8 @@ public class AlbumDisplayActivity extends AppCompatActivity{
         });
 
         vista_imagens = findViewById(R.id.gridview);
-        vista_imagens.setAdapter(new ImageAdapter(this, bitmapList));
+        vista_imagens.setAdapter(new GridViewAdapter(this, R.layout.grid_item_layout, bitmapList));
         Log.i("lista", bitmapList.size()+"::" );
-
-        /*
-         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
-         * performs a swipe-to-refresh gesture.
-         */
-        SwipeRefreshLayout mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
-        mySwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        //Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
-
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        updateImages();
-                        mySwipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-        );
-
     }
 
 
@@ -143,6 +124,13 @@ public class AlbumDisplayActivity extends AppCompatActivity{
                         if(mDriveServiceHelper.uploadFile(metadata, content) != null){
                             String message = "Image added to album successfully";
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            try {
+                                Bitmap bitmap2 = BitmapFactory.decodeStream( content.getInputStream());
+                                bitmapList.add(bitmap2);
+                                vista_imagens.invalidateViews();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }else{
                             String message = "Error adding image to drive";
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -196,17 +184,19 @@ public class AlbumDisplayActivity extends AppCompatActivity{
                     // The DriveServiceHelper encapsulates all REST API and SAF functionality.
                     // Its instantiation is required before handling any onClick actions.
                     mDriveServiceHelper = new DriveServiceHelper(googleDriveService);
-                    updateImages();
+                    //updateImages();
+                    //pDialog = ProgressDialog.show( this, "Loading Data", "Please Wait...", true);
+                    new DownloadFilesTask().execute();
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
     private void updateImages(){
-        pDialog = ProgressDialog.show(this, "Loading Data", "Please Wait...", true);
         mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
             mDriveServiceHelper.searchFileInFolder(task.getId(), "image/jpeg").onSuccessTask(task1 -> {
                 int i=0;
                 for (GoogleDriveFileHolder f: task1) {
+                    pDialog = ProgressDialog.show(this, "Loading Data", "Please Wait...", true);
                     java.io.File file = new java.io.File(this.getFilesDir() + "/fileName"+i);
                     i++;
                     Log.i("lista", f.getId());
@@ -226,6 +216,44 @@ public class AlbumDisplayActivity extends AppCompatActivity{
             });
             return null;
         });
+    }
+
+    private class DownloadFilesTask extends AsyncTask<Object, Integer, Void> {
+
+        @Override
+        protected Void doInBackground(Object[] objects) {
+
+            mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
+                mDriveServiceHelper.searchFileInFolder(task.getId(), "image/jpeg").onSuccessTask(task1 -> {
+                    int i=0;
+
+                    if(task1.size() == 0 ){
+                        //pDialog.dismiss();
+                    }
+
+                    for (GoogleDriveFileHolder f: task1) {
+                        java.io.File file = new java.io.File(getFilesDir() + "/fileName"+i);
+                        i++;
+                        Log.i("lista", f.getId());
+                        mDriveServiceHelper.downloadFile(file, f.getId()).onSuccessTask(command -> {
+                            Bitmap bitmap2 = BitmapFactory.decodeFile(file.getPath());
+                            bitmapList.add(bitmap2);
+                            Log.i("lista", bitmapList.size() + ":::::::");
+                            Log.i("lista", "antesinvalll");
+                            vista_imagens.invalidateViews();
+                            if(f.getId().equals(task1.get(task1.size()-1).getId())) {
+                                //pDialog.dismiss();
+                            }
+                            return null;
+                        });
+                    }
+                    return null;
+                });
+                return null;
+            });
+
+            return null;
+        }
     }
 
 
