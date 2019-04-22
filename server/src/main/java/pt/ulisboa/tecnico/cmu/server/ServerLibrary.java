@@ -160,6 +160,16 @@ public class ServerLibrary {
 		}
 	}
 	
+	private JSONArray checkForDriveIds(JSONArray user_albums) {
+		for(int i = 0; i<user_albums.length(); i++) {
+			JSONArray album = (JSONArray) user_albums.get(i);
+			if(album.get(1).equals("")) {
+				user_albums.remove(i);
+			}
+		}
+		return user_albums;
+	}
+	
 	private JSONArray getJSONUsersAlbums(String user, String content) {
 		JSONObject obj = new JSONObject(content);
 		JSONArray user_albums = new JSONArray();
@@ -514,6 +524,7 @@ public class ServerLibrary {
 									
 					Utils.sendMessage(communication, sendData);
 				} else {
+					userAlbums = checkForDriveIds(userAlbums);
 					jsonObject.put("conclusion", OK_MESSAGE);
 					jsonObject.put("album-list", userAlbums);
 					String sendData = jsonObject.toString();
