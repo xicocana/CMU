@@ -771,6 +771,7 @@ public class ServerLibrary {
 				String sendData = jsonObject.toString();
 								
 				Utils.sendMessage(communication, sendData);
+				return;
 			}
 			synchronized(this) {
 				String sharedAlbumFile = Utils.readFile(SHARED_ALBUMS + File.separator + album + ".json");				
