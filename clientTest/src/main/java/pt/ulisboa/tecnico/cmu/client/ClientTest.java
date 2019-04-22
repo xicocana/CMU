@@ -28,6 +28,8 @@ public class ClientTest {
 		String txtId;
 		String sharee;
 		String album;
+		String email;
+		String password;
 
         Scanner scanner = new Scanner(System.in);
         
@@ -41,6 +43,22 @@ public class ClientTest {
         	System.out.println("Insert command below: ");
         	command = (String) scanner.nextLine();
         	switch(command) {
+	        	case "SIGN-UP":
+	    	        communication.sendInChunks(command);
+        			System.out.println("Insert email: ");
+        			email = (String) scanner.nextLine();
+        			System.out.println("Insert password: ");
+        			password = (String) scanner.nextLine();
+	    	        obj = new JSONObject();
+	    	        obj.put("user-name", userName);
+	    	        obj.put("email", email);
+	    	        obj.put("password", password);
+	    	        msg = obj.toString();
+	    	        communication.sendInChunks(msg);
+	    	        
+	    	        data = (String) communication.receiveInChunks();
+	    	        System.out.println(data);
+	    	        break;
         		case "GET-ALBUMS":
         	        communication.sendInChunks(command);
         	        obj = new JSONObject();

@@ -153,7 +153,7 @@ public class ServerLibrary {
 		return array;
 	}
 	
-	private boolean signUpJSON(String user, String password, String jsonString) throws ServerLibraryException {
+	private boolean signUpJSON(String user, String email, String password, String jsonString) throws ServerLibraryException {
     	JSONObject jsonFile = new JSONObject(jsonString);
     	
     	try {
@@ -162,7 +162,7 @@ public class ServerLibrary {
 	    	} else {
 	    		JSONArray userAtributes = new JSONArray();
 	    		userAtributes.put(0, password);
-	    		userAtributes.put(1, "default_email");
+	    		userAtributes.put(1, email);
 	    		userAtributes.put(2, "default_token");
 	    		
 	    		jsonFile.put(user, userAtributes);
@@ -593,12 +593,13 @@ public class ServerLibrary {
 			
 			JSONObject receivedJSON = Utils.getJSONFromString(receivedData);
 	        String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
+	        String email = (String) Utils.getObjectByJSONKey(receivedJSON, "email");
 			String password = (String) Utils.getObjectByJSONKey(receivedJSON, "password");
 	        
 		    synchronized(this) {
 		    	String jsonFileString = Utils.readFile(REGISTER_CLIENTS_FILE);			        			        
 		    			        	
-		    	if(signUpJSON(userName, password, jsonFileString)) {
+		    	if(signUpJSON(userName, email, password, jsonFileString)) {
 		    		String message = "You were sucessfully registered";
 		    		sendOkMessage(message);
 		    		System.out.println("Client was sucessfully registered!");
