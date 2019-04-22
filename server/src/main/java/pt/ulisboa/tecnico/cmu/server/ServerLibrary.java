@@ -185,13 +185,13 @@ public class ServerLibrary {
 		while(iter.hasNext()) {
 			String nome = iter.next().toString();
 			System.out.println(nome);
-			JSONArray fodasse = new JSONArray(nome);
-			String condition = (String) fodasse.get(1);
+			JSONArray intermediateArray = new JSONArray(nome);
+			String condition = (String) intermediateArray.get(1);
 			System.out.println(condition.isEmpty());
 			if(condition.isEmpty()) {
 			}
 			else {
-				clearedList.put(fodasse);
+				clearedList.put(intermediateArray);
 			}
 		}
 
