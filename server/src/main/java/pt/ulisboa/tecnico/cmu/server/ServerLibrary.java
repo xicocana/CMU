@@ -762,9 +762,17 @@ public class ServerLibrary {
 			String userName = (String) Utils.getObjectByJSONKey(receivedJSON, "user-name");
 			String shareName = (String) Utils.getObjectByJSONKey(receivedJSON, "share-name");
 			String album = (String) Utils.getObjectByJSONKey(receivedJSON, "album");
-						
+			
+			JSONObject jsonObject = new JSONObject();
+			if(userName.equals(shareName)) {
+				String message = "You cannot share an album with yourself..";
+				jsonObject.put("conclusion", NOT_OK_MESSAGE);
+				jsonObject.put("message", message);
+				String sendData = jsonObject.toString();
+								
+				Utils.sendMessage(communication, sendData);
+			}
 			synchronized(this) {
-				JSONObject jsonObject = new JSONObject();
 				String sharedAlbumFile = Utils.readFile(SHARED_ALBUMS + File.separator + album + ".json");				
 				if(isOwner(sharedAlbumFile, userName)) {					
 				}
