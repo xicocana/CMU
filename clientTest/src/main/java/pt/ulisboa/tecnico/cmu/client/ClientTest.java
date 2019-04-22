@@ -51,6 +51,12 @@ public class ClientTest {
         	        data = (String) communication.receiveInChunks();
         	        System.out.println(data);
         	        break;
+        		case "GET-USERS":
+        	        communication.sendInChunks(command);
+        	        
+        	        data = (String) communication.receiveInChunks();
+        	        System.out.println(data);
+        	        break;
         		case "ADD-USER":
         			System.out.println("Insert user to share album: ");
         			sharee = (String) scanner.nextLine();

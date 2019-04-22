@@ -138,8 +138,16 @@ public class ServerLibrary {
 		
 		while(keys.hasNext()) {
 		    String key = keys.next();
+		    JSONArray attributesList = (JSONArray) obj.get(key);
+		    String email = (String) attributesList.get(1);
+		    
 		    if(key.equals("admin")) {} 
-		    else {array.put(key);}		    
+		    else {
+		    	JSONArray intermediateArray = new JSONArray();
+			    intermediateArray.put(0, key);
+			    intermediateArray.put(1, email);
+			    array.put(intermediateArray);
+		    }		    
 		}
 		
 		return array;
