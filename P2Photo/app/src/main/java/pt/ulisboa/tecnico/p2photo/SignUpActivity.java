@@ -24,23 +24,26 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void register(View v) {
         //Vai buscar os nomes e a password
-        EditText nameView = findViewById(R.id.editText);
+        EditText nameView = findViewById(R.id.editText3);
         String name = nameView.getText().toString();
 
         EditText pwdView = findViewById(R.id.editText2);
         String password = pwdView.getText().toString();
 
-        EditText rptpwdView = findViewById(R.id.editText3);
+        EditText rptpwdView = findViewById(R.id.editText5);
         String repeatpwd = rptpwdView.getText().toString();
 
-        signUp(name, password, repeatpwd);
+        EditText emailView= findViewById(R.id.email_edit_text);
+        String email = emailView.getText().toString();
+
+        signUp(name, email, password, repeatpwd);
     }
 
     public void cancelSignUp(View v) {
         SignUpActivity.this.finish();
     }
 
-    private void signUp(String name, String password, String repeatpwd) {
+    private void signUp(String name, String email, String password, String repeatpwd) {
 
         Pattern pattern = Pattern.compile(PATTERN);
         Matcher m = pattern.matcher(name);
@@ -68,10 +71,13 @@ public class SignUpActivity extends AppCompatActivity {
         else if(!password.equals(repeatpwd)) {
             Toast.makeText(getApplicationContext(), "Your password does not match.", Toast.LENGTH_SHORT).show();
         }
+        else if(email == null || email.isEmpty()){
+            Toast.makeText(getApplicationContext(),"You must insert a email!",Toast.LENGTH_SHORT).show();
+        }
 
         else {
             CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
-            boolean state = communicationUtilities.sendSignUp(name, password);
+            boolean state = communicationUtilities.sendSignUp(name, email, password);
             proceedAccordingToState(state);
         }
 

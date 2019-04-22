@@ -93,6 +93,7 @@ public class CreateFolderActivity extends AppCompatActivity {
                         .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
 
+
         // The result of the sign-in Intent is handled in onActivityResult.
         startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
     }

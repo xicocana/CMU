@@ -66,7 +66,7 @@ public class AlbumDisplayActivity extends AppCompatActivity{
         requestSignIn();
 
         Button findUsersBtn = findViewById(R.id.button6);
-        findUsersBtn.setOnClickListener(v -> startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class)));
+        findUsersBtn.setOnClickListener(v -> startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class).putExtra("album_name",album_name)));
 
         Button addImage = findViewById(R.id.add_image);
         addImage.setOnClickListener(v -> {

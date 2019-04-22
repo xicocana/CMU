@@ -16,6 +16,7 @@ public class CommunicationUtilities {
     private final static String TOKEN = "GET-TOKEN";
     private final static String GET_USERS = "GET-USERS";
     private final static String GET_ALBUMS = "GET-ALBUMS";
+    private final static String ADD_USER = "ADD-USER";
 
     private Object content;
 
@@ -35,7 +36,7 @@ public class CommunicationUtilities {
 
     private void displayMessage(CommunicationTask task) {
         String message = task.getMessage();
-        Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show();
     }
 
     private boolean getPublisherState(CommunicationTask task) {
@@ -61,10 +62,11 @@ public class CommunicationUtilities {
         return false;
     }
 
-    public boolean sendSignUp(String name, String password) {
+    public boolean sendSignUp(String name,String email, String password) {
         CommunicationTask task = new CommunicationTask(SIGN_UP);
         task.setName(name);
         task.setPassword(password);
+        task.setEmail(email);
         task.execute();
         return getPublisherState(task);
     }
@@ -101,8 +103,8 @@ public class CommunicationUtilities {
         CommunicationTask task = new CommunicationTask(GET_USERS);
         task.execute();
         if(getPublisherState(task)) {
-            ArrayList<String> users = task.getUsers();
-            setContent(users);
+            ArrayList<String[]> usersAndEmails = task.getUsernamesAndEmails();
+            setContent(usersAndEmails);
             return true;
         } else {
             return false;
@@ -122,4 +124,17 @@ public class CommunicationUtilities {
         }
     }
 
+    public boolean sendAddUser(String name, String share, String album) {
+        CommunicationTask task = new CommunicationTask(ADD_USER);
+        task.setName(name);
+        task.setSharedUser(share);
+        task.setAlbum(album);
+        if(getPublisherState(task)) {
+            String message = task.getMessage();
+            setContent(message);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -39,12 +39,14 @@ import java.util.List;
 
 public class UserListActivity extends AppCompatActivity {
 
-    ArrayList<String> usersList = null;
+    ArrayList<String[]> usersList = null;
     private DriveServiceHelper mDriveServiceHelper;
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int READ_REQUEST_CODE = 42;
     private Drive googleDriveService;
     private static final String TAG = "UserListActivity";
+    private String album_name;
+    private String name = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,10 @@ public class UserListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_list);
         requestSignIn();
         getUserList();
+
+        album_name = getIntent().getStringExtra("album_name");
+        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        name = pref.getString("username", null);
     }
 
     public void getUserList() {
@@ -61,42 +67,49 @@ public class UserListActivity extends AppCompatActivity {
     }
 
     private void proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state) {
-        if(state) {
+        if (state) {
             //get session key
-            this.usersList = (ArrayList<String>) communicationUtilities.getContent();
+            this.usersList = (ArrayList<String[]>) communicationUtilities.getContent();
+            List<String> userName = new ArrayList<>();
 
-            for(int i = 0; i<this.usersList.size(); i++) {
+
+            for (int i = 0; i < this.usersList.size(); i++) {
                 System.out.println(usersList.get(i));
+                userName.add(usersList.get(i)[0]);
             }
-            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, this.usersList);
+
+            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, userName);
             final ListView usersViewList = (ListView) findViewById(R.id.user_list);
             usersViewList.setAdapter(arrayAdapter);
 
             Button addButton = (Button) findViewById(R.id.add_btn);
-            addButton.setOnClickListener(new View.OnClickListener() {
-                                             @Override
-                                             public void onClick(View v) {
+            addButton.setOnClickListener(v -> {
 
-                                                 ArrayList<String> checkedList = new ArrayList<>();
-                                                 int len = usersViewList.getCount();
-                                                 SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
-                                                 for (int i = 0; i < len; i++)
-                                                     //TODO por isto a adicionar os utilizadores a drive e tambem no servidor
-                                                     if (checked.get(i)) {
-                                                         checkedList.add(usersList.get(i));
-                                                         Log.i("OnClickAddUsers", usersList.get(i));
-                                                         mDriveServiceHelper.searchFolder("quemerda").onSuccessTask(task -> {
-                                                             mDriveServiceHelper.setPermission("taguscmu@gmail.com", task.getId());
-                                                             String message = "shared album with cdiogof94.spam@gmail.com";
-                                                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                                                             return null;
-                                                         });
-                                                     }
-                                             }
-                                         }
+                        ArrayList<String> checkedList = new ArrayList<>();
+                        int len = usersViewList.getCount();
+                        SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
+                        for (int i = 0; i < len; i++)
+                            //TODO por isto a adicionar os utilizadores a drive e tambem no servidor
+                            if (checked.get(i)) {
+                                checkedList.add(usersList.get(i)[0]);
+                                Log.i("OnClickAddUsers", usersList.get(i)[0]);
+                                String share = usersList.get(i)[0];
+                                String email = usersList.get(i)[1];
+
+                                mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
+                                    mDriveServiceHelper.setPermission(email, task.getId());
+                                    String message = "shared album with" + email;
+
+                                    //CommunicationUtilities communicationUtilities2 = new CommunicationUtilities(this.getApplicationContext());
+                                    communicationUtilities.sendAddUser(name, share, album_name);
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                    return null;
+                                });
+                            }
+                    }
             );
+        } else {
         }
-        else {}
     }
 
 

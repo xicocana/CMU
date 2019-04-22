@@ -28,36 +28,57 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
     private static final String GET_USERS = "GET-USERS";
     private static final String GET_TOKEN = "GET-TOKEN";
     private static final String EXIT = "EXIT";
+    private static final String ADD_USER = "ADD-USER";
 
     private Socket socket = null;
     private String name = "";
+    private String sharedUser = "";
+    private String email = "";
     private String password = "";
     private String command = "";
     private String state = "waiting";
     private String message = null;
-    private String hostname = "192.168.43.80";
+    private String hostname = "192.168.1.115";
     private String loginToken = "not_received";
 
     private int port = 8080;
 
     private ArrayList<String> usernames = null;
-    private ArrayList<ArrayList <String>> userAlbums = new ArrayList<ArrayList<String>>();
+    private ArrayList<ArrayList<String>> userAlbums = new ArrayList<ArrayList<String>>();
 
     public String folderID = "";
     public String fileID = "";
     public String album = "";
 
+    public ArrayList<String[]> getUsernamesAndEmails() {
+        return usernamesAndEmails;
+    }
+
+    public void setUsernamesAndEmails(ArrayList<String[]> usernamesAndEmails) {
+        this.usernamesAndEmails = usernamesAndEmails;
+    }
+
+    private ArrayList<String[]> usernamesAndEmails = null;
+
     public CommunicationTask(String command) {
         this.command = command;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     private void UserAlbumsJSONArrayToArrayList(JSONArray jsonAlbumList) throws JSONException {
 
         ArrayList<ArrayList<String>> albums = new ArrayList<ArrayList<String>>();
-        for(int i = 0; i<jsonAlbumList.length(); i++) {
+        for (int i = 0; i < jsonAlbumList.length(); i++) {
             JSONArray jsonAlbumAttributes = (JSONArray) jsonAlbumList.get(i);
             ArrayList<String> albumAttributes = new ArrayList<String>();
-            for(int j = 0; j<jsonAlbumAttributes.length(); j++) {
+            for (int j = 0; j < jsonAlbumAttributes.length(); j++) {
                 String attribute = (String) jsonAlbumAttributes.get(j);
                 albumAttributes.add(attribute);
             }
@@ -75,6 +96,14 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
         this.name = name;
     }
 
+    public String getSharedUser() {
+        return this.sharedUser;
+    }
+
+    public void setSharedUser(String sharedUser) {
+        this.sharedUser = sharedUser;
+    }
+
     public String getPassword() {
         return this.password;
     }
@@ -90,7 +119,7 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
     public String getMessage() {
         return this.message;
     }
-    
+
     public String getStateOfRequest() {
         return this.state;
     }
@@ -107,20 +136,20 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
         this.loginToken = loginToken;
     }
 
-    public ArrayList<String> getUsers(){
+    public ArrayList<String> getUsers() {
         return this.usernames;
     }
-    
-    public void setUsers(ArrayList<String> usernames) { 
-        this.usernames = usernames; 
+
+    public void setUsers(ArrayList<String> usernames) {
+        this.usernames = usernames;
     }
 
-    public ArrayList<ArrayList <String>> getUserAlbums() {
+    public ArrayList<ArrayList<String>> getUserAlbums() {
         return this.userAlbums;
     }
 
-    public void setUserAlbums(ArrayList<ArrayList <String>> userAlbums) { 
-        this.userAlbums = userAlbums; 
+    public void setUserAlbums(ArrayList<ArrayList<String>> userAlbums) {
+        this.userAlbums = userAlbums;
     }
 
     public String getFolderId() {
@@ -158,7 +187,7 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
         Communications communication = new Communications(socket);
 
 
-        switch(command) {
+        switch (command) {
             case LOGIN:
                 try {
                     JSONObject jsonObject = new JSONObject();
@@ -197,6 +226,7 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
                 try {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("user-name", name);
+                    jsonObject.put("email", email);
                     jsonObject.put("password", password);
 
                     String sendData = jsonObject.toString();
@@ -233,12 +263,13 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
                     JSONObject recvJSONObject = new JSONObject(recvData);
                     if (recvJSONObject.get("conclusion").equals(OK)) {
                         JSONArray jsonArray = (JSONArray) recvJSONObject.get("user-list");
-                        ArrayList<String> usernames = new ArrayList<String>();
+                        ArrayList<String[]> usersAndEmails = new ArrayList<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
-                            String userName = (String) jsonArray.get(i);
-                            usernames.add(userName);
+                            JSONArray userX = (JSONArray) jsonArray.get(i);
+                            usersAndEmails.add(new String[]{(String) userX.get(0), (String) userX.get(1)});
                         }
-                        setUsers(usernames);
+                        setUsernamesAndEmails(usersAndEmails);
+                        // setUsers(usernames);
                         this.setStateOfRequest("success");
                     } else {
                         System.err.println("doInBackground(): Something went terribly wrong while trying to get users...");
@@ -359,14 +390,54 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
                     System.err.println("doInBackground(): Utils class broke down...");
                 }
 
+            case ADD_USER:
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("user-name", name);
+                    jsonObject.put("share-name", sharedUser);
+                    jsonObject.put("album", album);
+
+                    String sendData = jsonObject.toString();
+                    Utils.sendMessage(communication, command);
+                    Utils.sendMessage(communication, sendData);
+
+                    String recvData = (String) Utils.receiveMessage(communication);
+                    JSONObject recvJSONObject = new JSONObject(recvData);
+
+                    if (recvJSONObject.get("conclusion").equals(OK)) {
+                        String message = (String) recvJSONObject.get("message");
+                        this.setMessage(message);
+                        this.setStateOfRequest("success");
+                    } else if (recvJSONObject.get("conclusion").equals("NOT-OK")) {
+                        this.setMessage((String) recvJSONObject.get("message"));
+                        this.setStateOfRequest("failure");
+                    } else {
+                        System.err.println("doInBackground(): Something went terribly wrong while trying to add user to album...");
+                        String message = "Something went terribly wrong while trying to add user to album...";
+                        this.setMessage(message);
+                        this.setStateOfRequest("failure");
+                    }
+
+                    Utils.sendMessage(communication, EXIT);
+
+                } catch (JSONException jsone) {
+                    System.err.println("doInBackground(): Got a JSON error while trying to add user to album...");
+                } catch (UtilsException ui) {
+                    System.err.println("doInBackground(): Utils class broke down...");
+                }
+
+
         }
+
+
         try {
             communication.end();
-        } catch(CommunicationsException ce) {
+        } catch (CommunicationsException ce) {
             System.err.println("doInBackground(): Something went wrong while trying to end the connection with client...");
         }
         return null;
     }
+
 
     @Override
     protected void onPostExecute(Void aVoid) {

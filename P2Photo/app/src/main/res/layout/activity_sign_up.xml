@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="256dp"
-        android:layout_height="143dp"
+        android:layout_height="176dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
@@ -16,17 +16,25 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/editText3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="username"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/email_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="email"
             android:inputType="textPersonName" />
 
         <EditText
@@ -38,15 +46,17 @@
             android:inputType="textPassword" />
 
         <EditText
-            android:id="@+id/editText3"
+            android:id="@+id/editText5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="repeat password"
             android:inputType="textPassword" />
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="243dp"
         android:layout_height="91dp"
         android:layout_marginStart="8dp"
@@ -64,15 +74,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Register"
-            android:onClick="register"/>
+            android:onClick="register"
+            android:text="Register" />
 
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Cancel"
-            android:onClick="cancelSignUp"/>
+            android:onClick="cancelSignUp"
+            android:text="Cancel" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
