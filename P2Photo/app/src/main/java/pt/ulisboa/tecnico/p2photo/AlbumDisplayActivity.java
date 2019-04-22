@@ -7,8 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +18,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.AbstractInputStreamContent;
@@ -28,6 +25,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -187,41 +186,25 @@ public class AlbumDisplayActivity extends AppCompatActivity{
                     //updateImages();
                     //pDialog = ProgressDialog.show( this, "Loading Data", "Please Wait...", true);
                     new DownloadFilesTask().execute();
+
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
-    }
-
-    private void updateImages(){
-        mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
-            mDriveServiceHelper.searchFileInFolder(task.getId(), "image/jpeg").onSuccessTask(task1 -> {
-                int i=0;
-                for (GoogleDriveFileHolder f: task1) {
-                    pDialog = ProgressDialog.show(this, "Loading Data", "Please Wait...", true);
-                    java.io.File file = new java.io.File(this.getFilesDir() + "/fileName"+i);
-                    i++;
-                    Log.i("lista", f.getId());
-                    mDriveServiceHelper.downloadFile(file, f.getId()).onSuccessTask(command -> {
-                        Bitmap bitmap2 = BitmapFactory.decodeFile(file.getPath());
-                        bitmapList.add(bitmap2);
-                        Log.i("lista", bitmapList.size() + ":::::::");
-                        Log.i("lista", "antesinvalll");
-                        vista_imagens.invalidateViews();
-                        if(f.getId().equals(task1.get(task1.size()-1).getId())) {
-                            pDialog.dismiss();
-                        }
-                        return null;
-                    });
-                }
-                return null;
-            });
-            return null;
-        });
     }
 
     private class DownloadFilesTask extends AsyncTask<Object, Integer, Void> {
 
         @Override
         protected Void doInBackground(Object[] objects) {
+
+            mDriveServiceHelper.queryAllFiles().onSuccessTask(fileList -> {
+
+                fileList.getFiles();
+                System.out.print(2345);
+                return null;
+
+            }).addOnFailureListener(e -> {
+                e.printStackTrace();
+            });
 
             mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
                 mDriveServiceHelper.searchFileInFolder(task.getId(), "image/jpeg").onSuccessTask(task1 -> {

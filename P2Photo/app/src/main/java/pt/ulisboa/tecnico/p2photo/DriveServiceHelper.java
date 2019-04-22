@@ -144,6 +144,11 @@ public class DriveServiceHelper {
                 mDriveService.files().list().setSpaces("drive").execute());
     }
 
+    public Task<FileList> queryAllFiles() {
+        return Tasks.call(mExecutor, () ->
+                mDriveService.files().list().setQ("parents in 'root' and mimeType = 'application/vnd.google-apps.folder' or sharedWithMe").execute());
+    }
+
     /**
      * Returns an {@link Intent} for opening the Storage Access Framework file picker.
      */
@@ -241,9 +246,12 @@ public class DriveServiceHelper {
 
             // Retrive the metadata as a File object.
             FileList result = mDriveService.files().list()
-                    .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'")
+                    //.setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'")
+                    .setQ("mimeType = 'application/vnd.google-apps.folder' or sharedWithMe")
                     .setSpaces("drive")
                     .execute();
+
+
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
             if (result.getFiles().size() > 0) {
                 googleDriveFileHolder.setId(result.getFiles().get(0).getId());

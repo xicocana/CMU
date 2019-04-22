@@ -50,55 +50,55 @@ public class UserListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
-
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        String name = pref.getString("username", null);
-
-        /*SendDataToServerTask task = new SendDataToServerTask(name, "GET-USERS");
-        task.execute();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if(task.getStateOfRequest().equals("sucess")) {
-                usersList = task.getUserList();
-        }*/
-        usersList = new ArrayList<>();
-        usersList.add("dc");
-
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, usersList);
-        final ListView usersViewList = (ListView) findViewById(R.id.user_list);
-        usersViewList.setAdapter(arrayAdapter);
-
         requestSignIn();
-
-        Button addButton = (Button) findViewById(R.id.add_btn);
-        addButton.setOnClickListener(new View.OnClickListener() {
-                                         @Override
-                                         public void onClick(View v) {
-
-                                             ArrayList<String> checkedList = new ArrayList<>();
-                                             int len = usersViewList.getCount();
-                                             SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
-                                             for (int i = 0; i < len; i++)
-                                                 if (checked.get(i)) {
-
-                                                     checkedList.add(usersList.get(i));
-                                                     Log.i("OnClickAddUsers", usersList.get(i));
-                                                     mDriveServiceHelper.searchFolder("gghjf").onSuccessTask(task -> {
-                                                         mDriveServiceHelper.setPermission("cdiogof94.spam@gmail.com", task.getId());
-                                                         String message = "shared album with cdiogof94.spam@gmail.com";
-                                                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                                                         return null;
-                                                     });
-                                                 }
-                                         }
-                                     }
-        );
+        getUserList();
     }
+
+    public void getUserList() {
+        CommunicationUtilities communicationUtilities = new CommunicationUtilities(this.getApplicationContext());
+        boolean state = communicationUtilities.sendGetUsers();
+        proceedAccordingToState(communicationUtilities, state);
+    }
+
+    private void proceedAccordingToState(CommunicationUtilities communicationUtilities, boolean state) {
+        if(state) {
+            //get session key
+            this.usersList = (ArrayList<String>) communicationUtilities.getContent();
+
+            for(int i = 0; i<this.usersList.size(); i++) {
+                System.out.println(usersList.get(i));
+            }
+            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, this.usersList);
+            final ListView usersViewList = (ListView) findViewById(R.id.user_list);
+            usersViewList.setAdapter(arrayAdapter);
+
+            Button addButton = (Button) findViewById(R.id.add_btn);
+            addButton.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View v) {
+
+                                                 ArrayList<String> checkedList = new ArrayList<>();
+                                                 int len = usersViewList.getCount();
+                                                 SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
+                                                 for (int i = 0; i < len; i++)
+                                                     //TODO por isto a adicionar os utilizadores a drive e tambem no servidor
+                                                     if (checked.get(i)) {
+                                                         checkedList.add(usersList.get(i));
+                                                         Log.i("OnClickAddUsers", usersList.get(i));
+                                                         mDriveServiceHelper.searchFolder("quemerda").onSuccessTask(task -> {
+                                                             mDriveServiceHelper.setPermission("taguscmu@gmail.com", task.getId());
+                                                             String message = "shared album with cdiogof94.spam@gmail.com";
+                                                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                                             return null;
+                                                         });
+                                                     }
+                                             }
+                                         }
+            );
+        }
+        else {}
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {

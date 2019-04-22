@@ -30,9 +30,6 @@ public class UserOptionsActivity extends AppCompatActivity {
         Button listAlbumsBtn = (Button) findViewById(R.id.get_album_btn);
         listAlbumsBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, AlbumsListActivity.class)));
 
-        Button listUsersBtn = (Button) findViewById(R.id.list_users);
-        listUsersBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivity.this, UserListActivity.class)));
-
         Button logOutBtn = (Button) findViewById(R.id.log_out_btn);
         logOutBtn.setOnClickListener(v -> {
             SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
