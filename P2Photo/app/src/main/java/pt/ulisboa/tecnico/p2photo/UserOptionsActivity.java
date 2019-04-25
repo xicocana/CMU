@@ -5,13 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleAddImageActivity;
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
 
 public class UserOptionsActivity extends AppCompatActivity {
 

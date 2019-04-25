@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -25,8 +23,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 
 import java.util.Collections;
-
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleCreateFolderActivity;
 
 public class CreateFolderActivity extends AppCompatActivity {
 
@@ -51,15 +47,18 @@ public class CreateFolderActivity extends AppCompatActivity {
                 Log.d(TAG, "Creating a file.");
                 SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
                 String name = pref.getString("username", null);
-                Task<GoogleDriveFileHolder> res = mDriveServiceHelper.createFolder(name, folder_name.getText().toString(), null);
-                if(res != null){
+
+                mDriveServiceHelper.createFolder(name, folder_name.getText().toString(), null).addOnSuccessListener(googleDriveFileHolder -> {
                     String message = "Album " + folder_name.getText().toString() + " created";
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                }
-                else{
+
+                    mDriveServiceHelper.setPermission(googleDriveFileHolder.getId());
+                }).addOnFailureListener(e -> {
                     String message = "Error creating new album";
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                }
+                });
+
+
             }
 
             startActivity(intent);

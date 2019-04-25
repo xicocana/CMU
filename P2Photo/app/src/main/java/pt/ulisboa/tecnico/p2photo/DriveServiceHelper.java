@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
@@ -28,11 +30,16 @@ import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -265,7 +272,6 @@ public class DriveServiceHelper {
     public Task<GoogleDriveFileHolder> createTextFile(String fileName, String content, @Nullable String folderId) {
         return Tasks.call(mExecutor, () -> {
 
-
             List<String> root;
             if (folderId == null) {
                 root = Collections.singletonList("root");
@@ -312,7 +318,7 @@ public class DriveServiceHelper {
             }
 
             googleDriveFileHolder.setId(googleFile.getId());
-            this.createTextFile(folderName, "", googleFile.getId()).onSuccessTask(GoogleDriveFileHolder -> {
+            this.createTextFile(folderName, "", googleFile.getId()).addOnSuccessListener(GoogleDriveFileHolder -> {
                 //CHAMAR FUNCAO DO SERVER PARA ADICIONR FOLDER E TXT
                 CommunicationTask task = new CommunicationTask("ADD-ALBUM");
                 task.setFileId(GoogleDriveFileHolder.getId());
@@ -320,9 +326,9 @@ public class DriveServiceHelper {
                 task.setName(name);
                 task.setAlbum(folderName);
                 task.execute();
-                return null;
+            }).addOnFailureListener(e -> {
+                Log.e("lista","erro ao criar txt", e);
             });
-
 
 
             return googleDriveFileHolder;
@@ -335,8 +341,9 @@ public class DriveServiceHelper {
             File fileMeta = mDriveService.files().create(googleDriveFile, content).execute();
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
             googleDriveFileHolder.setId(fileMeta.getId());
-            Log.i("TAAAG", fileMeta.getId());
+            Log.i("FILE_ID", fileMeta.getId());
             googleDriveFileHolder.setName(fileMeta.getName());
+
             return googleDriveFileHolder;
         });
     }
@@ -363,7 +370,7 @@ public class DriveServiceHelper {
         });
     }
 
-    public Task<Void> setPermission(String email, String folderId) {
+    public Task<Void> setPermission( String folderId) {
         return Tasks.call(mExecutor, () -> {
             // Retrieve the metadata as a File object.
             if (folderId != null) {
@@ -374,6 +381,7 @@ public class DriveServiceHelper {
                                               HttpHeaders responseHeaders)
                                 throws IOException {
                             // Handle error
+                            Log.e("lista", "error Permission: " + e.getMessage());
                             System.err.println(e.getMessage());
                         }
 
@@ -381,24 +389,82 @@ public class DriveServiceHelper {
                         public void onSuccess(Permission permission,
                                               HttpHeaders responseHeaders)
                                 throws IOException {
+                            Log.i("lista", "Sucess Permission");
                             System.out.println("Permission ID: " + permission.getId());
                         }
                     };
 
                     BatchRequest batch = mDriveService.batch();
                     Permission permission = new Permission()
-                            .setEmailAddress(email)
+                            .setAllowFileDiscovery(true)
                             .setRole("reader")
-                            .setType("user");
+                            .setType("anyone");
                     mDriveService.permissions().create(folderId, permission).queue(batch, callback);
                     batch.execute();
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             return null;
         });
     }
+
+    public Task<File> updateFile(String fileId, String newContent, String diretory  ,String newFilename) {
+        return Tasks.call(mExecutor, () -> {
+            try {
+                Log.i("lista", "file id txt " + fileId);
+
+                // First create a new File.
+                File file = new File()
+                 .setMimeType("text/plain").setName(newFilename);
+
+                java.io.File targetFile = new java.io.File(diretory);
+
+
+                try(FileWriter fw = new FileWriter(targetFile, true);
+                    BufferedWriter bw = new BufferedWriter(fw);
+                    PrintWriter out = new PrintWriter(bw))
+                {
+                    out.print(newContent);
+                } catch (IOException e) {
+                    //TODO - TRATAR EXCEPCAO
+                    Log.e("lista", "erro ao escrever",e);
+                }
+
+                FileContent mediaContent = new FileContent("text/plain", targetFile);
+
+                // Send the request to the API.
+                File updatedFile = mDriveService.files().update(fileId, file, mediaContent).execute();
+
+                return updatedFile;
+            } catch (Exception e) {
+                Log.e("lista", "Exception",e);
+                System.out.println("An error occurred: " + e);
+                return null;
+            }
+        });
+    }
+
+
+    public static Task<Bitmap> getBitmapFromURL(String src) {
+        return Tasks.call(Executors.newSingleThreadExecutor(), () -> {
+            try {
+                URL url = new URL(src);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+
+                return myBitmap;
+            } catch (Exception e) {
+                Log.e("lista", "Erro Download ", e);
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
 
     /* // REMARK
 

@@ -10,8 +10,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import pt.ulisboa.tecnico.p2photo.GoogleUtils.GoogleImageDownloadActivity;
-
 
 public class AlbumsListActivity extends AppCompatActivity {
 
@@ -49,6 +47,7 @@ public class AlbumsListActivity extends AppCompatActivity {
 
                 intent.putExtra("album_name", albumsFromServer.get(position));
                 intent.putExtra("album_id", albumsList.get(position).get(1));
+                intent.putExtra("text_txt", albumsList.get(position).get(2));
 
                 startActivity(intent);
             });

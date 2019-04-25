@@ -97,7 +97,7 @@ public class UserListActivity extends AppCompatActivity {
                                 String email = usersList.get(i)[1];
 
                                 mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
-                                    mDriveServiceHelper.setPermission(email, task.getId());
+                                    mDriveServiceHelper.setPermission( task.getId());
                                     String message = "shared album with" + email;
 
                                     //CommunicationUtilities communicationUtilities2 = new CommunicationUtilities(this.getApplicationContext());
