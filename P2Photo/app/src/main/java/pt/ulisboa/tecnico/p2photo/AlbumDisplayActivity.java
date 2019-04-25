@@ -168,16 +168,16 @@ public class AlbumDisplayActivity extends AppCompatActivity {
 
                     //TODO- para teste
                     //List<String> driveIdList = Arrays.asList("1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo","1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo","1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo");
-                    mDriveServiceHelper.readFile(text_txt).addOnSuccessListener(stringStringPair -> {
-                        Log.i("lista", "Content" + stringStringPair.second);
+                    mDriveServiceHelper.getfileFromURL("https://drive.google.com/uc?export=download&id=" + text_txt).addOnSuccessListener(Content -> {
+                        Log.i("lista", "Content" + Content);
 
-                        if (!stringStringPair.second.isEmpty()) {
-                            List<String> driveIdList = Arrays.asList(stringStringPair.second.split(","));
+                        if (!Content.isEmpty()) {
+                            List<String> driveIdList = Arrays.asList(Content.split(","));
                             new DownloadFilesTask().execute(driveIdList);
                         }
 
                     }).addOnFailureListener(e -> {
-
+                        Log.i("lista", "erro");
                     });
 
 

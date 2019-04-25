@@ -327,7 +327,7 @@ public class DriveServiceHelper {
                 task.setAlbum(folderName);
                 task.execute();
             }).addOnFailureListener(e -> {
-                Log.e("lista","erro ao criar txt", e);
+                Log.e("lista", "erro ao criar txt", e);
             });
 
 
@@ -370,7 +370,7 @@ public class DriveServiceHelper {
         });
     }
 
-    public Task<Void> setPermission( String folderId) {
+    public Task<Void> setPermission(String folderId) {
         return Tasks.call(mExecutor, () -> {
             // Retrieve the metadata as a File object.
             if (folderId != null) {
@@ -409,26 +409,25 @@ public class DriveServiceHelper {
         });
     }
 
-    public Task<File> updateFile(String fileId, String newContent, String diretory  ,String newFilename) {
+    public Task<File> updateFile(String fileId, String newContent, String diretory, String newFilename) {
         return Tasks.call(mExecutor, () -> {
             try {
                 Log.i("lista", "file id txt " + fileId);
 
                 // First create a new File.
                 File file = new File()
-                 .setMimeType("text/plain").setName(newFilename);
+                        .setMimeType("text/plain").setName(newFilename);
 
                 java.io.File targetFile = new java.io.File(diretory);
 
 
-                try(FileWriter fw = new FileWriter(targetFile, true);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    PrintWriter out = new PrintWriter(bw))
-                {
+                try (FileWriter fw = new FileWriter(targetFile, true);
+                     BufferedWriter bw = new BufferedWriter(fw);
+                     PrintWriter out = new PrintWriter(bw)) {
                     out.print(newContent);
                 } catch (IOException e) {
                     //TODO - TRATAR EXCEPCAO
-                    Log.e("lista", "erro ao escrever",e);
+                    Log.e("lista", "erro ao escrever", e);
                 }
 
                 FileContent mediaContent = new FileContent("text/plain", targetFile);
@@ -438,7 +437,7 @@ public class DriveServiceHelper {
 
                 return updatedFile;
             } catch (Exception e) {
-                Log.e("lista", "Exception",e);
+                Log.e("lista", "Exception", e);
                 System.out.println("An error occurred: " + e);
                 return null;
             }
@@ -465,6 +464,41 @@ public class DriveServiceHelper {
         });
     }
 
+    public static Task<String> getfileFromURL(String src) {
+        return Tasks.call(Executors.newSingleThreadExecutor(), () -> {
+            try {
+                URL url = new URL(src);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+
+
+                // Stream the file contents to a String.
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+                    String contents = stringBuilder.toString();
+
+                    return contents;
+                }
+
+            } catch (Exception e) {
+                Log.e("lista", "Erro Download ", e);
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
+
+}
+
 
     /* // REMARK
 
@@ -480,4 +514,3 @@ public class DriveServiceHelper {
     java.io.File destinationPath = new java.io.File(getActivity().getFilesDir() + "/fileName");
     */
 
-}
