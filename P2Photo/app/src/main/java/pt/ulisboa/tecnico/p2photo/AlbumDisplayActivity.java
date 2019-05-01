@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.p2photo;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -8,13 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,8 +23,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.AbstractInputStreamContent;
@@ -33,17 +31,13 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
@@ -81,7 +75,7 @@ public class AlbumDisplayActivity extends AppCompatActivity {
 
         requestSignIn();
 
-        Button findUsersBtn = findViewById(R.id.button6);
+        Button findUsersBtn = findViewById(R.id.add_user);
         findUsersBtn.setOnClickListener(v -> startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class).putExtra("album_name", album_name)));
 
         Button addImage = findViewById(R.id.add_image);
@@ -96,6 +90,7 @@ public class AlbumDisplayActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setIndeterminate(true);
+
 
     }
 
@@ -185,6 +180,8 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
+    boolean shared = false;
+
     private class UploadFilesTask extends AsyncTask<Uri, Integer, Void> {
 
         @Override
@@ -192,49 +189,86 @@ public class AlbumDisplayActivity extends AppCompatActivity {
             uri = uris[0];
             Log.i(TAG, "Uri: " + uri.toString());
 
-            File metadata = new File()
-                    .setParents(Collections.singletonList(album_id))
-                    .setMimeType("image/jpeg")
-                    .setStarred(false)
-                    .setName("teste.jpg");
 
-            AbstractInputStreamContent content = new AbstractInputStreamContent(null) {
-                @Override
-                public InputStream getInputStream() throws IOException {
-                    return getContentResolver().openInputStream(uri);
-                }
+            //TODO - ver se dá para verficar pelo Server
 
-                @Override
-                public long getLength() throws IOException {
-                    return getInputStream().available();
-                }
+            if (shared) {
 
-                @Override
-                public boolean retrySupported() {
-                    return false;
-                }
-            };
+                mDriveServiceHelper.createFolder(album_name, album_name, null).addOnSuccessListener(fileHolder -> {
+                    Toast.makeText(getApplicationContext(), "Album " + album_name + " created", Toast.LENGTH_SHORT).show();
+                    mDriveServiceHelper.setPermission(fileHolder.getId());
 
+                    album_id = fileHolder.getId();
+                    text_txt = fileHolder.getTextTXT();
+
+                    shared = false;
+
+                    File metadata = new File()
+                            .setParents(Collections.singletonList(album_id))
+                            .setMimeType("image/jpeg")
+                            .setStarred(false)
+                            .setName("teste.jpg");
+
+                    AbstractInputStreamContent content = new AbstractInputStreamContent(null) {
+                        @Override
+                        public InputStream getInputStream() throws IOException {
+                            return getContentResolver().openInputStream(uri);
+                        }
+
+                        @Override
+                        public long getLength() throws IOException {
+                            return getInputStream().available();
+                        }
+
+                        @Override
+                        public boolean retrySupported() {
+                            return false;
+                        }
+                    };
+
+                    uploadFunction(metadata, content);
+
+
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(getApplicationContext(), "Error creating shared album in drive", Toast.LENGTH_SHORT).show();
+                });
+
+            } else {
+
+                File metadata = new File()
+                        .setParents(Collections.singletonList(album_id))
+                        .setMimeType("image/jpeg")
+                        .setStarred(false)
+                        .setName("teste.jpg");
+
+                AbstractInputStreamContent content = new AbstractInputStreamContent(null) {
+                    @Override
+                    public InputStream getInputStream() throws IOException {
+                        return getContentResolver().openInputStream(uri);
+                    }
+
+                    @Override
+                    public long getLength() throws IOException {
+                        return getInputStream().available();
+                    }
+
+                    @Override
+                    public boolean retrySupported() {
+                        return false;
+                    }
+                };
+
+                uploadFunction(metadata, content);
+            }
+
+
+            return null;
+        }
+
+        private void uploadFunction(File metadata, AbstractInputStreamContent content) {
             mDriveServiceHelper.uploadFile(metadata, content).addOnSuccessListener(googleDriveFileHolder -> {
                 String message = "Image added to album successfully";
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-
-                mDriveServiceHelper.readFile(text_txt).addOnSuccessListener(stringStringPair -> {
-                    Log.i("lista", "Content" + stringStringPair.second);
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(",");
-                    sb.append(googleDriveFileHolder.getId());
-                    //TODO - no txt
-                    mDriveServiceHelper.updateFile(text_txt, sb.toString(), getFilesDir() + album_name, album_name).addOnSuccessListener(file -> {
-                        Log.i("lista", "sucesso txt updated");
-                    }).addOnFailureListener(e -> {
-                        Log.e("lista", "insucesso txt updated", e);
-                    });
-
-                }).addOnFailureListener(e -> {
-
-                });
-
 
                 try {
                     Bitmap bitmap2 = BitmapFactory.decodeStream(content.getInputStream());
@@ -244,12 +278,33 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+                readAndUpdateFile(googleDriveFileHolder);
+
+
             }).addOnFailureListener(e -> {
                 String message = "Error adding image to drive";
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             });
+        }
 
-            return null;
+        private void readAndUpdateFile(GoogleDriveFileHolder googleDriveFileHolder) {
+            mDriveServiceHelper.readFile(text_txt).addOnSuccessListener(stringStringPair -> {
+                Log.i("lista", "sucesso ler txt");
+                Log.i("lista", "Content" + stringStringPair.second);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(",");
+                sb.append(googleDriveFileHolder.getId());
+                //TODO - no txt
+                mDriveServiceHelper.updateFile(text_txt, sb.toString(), getFilesDir() + album_name, album_name).addOnSuccessListener(file -> {
+                    Log.i("lista", "sucesso txt updated");
+                }).addOnFailureListener(e -> {
+                    Log.e("lista", "insucesso txt updated", e);
+                });
+
+            }).addOnFailureListener(e -> {
+                Log.e("lista", "insucesso ler txt", e);
+            });
         }
     }
 

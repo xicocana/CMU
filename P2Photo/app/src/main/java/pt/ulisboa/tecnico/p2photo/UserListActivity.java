@@ -52,12 +52,13 @@ public class UserListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
+
+        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        album_name = getIntent().getStringExtra("album_name");
+        name = pref.getString("username", null);
+
         requestSignIn();
         getUserList();
-
-        album_name = getIntent().getStringExtra("album_name");
-        SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        name = pref.getString("username", null);
     }
 
     public void getUserList() {
@@ -96,14 +97,13 @@ public class UserListActivity extends AppCompatActivity {
                                 String share = usersList.get(i)[0];
                                 String email = usersList.get(i)[1];
 
-                                mDriveServiceHelper.searchFolder(album_name).onSuccessTask(task -> {
-                                    mDriveServiceHelper.setPermission( task.getId());
+                                mDriveServiceHelper.searchFolder(album_name).addOnSuccessListener(task -> {
+                                    mDriveServiceHelper.setPermission(task.getId());
                                     String message = "shared album with" + email;
 
                                     //CommunicationUtilities communicationUtilities2 = new CommunicationUtilities(this.getApplicationContext());
                                     communicationUtilities.sendAddUser(name, share, album_name);
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                                    return null;
                                 });
                             }
                     }

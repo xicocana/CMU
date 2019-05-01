@@ -129,6 +129,7 @@ public class CommunicationUtilities {
         task.setName(name);
         task.setSharedUser(share);
         task.setAlbum(album);
+        task.execute();
         if(getPublisherState(task)) {
             String message = task.getMessage();
             setContent(message);

@@ -2,12 +2,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
-    android:background="@drawable/grid_color_selector"
+    android:background="@drawable/common_google_signin_btn_icon_dark"
     android:orientation="vertical"
     android:padding="5dp">
 
     <ImageView
         android:id="@+id/image"
+        android:background="@drawable/grid_color_selector"
         android:layout_width="100dp"
         android:layout_height="100dp" />
 

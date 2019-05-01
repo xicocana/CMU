@@ -11,6 +11,16 @@ public class GoogleDriveFileHolder {
     private DateTime createdTime;
     private Boolean starred;
 
+    public String getTextTXT() {
+        return textTXT;
+    }
+
+    public void setTextTXT(String textTXT) {
+        this.textTXT = textTXT;
+    }
+
+    private String textTXT;
+
 
     public DateTime getCreatedTime() {
         return createdTime;
