@@ -5,6 +5,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_STATE"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -13,13 +22,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RestMainActivity"/>
+        <activity android:name=".wifi.UserListActivityWifi"></activity>
+        <activity android:name=".wifi.AlbumDisplayActivityWifi" />
+        <activity android:name=".wifi.AlbumsListActivityWifi" />
+        <activity android:name=".wifi.CreateFolderActivityWifi" />
+        <activity android:name=".wifi.SignUpActivityWifi" />
+        <activity android:name=".wifi.LogInActivityWifi" />
+        <activity android:name=".wifi.UserOptionsActivityWifi" />
+        <activity android:name=".wifi.MainActivityWifi" />
+        <activity android:name=".RestMainActivity" />
         <activity android:name=".ModeActivity">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".AlbumDisplayActivity" />
         <activity android:name=".AlbumsListActivity" />
