@@ -525,17 +525,22 @@ public class ServerLibrary {
 	
 	private boolean isAlbumSharedWithUser(String user, String sharedAlbum, String users_albums) {
 		JSONObject jsonObject = new JSONObject(users_albums);
-		JSONArray jsonArray = (JSONArray) jsonObject.get(user);
-		Iterator iter = jsonArray.iterator();
-		while(iter.hasNext()) {
-			JSONArray iterArray = (JSONArray) iter.next();
-			String album = (String) iterArray.get(0);
-			if(album.equals(sharedAlbum)) {
-				return true;
+		if(jsonObject.has(user)) {
+			JSONArray jsonArray = (JSONArray) jsonObject.get(user);
+			Iterator iter = jsonArray.iterator();
+			while(iter.hasNext()) {
+				JSONArray iterArray = (JSONArray) iter.next();
+				String album = (String) iterArray.get(0);
+				if(album.equals(sharedAlbum)) {
+					return true;
+				}
 			}
+			
+			return false;
+		} else {
+			//nao esta partilhado mas tem de dar true para sair deste check
+			return true;
 		}
-		
-		return false;
 	}
 	
 	public void login() throws ServerLibraryException {						
