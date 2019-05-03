@@ -38,6 +38,7 @@ public class AlbumsListActivity extends AppCompatActivity {
             for (ArrayList<String> iter: albumsList) {
                 albumsFromServer.add(iter.get(0));
             }
+
             ListView albums_list = (ListView) findViewById(R.id.albums_list);
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumsFromServer);
             albums_list.setAdapter(arrayAdapter);
@@ -45,9 +46,12 @@ public class AlbumsListActivity extends AppCompatActivity {
             albums_list.setOnItemClickListener((parent, view, position, id) -> {
                 Intent intent = new Intent(AlbumsListActivity.this, AlbumDisplayActivity.class);
 
+
                 intent.putExtra("album_name", albumsFromServer.get(position));
                 intent.putExtra("album_id", albumsList.get(position).get(1));
                 intent.putExtra("text_txt", albumsList.get(position).get(2));
+
+                intent.putStringArrayListExtra("albumInfo", albumsList.get(position));
 
                 startActivity(intent);
             });

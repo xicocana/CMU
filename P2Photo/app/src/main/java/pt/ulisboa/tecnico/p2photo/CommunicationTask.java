@@ -11,6 +11,9 @@ import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 import pt.ulisboa.tecnico.p2photo.exceptions.TaskException;
@@ -74,15 +77,34 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
 
     private void UserAlbumsJSONArrayToArrayList(JSONArray jsonAlbumList) throws JSONException {
 
+        Map<String,Integer> mapNames = new HashMap<>();
+        String name = "";
         ArrayList<ArrayList<String>> albums = new ArrayList<ArrayList<String>>();
         for (int i = 0; i < jsonAlbumList.length(); i++) {
+            boolean alreadyExists = false;
             JSONArray jsonAlbumAttributes = (JSONArray) jsonAlbumList.get(i);
             ArrayList<String> albumAttributes = new ArrayList<String>();
             for (int j = 0; j < jsonAlbumAttributes.length(); j++) {
+                if (j == 0){
+                    name = (String) jsonAlbumAttributes.get(j);
+                    if (!mapNames.containsKey(name)){
+                        mapNames.put(name,i);
+                    }else{
+                        alreadyExists = true;
+                    }
+                }
+
                 String attribute = (String) jsonAlbumAttributes.get(j);
                 albumAttributes.add(attribute);
             }
-            albums.add(albumAttributes);
+
+            if (alreadyExists){
+               int position =  mapNames.get(name);
+               albums.get(position).addAll(albumAttributes);
+            }else{
+                albums.add(albumAttributes);
+            }
+
         }
 
         setUserAlbums(albums);

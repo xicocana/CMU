@@ -9,12 +9,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.googleapis.batch.BatchRequest;
@@ -31,6 +34,7 @@ import com.google.api.services.drive.model.Permission;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -253,8 +257,7 @@ public class DriveServiceHelper {
 
             // Retrive the metadata as a File object.
             FileList result = mDriveService.files().list()
-                    //.setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'")
-                    .setQ("mimeType = 'application/vnd.google-apps.folder' or sharedWithMe")
+                    .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'")
                     .setSpaces("drive")
                     .execute();
 
@@ -292,11 +295,12 @@ public class DriveServiceHelper {
             }
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
             googleDriveFileHolder.setId(googleFile.getId());
+            googleDriveFileHolder.setTextTXT(googleFile.getId());
             return googleDriveFileHolder;
         });
     }
 
-    public Task<GoogleDriveFileHolder> createFolder(String name, String folderName, @Nullable String folderId) {
+    public Task<GoogleDriveFileHolder> createFolder(String folderName, @Nullable String folderId) {
         return Tasks.call(mExecutor, () -> {
 
             GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
@@ -318,17 +322,6 @@ public class DriveServiceHelper {
             }
 
             googleDriveFileHolder.setId(googleFile.getId());
-            this.createTextFile(folderName, "", googleFile.getId()).addOnSuccessListener(GoogleDriveFileHolder -> {
-                //CHAMAR FUNCAO DO SERVER PARA ADICIONR FOLDER E TXT
-                CommunicationTask task = new CommunicationTask("ADD-ALBUM");
-                task.setFileId(GoogleDriveFileHolder.getId());
-                task.setFolderId(googleFile.getId());
-                task.setName(name);
-                task.setAlbum(folderName);
-                task.execute();
-            }).addOnFailureListener(e -> {
-                Log.e("lista", "erro ao criar txt", e);
-            });
 
 
             return googleDriveFileHolder;
@@ -409,7 +402,8 @@ public class DriveServiceHelper {
         });
     }
 
-    public Task<File> updateFile(String fileId, String newContent, String diretory, String newFilename) {
+    boolean isEmpty;
+    public Task<File> updateFile(String fileId, String newContent,String oldContent, String diretory, String newFilename) {
         return Tasks.call(mExecutor, () -> {
             try {
                 Log.i("lista", "file id txt " + fileId);
@@ -418,13 +412,17 @@ public class DriveServiceHelper {
                 File file = new File()
                         .setMimeType("text/plain").setName(newFilename);
 
-                java.io.File targetFile = new java.io.File(diretory);
+                String finalContent = newContent;
 
+                java.io.File targetFile = new java.io.File(diretory);
+                if(!targetFile.exists()){
+                    finalContent = newContent + oldContent;
+                }
 
                 try (FileWriter fw = new FileWriter(targetFile, true);
                      BufferedWriter bw = new BufferedWriter(fw);
                      PrintWriter out = new PrintWriter(bw)) {
-                    out.print(newContent);
+                    out.print(finalContent);
                 } catch (IOException e) {
                     //TODO - TRATAR EXCEPCAO
                     Log.e("lista", "erro ao escrever", e);
@@ -455,7 +453,12 @@ public class DriveServiceHelper {
                 InputStream input = connection.getInputStream();
                 Bitmap myBitmap = BitmapFactory.decodeStream(input);
 
-                return myBitmap;
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                myBitmap.compress(Bitmap.CompressFormat.JPEG,15,stream);
+                byte[] byteArray = stream.toByteArray();
+                Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+
+                return compressedBitmap;
             } catch (Exception e) {
                 Log.e("lista", "Erro Download ", e);
                 e.printStackTrace();

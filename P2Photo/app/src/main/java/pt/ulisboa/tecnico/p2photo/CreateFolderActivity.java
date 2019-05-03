@@ -48,11 +48,22 @@ public class CreateFolderActivity extends AppCompatActivity {
                 SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
                 String name = pref.getString("username", null);
 
-                mDriveServiceHelper.createFolder(name, folder_name.getText().toString(), null).addOnSuccessListener(googleDriveFileHolder -> {
-                    String message = "Album " + folder_name.getText().toString() + " created";
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                mDriveServiceHelper.createFolder( folder_name.getText().toString(), null).addOnSuccessListener(folderHolder -> {
+                    Toast.makeText(getApplicationContext(), "Album " + folder_name.getText().toString() + " created", Toast.LENGTH_SHORT).show();
+                    mDriveServiceHelper.createTextFile( folder_name.getText().toString(), "", folderHolder.getId()).addOnSuccessListener(
+                            txtHolder -> {
+                                Toast.makeText(getApplicationContext(), "TXT  created", Toast.LENGTH_SHORT).show();
 
-                    mDriveServiceHelper.setPermission(googleDriveFileHolder.getId());
+                                CommunicationTask task = new CommunicationTask("ADD-ALBUM");
+                                task.setFolderId(folderHolder.getId());
+                                task.setFileId(txtHolder.getId());
+                                task.setName(name);
+                                task.setAlbum( folder_name.getText().toString());
+                                task.execute();
+                            });
+
+
+                    mDriveServiceHelper.setPermission(folderHolder.getId());
                 }).addOnFailureListener(e -> {
                     String message = "Error creating new album";
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();

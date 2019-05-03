@@ -2,11 +2,16 @@ package pt.ulisboa.tecnico.p2photo;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +24,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.budiyev.android.circularprogressbar.CircularProgressBar;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -41,59 +49,63 @@ import java.util.List;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
-public class AlbumDisplayActivity extends AppCompatActivity {
+public class AlbumDisplayActivity extends googleUtils {
 
-    private DriveServiceHelper mDriveServiceHelper;
-    private static final int REQUEST_CODE_SIGN_IN = 1;
-    private static final int READ_REQUEST_CODE = 42;
-    private Drive googleDriveService;
+    private static final String TAG = "AlbumDisplayActivity";
+
     private GridView vista_imagens;
     private GridViewAdapter gridViewAdapter;
-    private ArrayList<java.io.File> imagens = new ArrayList<>();
-    private static final String TAG = "AlbumDisplayActivity";
+
+
     public static Uri uri = null;
     private ArrayList<Bitmap> bitmapList = new ArrayList<>();
-    ProgressDialog pDialog;
     String album_name;
     String album_id;
     String text_txt;
 
     CircularProgressBar progressBar;
+    List<String> albumInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_display);
 
-        TextView title = findViewById(R.id.textView2);
         Intent intent = getIntent();
         album_name = intent.getStringExtra("album_name");
         album_id = intent.getStringExtra("album_id");
         text_txt = intent.getStringExtra("text_txt");
-
-        title.setText(album_name);
+        albumInfo = intent.getStringArrayListExtra("albumInfo");
 
         requestSignIn();
 
-        Button findUsersBtn = findViewById(R.id.add_user);
-        findUsersBtn.setOnClickListener(v -> startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class).putExtra("album_name", album_name)));
+        TextView title = findViewById(R.id.textView2);
+        title.setText(album_name);
 
+
+        //ADD USER BUTTON
+        Button findUsersBtn = findViewById(R.id.add_user);
+        findUsersBtn.setOnClickListener(v ->
+                startActivity(new Intent(AlbumDisplayActivity.this, UserListActivity.class)
+                        .putExtra("album_name", album_name)));
+
+        //ADD IMAGE BUTTON
         Button addImage = findViewById(R.id.add_image);
         addImage.setOnClickListener(v -> {
             startActivityForResult(mDriveServiceHelper.createFilePickerIntent(), READ_REQUEST_CODE);
-
         });
 
+        //GRID IMAGES
         vista_imagens = findViewById(R.id.gridview);
         gridViewAdapter = new GridViewAdapter(this, R.layout.grid_item_layout, bitmapList);
         vista_imagens.setAdapter(gridViewAdapter);
 
+        //PROGRESS BAR
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setIndeterminate(true);
 
-
+       // InitializeDownload();
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
@@ -108,7 +120,7 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     //Uri uri = null;
                     if (resultData != null) {
-                        new UploadFilesTask().execute(resultData.getData());
+                        new AlbumDisplayActivity.UploadFilesTask().execute(resultData.getData());
                     }
                 }
                 break;
@@ -116,71 +128,56 @@ public class AlbumDisplayActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
-    /**
-     * Starts a sign-in activity using {@link #REQUEST_CODE_SIGN_IN}.
-     */
-    private void requestSignIn() {
-        Log.d(TAG, "Requesting sign-in");
+    private void InitializeDownload() {
+        //TODO- para teste
 
-        GoogleSignInOptions signInOptions =
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestEmail()
-                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-                        .build();
-        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
+        for (int i = 2; i <= albumInfo.size(); i += 3) {
+            String txt = albumInfo.get(i);
+            mDriveServiceHelper.getfileFromURL("https://drive.google.com/uc?export=download&id=" + txt).addOnSuccessListener(Content -> {
+                if (Content != null){
+                    Log.i("lista", "Content" + Content);
 
-        // The result of the sign-in Intent is handled in onActivityResult.
-        startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
-    }
+                    if (!Content.isEmpty()) {
+                        List<String> driveIdList = Arrays.asList(Content.split(","));
+                       // new DownloadFilesTask().execute(driveIdList);
 
-    /**
-     * Handles the {@code result} of a completed sign-in activity initiated from {@link
-     * #requestSignIn()}.
-     */
-    private void handleSignInResult(Intent result) {
-        GoogleSignIn.getSignedInAccountFromIntent(result)
-                .addOnSuccessListener(googleAccount -> {
-                    Log.d(TAG, "Signed in as " + googleAccount.getEmail());
+                        for (String driveIdFile : driveIdList) {
+                            if (!driveIdFile.isEmpty()) {
+                                Glide.with(this)
+                                        .asBitmap()
+                                        .load("https://drive.google.com/uc?export=download&id=" + driveIdFile)
+                                        .into(new CustomTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                bitmapList.add(resource);
+                                                vista_imagens.invalidateViews();
+                                            }
 
-                    // Use the authenticated account to sign in to the Drive service.
-                    GoogleAccountCredential credential =
-                            GoogleAccountCredential.usingOAuth2(
-                                    this, Collections.singleton(DriveScopes.DRIVE_FILE));
-                    credential.setSelectedAccount(googleAccount.getAccount());
-                    googleDriveService =
-                            new Drive.Builder(
-                                    AndroidHttp.newCompatibleTransport(),
-                                    new GsonFactory(),
-                                    credential)
-                                    .setApplicationName("Drive API Migration")
-                                    .build();
-
-                    // The DriveServiceHelper encapsulates all REST API and SAF functionality.
-                    // Its instantiation is required before handling any onClick actions.
-                    mDriveServiceHelper = new DriveServiceHelper(googleDriveService);
-                    //updateImages();
-                    //pDialog = ProgressDialog.show( this, "Loading Data", "Please Wait...", true);
-
-                    //TODO- para teste
-                    //List<String> driveIdList = Arrays.asList("1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo","1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo","1BfEkcK_ZHCP7Abj-3YbGkm_lW4_RInGo");
-                    mDriveServiceHelper.getfileFromURL("https://drive.google.com/uc?export=download&id=" + text_txt).addOnSuccessListener(Content -> {
-                        Log.i("lista", "Content" + Content);
-
-                        if (!Content.isEmpty()) {
-                            List<String> driveIdList = Arrays.asList(Content.split(","));
-                            new DownloadFilesTask().execute(driveIdList);
+                                            @Override
+                                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                                            }
+                                        });
+                            }
                         }
 
-                    }).addOnFailureListener(e -> {
-                        Log.i("lista", "erro");
-                    });
+                    }
 
+                }else{
+                    progressBar.setIndeterminate(false);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getApplicationContext(), "0 photos", Toast.LENGTH_SHORT).show();
+                }
 
-                })
-                .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
+            }).addOnFailureListener(e -> {
+                Log.i("lista", "erro");
+            });
+        }
     }
 
-    boolean shared = false;
+    @Override
+    void doSomethingAfterSignin() {
+        InitializeDownload();
+    }
 
     private class UploadFilesTask extends AsyncTask<Uri, Integer, Void> {
 
@@ -189,20 +186,9 @@ public class AlbumDisplayActivity extends AppCompatActivity {
             uri = uris[0];
             Log.i(TAG, "Uri: " + uri.toString());
 
+            mDriveServiceHelper.searchFolder(album_name).addOnSuccessListener(fileHolder -> {
 
-            //TODO - ver se dá para verficar pelo Server
-
-            if (shared) {
-
-                mDriveServiceHelper.createFolder(album_name, album_name, null).addOnSuccessListener(fileHolder -> {
-                    Toast.makeText(getApplicationContext(), "Album " + album_name + " created", Toast.LENGTH_SHORT).show();
-                    mDriveServiceHelper.setPermission(fileHolder.getId());
-
-                    album_id = fileHolder.getId();
-                    text_txt = fileHolder.getTextTXT();
-
-                    shared = false;
-
+                if (fileHolder.getId() != null) {
                     File metadata = new File()
                             .setParents(Collections.singletonList(album_id))
                             .setMimeType("image/jpeg")
@@ -227,39 +213,66 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                     };
 
                     uploadFunction(metadata, content);
+                } else {
+
+                    SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                    String name = pref.getString("username", null);
+
+                    mDriveServiceHelper.createFolder(album_name, null).addOnSuccessListener(
+                            folderHolder -> {
+                                Toast.makeText(getApplicationContext(), "Album " + album_name + " created", Toast.LENGTH_SHORT).show();
+                                mDriveServiceHelper.createTextFile(album_name, "", folderHolder.getId()).addOnSuccessListener(
+                                        txtHolder -> {
+
+                                            Toast.makeText(getApplicationContext(), "TXT  created", Toast.LENGTH_SHORT).show();
+                                            //TODO - SERVER
+                                            CommunicationTask task = new CommunicationTask("ADD-ALBUM");
+                                            task.setFolderId(folderHolder.getId());
+                                            task.setFileId(txtHolder.getId());
+                                            task.setName(name);
+                                            task.setAlbum(album_name);
+                                            task.execute();
+                                            //
+
+                                            album_id = folderHolder.getId();
+                                            text_txt = txtHolder.getId();
+
+                                            File metadata = new File()
+                                                    .setParents(Collections.singletonList(album_id))
+                                                    .setMimeType("image/jpeg")
+                                                    .setStarred(false)
+                                                    .setName("teste.jpg");
+
+                                            AbstractInputStreamContent content = new AbstractInputStreamContent(null) {
+                                                @Override
+                                                public InputStream getInputStream() throws IOException {
+                                                    return getContentResolver().openInputStream(uri);
+                                                }
+
+                                                @Override
+                                                public long getLength() throws IOException {
+                                                    return getInputStream().available();
+                                                }
+
+                                                @Override
+                                                public boolean retrySupported() {
+                                                    return false;
+                                                }
+                                            };
+
+                                            uploadFunction(metadata, content);
+
+                                        });
+
+                                mDriveServiceHelper.setPermission(folderHolder.getId());
+
+                            });
+                }
 
 
-                }).addOnFailureListener(e -> {
-                    Toast.makeText(getApplicationContext(), "Error creating shared album in drive", Toast.LENGTH_SHORT).show();
-                });
-
-            } else {
-
-                File metadata = new File()
-                        .setParents(Collections.singletonList(album_id))
-                        .setMimeType("image/jpeg")
-                        .setStarred(false)
-                        .setName("teste.jpg");
-
-                AbstractInputStreamContent content = new AbstractInputStreamContent(null) {
-                    @Override
-                    public InputStream getInputStream() throws IOException {
-                        return getContentResolver().openInputStream(uri);
-                    }
-
-                    @Override
-                    public long getLength() throws IOException {
-                        return getInputStream().available();
-                    }
-
-                    @Override
-                    public boolean retrySupported() {
-                        return false;
-                    }
-                };
-
-                uploadFunction(metadata, content);
-            }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(getApplicationContext(), "Error reading folder album in drive", Toast.LENGTH_SHORT).show();
+            });
 
 
             return null;
@@ -296,7 +309,7 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                 sb.append(",");
                 sb.append(googleDriveFileHolder.getId());
                 //TODO - no txt
-                mDriveServiceHelper.updateFile(text_txt, sb.toString(), getFilesDir() + album_name, album_name).addOnSuccessListener(file -> {
+                mDriveServiceHelper.updateFile(text_txt, sb.toString(), stringStringPair.second, getFilesDir() + album_name, album_name).addOnSuccessListener(file -> {
                     Log.i("lista", "sucesso txt updated");
                 }).addOnFailureListener(e -> {
                     Log.e("lista", "insucesso txt updated", e);
@@ -309,8 +322,6 @@ public class AlbumDisplayActivity extends AppCompatActivity {
     }
 
     private class DownloadFilesTask extends AsyncTask<List<String>, Integer, Void> {
-
-
         @Override
         protected Void doInBackground(List<String>... lists) {
 
@@ -320,6 +331,12 @@ public class AlbumDisplayActivity extends AppCompatActivity {
                     mDriveServiceHelper.getBitmapFromURL("https://drive.google.com/uc?export=download&id=" + driveIdFile)
                             .addOnSuccessListener(bitmap -> {
                                 Log.i("lista", "sucesso Download");
+
+                                BitmapFactory.Options options = new BitmapFactory.Options();
+                                options.inJustDecodeBounds = true;
+                                options.inSampleSize = 3;
+                                BitmapFactory.decodeResource(getResources(),bitmap.getGenerationId(), options);
+
                                 bitmapList.add(bitmap);
                                 vista_imagens.invalidateViews();
                                 progressBar.setIndeterminate(false);
@@ -332,10 +349,4 @@ public class AlbumDisplayActivity extends AppCompatActivity {
             return null;
         }
     }
-
-
 }
-
-//EXEMPLO DE LOADING
-//pDialog = ProgressDialog.show(this, "Loading Data", "Please Wait...", true);
-//pDialog.dismiss();

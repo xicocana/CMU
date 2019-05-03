@@ -72,7 +72,6 @@ public class GridViewAdapter extends ArrayAdapter {
         expandedImageView.setVisibility(View.VISIBLE);
 
         expandedImageView.setOnClickListener(v -> {
-
             expandedImageView.setVisibility(View.INVISIBLE);
         });
     }
