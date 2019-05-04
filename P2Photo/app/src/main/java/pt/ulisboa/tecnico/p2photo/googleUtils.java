@@ -79,5 +79,5 @@ public abstract class googleUtils extends AppCompatActivity {
 
     }
 
-    abstract void doSomethingAfterSignin();
+    protected abstract void doSomethingAfterSignin();
 }

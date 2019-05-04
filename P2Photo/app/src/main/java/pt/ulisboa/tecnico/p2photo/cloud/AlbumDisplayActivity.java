@@ -120,6 +120,11 @@ public class AlbumDisplayActivity extends googleUtils {
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
+    @Override
+    protected void doSomethingAfterSignin() {
+        InitializeDownload();
+    }
+
     private void InitializeDownload() {
         //TODO- para teste
 
@@ -166,10 +171,8 @@ public class AlbumDisplayActivity extends googleUtils {
         }
     }
 
-    @Override
-    void doSomethingAfterSignin() {
-        InitializeDownload();
-    }
+
+
 
     private class UploadFilesTask extends AsyncTask<Uri, Integer, Void> {
 
