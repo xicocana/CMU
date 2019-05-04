@@ -1,7 +1,6 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,14 +11,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,16 +23,7 @@ import com.budiyev.android.circularprogressbar.CircularProgressBar;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.Scope;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.AbstractInputStreamContent;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
@@ -44,8 +31,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+
+import pt.ulisboa.tecnico.p2photo.CommunicationTask;
+import pt.ulisboa.tecnico.p2photo.GoogleDriveFileHolder;
+import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
+import pt.ulisboa.tecnico.p2photo.R;
+import pt.ulisboa.tecnico.p2photo.googleUtils;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
@@ -128,6 +120,11 @@ public class AlbumDisplayActivity extends googleUtils {
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
+    @Override
+    protected void doSomethingAfterSignin() {
+        InitializeDownload();
+    }
+
     private void InitializeDownload() {
         //TODO- para teste
 
@@ -174,10 +171,8 @@ public class AlbumDisplayActivity extends googleUtils {
         }
     }
 
-    @Override
-    void doSomethingAfterSignin() {
-        InitializeDownload();
-    }
+
+
 
     private class UploadFilesTask extends AsyncTask<Uri, Integer, Void> {
 

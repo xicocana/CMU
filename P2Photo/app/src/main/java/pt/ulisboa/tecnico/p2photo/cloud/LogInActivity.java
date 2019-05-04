@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,9 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import pt.ulisboa.tecnico.p2photo.CommunicationUtilities;
+import pt.ulisboa.tecnico.p2photo.PersistentLogin;
+import pt.ulisboa.tecnico.p2photo.R;
 import pt.ulisboa.tecnico.p2photo.exceptions.CommunicationsException;
 
 public class LogInActivity extends AppCompatActivity {
