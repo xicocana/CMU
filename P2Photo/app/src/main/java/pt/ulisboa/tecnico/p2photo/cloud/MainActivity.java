@@ -1,12 +1,14 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+
+import pt.ulisboa.tecnico.p2photo.PersistentLogin;
+import pt.ulisboa.tecnico.p2photo.R;
 
 public class MainActivity extends AppCompatActivity {
 

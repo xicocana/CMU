@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+
+import pt.ulisboa.tecnico.p2photo.CommunicationTask;
+import pt.ulisboa.tecnico.p2photo.CommunicationUtilities;
+import pt.ulisboa.tecnico.p2photo.R;
 
 
 public class AlbumsListActivity extends AppCompatActivity {

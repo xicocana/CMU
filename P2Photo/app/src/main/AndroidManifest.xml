@@ -47,14 +47,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AlbumDisplayActivity" />
-        <activity android:name=".AlbumsListActivity" />
-        <activity android:name=".UserListActivity" />
-        <activity android:name=".UserOptionsActivity" />
-        <activity android:name=".LogInActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".CreateFolderActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".cloud.AlbumDisplayActivity" />
+        <activity android:name=".cloud.AlbumsListActivity" />
+        <activity android:name=".cloud.UserListActivity" />
+        <activity android:name=".cloud.UserOptionsActivity" />
+        <activity android:name=".cloud.LogInActivity" />
+        <activity android:name=".cloud.SignUpActivity" />
+        <activity android:name=".cloud.CreateFolderActivity" />
+        <activity android:name=".cloud.MainActivity" />
     </application>
 
 </manifest>

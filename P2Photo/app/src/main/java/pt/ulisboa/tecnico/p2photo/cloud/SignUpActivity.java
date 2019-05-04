@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import pt.ulisboa.tecnico.p2photo.CommunicationUtilities;
+import pt.ulisboa.tecnico.p2photo.R;
 
 public class SignUpActivity extends AppCompatActivity {
 

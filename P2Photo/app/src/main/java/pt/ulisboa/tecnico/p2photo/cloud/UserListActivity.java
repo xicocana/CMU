@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +36,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import pt.ulisboa.tecnico.p2photo.CommunicationUtilities;
+import pt.ulisboa.tecnico.p2photo.DriveServiceHelper;
+import pt.ulisboa.tecnico.p2photo.R;
 
 public class UserListActivity extends AppCompatActivity {
 

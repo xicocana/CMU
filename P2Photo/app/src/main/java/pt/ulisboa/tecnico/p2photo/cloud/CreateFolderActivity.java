@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.p2photo;
+package pt.ulisboa.tecnico.p2photo.cloud;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,7 +15,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.json.gson.GsonFactory;
@@ -23,6 +22,10 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 
 import java.util.Collections;
+
+import pt.ulisboa.tecnico.p2photo.CommunicationTask;
+import pt.ulisboa.tecnico.p2photo.DriveServiceHelper;
+import pt.ulisboa.tecnico.p2photo.R;
 
 public class CreateFolderActivity extends AppCompatActivity {
 

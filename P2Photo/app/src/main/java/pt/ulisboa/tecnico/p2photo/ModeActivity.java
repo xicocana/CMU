@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import pt.ulisboa.tecnico.p2photo.cloud.MainActivity;
 import pt.ulisboa.tecnico.p2photo.wifi.MainActivityWifi;
 
 public class ModeActivity extends AppCompatActivity {
