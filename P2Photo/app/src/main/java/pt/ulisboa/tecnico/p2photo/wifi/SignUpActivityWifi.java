@@ -22,21 +22,21 @@ public class SignUpActivityWifi extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        setContentView(R.layout.activity_sign_up_wifi);
     }
 
     public void register(View v) {
         //Vai buscar os nomes e a password
-        EditText nameView = findViewById(R.id.editText3);
+        EditText nameView = findViewById(R.id.editText31);
         String name = nameView.getText().toString();
 
-        EditText pwdView = findViewById(R.id.editText2);
+        EditText pwdView = findViewById(R.id.editText21);
         String password = pwdView.getText().toString();
 
-        EditText rptpwdView = findViewById(R.id.editText5);
+        EditText rptpwdView = findViewById(R.id.editText51);
         String repeatpwd = rptpwdView.getText().toString();
 
-        EditText emailView= findViewById(R.id.email_edit_text);
+        EditText emailView= findViewById(R.id.wifi_name);
         String email = emailView.getText().toString();
 
         signUp(name, email, password, repeatpwd);
