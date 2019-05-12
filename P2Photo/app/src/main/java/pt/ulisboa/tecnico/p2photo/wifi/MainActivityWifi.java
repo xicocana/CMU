@@ -27,9 +27,7 @@ public class MainActivityWifi extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
-        }
+
 
         String folder_main = "CMU";
         File f = new File(Environment.getExternalStorageDirectory(), folder_main);

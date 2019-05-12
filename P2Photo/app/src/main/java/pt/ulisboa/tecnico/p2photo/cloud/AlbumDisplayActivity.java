@@ -37,7 +37,6 @@ import pt.ulisboa.tecnico.p2photo.CommunicationTask;
 import pt.ulisboa.tecnico.p2photo.GoogleDriveFileHolder;
 import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
 import pt.ulisboa.tecnico.p2photo.R;
-import pt.ulisboa.tecnico.p2photo.googleUtils;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
@@ -57,6 +56,7 @@ public class AlbumDisplayActivity extends googleUtils {
 
     CircularProgressBar progressBar;
     List<String> albumInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

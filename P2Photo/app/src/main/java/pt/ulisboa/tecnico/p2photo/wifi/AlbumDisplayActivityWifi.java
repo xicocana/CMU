@@ -2,13 +2,25 @@ package pt.ulisboa.tecnico.p2photo.wifi;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -33,23 +45,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
 import pt.ulisboa.tecnico.p2photo.R;
 
 public class AlbumDisplayActivityWifi extends AppCompatActivity {
+    public static final String TAG = "AlbumDisplayActivity";
 
     private GridView vista_imagens;
     private GridViewAdapter gridViewAdapter;
     private ArrayList<java.io.File> imagens = new ArrayList<>();
-    private static final String TAG = "AlbumDisplayActivity";
     private ArrayList<Bitmap> bitmapList = new ArrayList<>();
     ProgressDialog pDialog;
     String album_name;
     CircularProgressBar progressBar;
     private static final int READ_REQUEST_CODE = 42;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +80,11 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
 
         Button addImage = findViewById(R.id.add_image);
         addImage.setOnClickListener(v -> {
-                // the file to be moved or copied
-                Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("image/jpeg");
-                startActivityForResult(i, READ_REQUEST_CODE);
+            // the file to be moved or copied
+            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            i.addCategory(Intent.CATEGORY_OPENABLE);
+            i.setType("image/jpeg");
+            startActivityForResult(i, READ_REQUEST_CODE);
         });
 
         vista_imagens = findViewById(R.id.gridview);
@@ -97,11 +110,12 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
             }
         }
     }
-    private class ImageShower extends AsyncTask<Void, Integer, Void>{
+
+    private class ImageShower extends AsyncTask<Void, Integer, Void> {
 
         private Context ctx;
 
-        public ImageShower(Context ctx){
+        public ImageShower(Context ctx) {
             this.ctx = ctx;
         }
 
@@ -128,7 +142,7 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
                     bitmapList.add(bitmap);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -141,7 +155,7 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
 
         private Context ctx;
 
-        public ImageCopy(Context ctx){
+        public ImageCopy(Context ctx) {
             this.ctx = ctx;
         }
 
@@ -151,7 +165,7 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uris[0]);
                 //create a file to write bitmap data
                 String name[] = uris[0].getPath().split("/");
-                File f = new File(Environment.getExternalStorageDirectory() + "/CMU/" + album_name, name[name.length-1]+".jpg");
+                File f = new File(Environment.getExternalStorageDirectory() + "/CMU/" + album_name, name[name.length - 1] + ".jpg");
                 f.createNewFile();
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -163,13 +177,44 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                 fos.write(bitmapdata);
                 fos.flush();
                 fos.close();
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+//    @Override
+//    public boolean handleMessage(Message msg) {
+//        switch (msg.what) {
+//            case MESSAGE_READ:
+//                byte[] readBuf = (byte[]) msg.obj;
+//                // construct a string from the valid bytes in the buffer
+//                String readMessage = new String(readBuf, 0, msg.arg1);
+//                Log.d(TAG, readMessage);
+//                (chatFragment).pushMessage("Buddy: " + readMessage);
+//                break;
+//
+//            case MY_HANDLE:
+//                Object obj = msg.obj;
+//                (chatFragment).setChatManager((CommunicationManager) obj);
+//
+//        }
+//        return true;
+//    }
+
+
+
 
 
 //EXEMPLO DE LOADING
