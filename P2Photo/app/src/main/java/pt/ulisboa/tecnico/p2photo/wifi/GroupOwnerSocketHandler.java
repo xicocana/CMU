@@ -20,11 +20,13 @@ public class GroupOwnerSocketHandler extends Thread {
     private final int THREAD_COUNT = 10;
     private Handler handler;
     private static final String TAG = "GroupOwnerSocketHandler";
+    private String name ;
 
-    public GroupOwnerSocketHandler(Handler handler) throws IOException {
+    public GroupOwnerSocketHandler(Handler handler, String name) throws IOException {
         try {
             socket = new ServerSocket(4545);
             this.handler = handler;
+            this.name = name;
             Log.d("GroupOwnerSocketHandler", "Socket Started");
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,7 +49,7 @@ public class GroupOwnerSocketHandler extends Thread {
             try {
                 // A blocking operation. Initiate a CommunicationManager instance when
                 // there is a new connection
-                pool.execute(new CommunicationManager(socket.accept(), handler,true));
+                pool.execute(new CommunicationManager(socket.accept(), handler,name));
                 Log.d(TAG, "Launching the I/O handler");
 
             } catch (IOException e) {

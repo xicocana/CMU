@@ -13,15 +13,17 @@ import java.net.Socket;
  * Handles reading and writing of messages with socket buffers. Uses a Handler
  * to post messages to UI thread for UI updates.
  */
-public class CommunicationManager implements Runnable {
+public class PeerCommunicatioManager implements Runnable {
 
     private Socket socket = null;
     private Handler handler;
+    private boolean isGroupOwner;
     private String name;
 
-    public CommunicationManager(Socket socket, Handler handler, String name) {
+    public PeerCommunicatioManager(Socket socket, Handler handler, String name) {
         this.socket = socket;
         this.handler = handler;
+        this.isGroupOwner = isGroupOwner;
         this.name = name;
     }
 
@@ -59,7 +61,7 @@ public class CommunicationManager implements Runnable {
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                 }
-
+                break;
             }
         } catch (IOException e) {
             e.printStackTrace();
