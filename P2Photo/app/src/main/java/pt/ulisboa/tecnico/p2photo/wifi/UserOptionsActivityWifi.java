@@ -24,7 +24,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.p2photo.CommunicationTask;
@@ -58,6 +60,8 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
 
     private Handler handler = new Handler(this);
 
+    private List<WiFiP2pService> WiFiP2pService = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,20 +72,20 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
         }
 
-        Button addAlbumBtn = (Button) findViewById(R.id.add_album_btn);
+        Button addAlbumBtn = findViewById(R.id.add_album_btn);
         addAlbumBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivityWifi.this, CreateFolderActivityWifi.class)));
 
-        Button listAlbumsBtn = (Button) findViewById(R.id.get_album_btn);
+        Button listAlbumsBtn = findViewById(R.id.get_album_btn);
         listAlbumsBtn.setOnClickListener(v -> startActivity(new Intent(UserOptionsActivityWifi.this, AlbumsListActivityWifi.class)));
 
-        Button logOutBtn = (Button) findViewById(R.id.log_out_btn);
+        Button logOutBtn = findViewById(R.id.log_out_btn);
         logOutBtn.setOnClickListener(v -> {
             SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
             SharedPreferences.Editor edit = pref.edit();
             // delete data
             edit.clear();
             // Commit the changes
-            edit.commit();
+            edit.apply();
             Intent intent = new Intent(UserOptionsActivityWifi.this, MainActivityWifi.class);
             UserOptionsActivityWifi.this.finish();
             startActivity(intent);
@@ -100,6 +104,12 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
             channel = manager.initialize(this, getMainLooper(), null);
 
             startRegistrationAndDiscovery();
+
+        });
+
+        Button connectButton = findViewById(R.id.connect);
+        connectButton.setOnClickListener(v -> {
+            connectP2p(WiFiP2pService.get(0));
         });
     }
 
@@ -140,8 +150,11 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
      */
     private void startRegistrationAndDiscovery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Map<String, String> record = new HashMap<String, String>();
+            Map<String, String> record = new HashMap<>();
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            String name = pref.getString("username", null);
             record.put(TXTRECORD_PROP_AVAILABLE, "visible");
+            record.put("USER", name);
 
 
             WifiP2pDnsSdServiceInfo service = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_INSTANCE, SERVICE_REG_TYPE, record);
@@ -184,7 +197,11 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
 
                     Log.d(TAG, "onBonjourServiceAvailable " + instanceName);
 
-                    connectP2p(service);
+                    Button connectButton = findViewById(R.id.connect);
+                    connectButton.setVisibility(View.VISIBLE);
+
+
+                   // connectP2p(service);
                 }
 
 
@@ -198,6 +215,7 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
                 public void onDnsSdTxtRecordAvailable(String fullDomainName, Map<String, String> record,
                                                       WifiP2pDevice device) {
                     Log.d(TAG, device.deviceName + " is " + record.get(TXTRECORD_PROP_AVAILABLE));
+                    appendStatus(record.get("USER"));
                 }
 
             });
@@ -242,6 +260,7 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
         config.wps.setup = WpsInfo.PBC;
         if (serviceRequest != null)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
                 manager.removeServiceRequest(channel, serviceRequest,
                         new WifiP2pManager.ActionListener() {
 
@@ -273,7 +292,7 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
 
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
-        Thread thread = null;
+        Thread thread;
         /*
          * The group owner accepts connections using a server socket and then spawns a
          * client socket for every client. This is handled by {@code
@@ -288,7 +307,6 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
             } catch (IOException e) {
                 Log.d(TAG,
                         "Failed to create a server thread - " + e.getMessage());
-                return;
             }
         } else {
             Log.d(TAG, "Connected as peer");
@@ -320,8 +338,6 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
 
                     communicationManager.write("ack");
                     Log.d("WIFI", "teste_album");
-                }else{
-
                 }
 
 
