@@ -15,12 +15,14 @@ public class ClientSocketHandler extends Thread {
 
     private static final String TAG = "ClientSocketHandler";
     private Handler handler;
-    private CommunicationManager chat;
+    private PeerCommunicatioManager peerCommunicatioManager;
     private InetAddress mAddress;
+    private String name;
 
-    public ClientSocketHandler(Handler handler, InetAddress groupOwnerAddress) {
+    public ClientSocketHandler(Handler handler, InetAddress groupOwnerAddress, String name) {
         this.handler = handler;
         this.mAddress = groupOwnerAddress;
+        this.name = name;
     }
 
     @Override
@@ -29,10 +31,10 @@ public class ClientSocketHandler extends Thread {
         try {
             socket.bind(null);
             socket.connect(new InetSocketAddress(mAddress.getHostAddress(),
-                    UserOptionsActivityWifi.SERVER_PORT), 5000);
+                    SearchUsersActivityWifi.SERVER_PORT), 5000);
             Log.d(TAG, "Launching the I/O handler");
-            chat = new CommunicationManager(socket, handler,false);
-            new Thread(chat).start();
+            peerCommunicatioManager = new PeerCommunicatioManager(socket, handler,name);
+            new Thread(peerCommunicatioManager).start();
         } catch (IOException e) {
             e.printStackTrace();
             try {
