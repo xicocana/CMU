@@ -26,7 +26,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="395dp"
-        android:layout_height="150dp"
+        android:layout_height="202dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
@@ -36,6 +36,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/search_wifi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search Users" />
 
         <Button
             android:id="@+id/add_album_btn"
@@ -55,5 +61,7 @@
             android:layout_height="wrap_content"
             android:text="Logout" />
     </LinearLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

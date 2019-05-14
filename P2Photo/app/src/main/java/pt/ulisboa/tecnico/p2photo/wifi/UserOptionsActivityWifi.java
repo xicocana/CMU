@@ -31,6 +31,7 @@ import java.util.Map;
 
 import pt.ulisboa.tecnico.p2photo.CommunicationTask;
 import pt.ulisboa.tecnico.p2photo.R;
+import pt.ulisboa.tecnico.p2photo.cloud.UserOptionsActivity;
 
 public class UserOptionsActivityWifi extends AppCompatActivity implements  Handler.Callback, WifiP2pManager.ConnectionInfoListener {
 
@@ -66,7 +67,7 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_user_options);
+        setContentView(R.layout.activity_user_options_wifi);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
@@ -95,7 +96,7 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
         Button searchWIFIButton = findViewById(R.id.search_wifi);
         searchWIFIButton.setOnClickListener(v -> {
             //TODO WIFI
-            intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+            /*intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
             intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
             intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
             intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
@@ -104,13 +105,15 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
             channel = manager.initialize(this, getMainLooper(), null);
 
             startRegistrationAndDiscovery();
-
+            */
+            Intent intent = new Intent(UserOptionsActivityWifi.this, SearchUsersActivityWifi.class);
+            startActivity(intent);
         });
 
-        Button connectButton = findViewById(R.id.connect);
-        connectButton.setOnClickListener(v -> {
-            connectP2p(WiFiP2pService.get(0));
-        });
+        //Button connectButton = findViewById(R.id.connect);
+        //connectButton.setOnClickListener(v -> {
+        //    connectP2p(WiFiP2pService.get(0));
+        //});
     }
 
     @Override
@@ -197,8 +200,8 @@ public class UserOptionsActivityWifi extends AppCompatActivity implements  Handl
 
                     Log.d(TAG, "onBonjourServiceAvailable " + instanceName);
 
-                    Button connectButton = findViewById(R.id.connect);
-                    connectButton.setVisibility(View.VISIBLE);
+                    //Button connectButton = findViewById(R.id.connect);
+                    //connectButton.setVisibility(View.VISIBLE);
 
 
                    // connectP2p(service);

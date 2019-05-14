@@ -4,16 +4,13 @@
 
     <uses-permission
         android:name="android.permission.INTERNET"
-        android:required="true"
-        />
+        android:required="true" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:required="true"
-        />
+        android:required="true" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:required="true"
-        />
+        android:required="true" />
     <uses-permission
         android:name="android.permission.ACCESS_COARSE_LOCATION"
         android:required="true" />
@@ -31,7 +28,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".wifi.UserListActivityWifi"></activity>
+        <activity android:name=".wifi.SearchUsersActivityWifi"></activity>
+        <activity android:name=".wifi.UserListActivityWifi" />
         <activity android:name=".wifi.AlbumDisplayActivityWifi" />
         <activity android:name=".wifi.AlbumsListActivityWifi" />
         <activity android:name=".wifi.CreateFolderActivityWifi" />
