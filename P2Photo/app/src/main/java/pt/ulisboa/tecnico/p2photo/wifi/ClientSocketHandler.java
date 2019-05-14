@@ -15,7 +15,7 @@ public class ClientSocketHandler extends Thread {
 
     private static final String TAG = "ClientSocketHandler";
     private Handler handler;
-    private PeerCommunicatioManager peerCommunicatioManager;
+    private CommunicationManager peerCommunicatioManager;
     private InetAddress mAddress;
     private String name;
 
@@ -30,10 +30,9 @@ public class ClientSocketHandler extends Thread {
         Socket socket = new Socket();
         try {
             socket.bind(null);
-            socket.connect(new InetSocketAddress(mAddress.getHostAddress(),
-                    SearchUsersActivityWifi.SERVER_PORT), 5000);
+            socket.connect(new InetSocketAddress(mAddress.getHostAddress(), SearchUsersActivityWifi.SERVER_PORT), 5000);
             Log.d(TAG, "Launching the I/O handler");
-            peerCommunicatioManager = new PeerCommunicatioManager(socket, handler,name);
+            peerCommunicatioManager = new CommunicationManager(socket, handler,"TESTE_CLIENT");
             new Thread(peerCommunicatioManager).start();
         } catch (IOException e) {
             e.printStackTrace();

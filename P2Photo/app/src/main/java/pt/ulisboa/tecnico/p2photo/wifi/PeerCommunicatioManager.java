@@ -41,10 +41,10 @@ public class PeerCommunicatioManager implements Runnable {
             byte[] buffer = new byte[1024];
             int bytes;
 
-            write(name);
+            write("USER");
+            write("TESTE_USER");
 
-//            handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this)
-//                    .sendToTarget();
+            handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this).sendToTarget();
 
             while (true) {
                 try {
@@ -54,10 +54,18 @@ public class PeerCommunicatioManager implements Runnable {
                         break;
                     }
 
+                    String readMessage = new String((byte[]) buffer, 0, bytes);
+                    if (readMessage.equals("USER")) {
+                        Log.d(TAG, "RECEIVE COMMAND_USER:" + readMessage);
+                        bytes = iStream.read(buffer);
+                        if (bytes == -1) {
+                            break;
+                        }
+                    }
+
                     // Send the obtained bytes to the UI Activity
                     Log.d(TAG, "Rec:" + String.valueOf(buffer));
-                    handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ,
-                            bytes, -1, buffer).sendToTarget();
+                    handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                 }
@@ -66,6 +74,7 @@ public class PeerCommunicatioManager implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            Log.d(TAG, "FECHOU PEERCOMM MANAGER");
             try {
                 socket.close();
             } catch (IOException e) {

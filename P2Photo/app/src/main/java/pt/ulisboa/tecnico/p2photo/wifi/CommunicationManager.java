@@ -39,10 +39,10 @@ public class CommunicationManager implements Runnable {
             byte[] buffer = new byte[1024];
             int bytes;
 
+            write("USER");
             write(name);
 
-//            handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this)
-//                    .sendToTarget();
+            handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this).sendToTarget();
 
             while (true) {
                 try {
@@ -52,10 +52,35 @@ public class CommunicationManager implements Runnable {
                         break;
                     }
 
-                    // Send the obtained bytes to the UI Activity
-                    Log.d(TAG, "Rec:" + String.valueOf(buffer));
-                    handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ,
-                            bytes, -1, buffer).sendToTarget();
+                    String readMessage = new String((byte[]) buffer, 0, bytes);
+                    if (readMessage.equals("USER")) {
+                        Log.d(TAG, "RECEIVE COMMAND " + readMessage);
+
+                        bytes = iStream.read(buffer);
+                        if (bytes == -1) {
+                            break;
+                        }
+
+                        readMessage = new String((byte[]) buffer, 0, bytes);
+                        Log.d(TAG, "MSG " + readMessage);
+
+                        handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    }
+
+                    if (readMessage.equals("SEND_PHOTO")) {
+                        Log.d(TAG, "RECEIVE COMMAND " + readMessage);
+                        bytes = iStream.read(buffer);
+
+                        if (bytes == -1) {
+                            break;
+                        }
+                        readMessage = new String((byte[]) buffer, 0, bytes);
+                        Log.d(TAG, "MSG " + readMessage);
+
+                    }
+
+
+
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                 }
@@ -64,6 +89,7 @@ public class CommunicationManager implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            Log.d(TAG, "FECHOU COMMUNICATION MANAGER");
             try {
                 socket.close();
             } catch (IOException e) {

@@ -15,6 +15,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.p2photo.CommunicationTask;
 import pt.ulisboa.tecnico.p2photo.CommunicationUtilities;
+import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
 
 
@@ -60,6 +61,7 @@ public class AlbumsListActivityWifi extends AppCompatActivity {
             //intent.putExtra("text_txt", albumsList.get(position).get(2));
 
             startActivity(intent);
+
         });
     }
 

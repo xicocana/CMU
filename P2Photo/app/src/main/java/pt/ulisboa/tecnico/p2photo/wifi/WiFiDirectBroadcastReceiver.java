@@ -59,6 +59,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(AlbumDisplayActivityWifi.TAG, action);
+
         if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 
             if (manager == null) {
@@ -74,8 +75,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 // info to find group owner IP
                 Log.d(AlbumDisplayActivityWifi.TAG,
                         "Connected to p2p network. Requesting network details");
-                manager.requestConnectionInfo(channel,
-                        (ConnectionInfoListener) activity);
+                manager.requestConnectionInfo(channel, (ConnectionInfoListener) activity);
             } else {
                 // It's a disconnect
             }

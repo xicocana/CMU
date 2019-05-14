@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class FileTransferService extends IntentService {
 
             try {
                 Log.d(SearchUsersActivityWifi.TAG, "Opening client socket - ");
+                Toast.makeText(getApplicationContext(), "Opening client socket - ", Toast.LENGTH_SHORT).show();
                 socket.bind(null);
                 socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
 

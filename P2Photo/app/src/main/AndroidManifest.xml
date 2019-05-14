@@ -28,7 +28,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".wifi.SearchUsersActivityWifi"></activity>
+        <service
+            android:name=".wifi.P2PService"
+            android:exported="false"></service>
+
+        <activity android:name=".wifi.SearchUsersActivityWifi" />
         <activity android:name=".wifi.UserListActivityWifi" />
         <activity android:name=".wifi.AlbumDisplayActivityWifi" />
         <activity android:name=".wifi.AlbumsListActivityWifi" />
@@ -53,6 +57,10 @@
         <activity android:name=".cloud.SignUpActivity" />
         <activity android:name=".cloud.CreateFolderActivity" />
         <activity android:name=".cloud.MainActivity" />
+
+        <service
+            android:name=".wifi.FileTransferService"
+            android:enabled="true" />
     </application>
 
 </manifest>
