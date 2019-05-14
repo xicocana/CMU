@@ -1,21 +1,31 @@
 package pt.ulisboa.tecnico.p2photo.cloud;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,21 +33,29 @@ import com.budiyev.android.circularprogressbar.CircularProgressBar;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.Task;
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.services.drive.model.File;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import pt.ulisboa.tecnico.p2photo.CommunicationTask;
+import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.GoogleDriveFileHolder;
 import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
 import pt.ulisboa.tecnico.p2photo.R;
+import pt.ulisboa.tecnico.p2photo.wifi.AlbumDisplayActivityWifi;
 
+import static android.os.Environment.isExternalStorageRemovable;
 import static com.google.android.gms.tasks.Tasks.await;
 
 public class AlbumDisplayActivity extends googleUtils {
@@ -56,6 +74,10 @@ public class AlbumDisplayActivity extends googleUtils {
 
     CircularProgressBar progressBar;
     List<String> albumInfo;
+    boolean connected = false;
+
+    DataHolder dt = DataHolder.getInstance();
+
 
 
     @Override
@@ -63,13 +85,34 @@ public class AlbumDisplayActivity extends googleUtils {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_display);
 
+        //VERIFY INTERNET CONNECTION
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            connected = true;
+        }
+        else {
+            connected = false;
+        }
+
         Intent intent = getIntent();
         album_name = intent.getStringExtra("album_name");
         album_id = intent.getStringExtra("album_id");
         text_txt = intent.getStringExtra("text_txt");
         albumInfo = intent.getStringArrayListExtra("albumInfo");
 
-        requestSignIn();
+        String folder_main = "CMU-cloud-cache/"+album_name;
+        java.io.File f = new java.io.File(Environment.getExternalStorageDirectory(), folder_main);
+        if (!f.exists()) {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                f.mkdirs();
+            }
+        }
+
+        if(connected) {
+            requestSignIn();
+        }
 
         TextView title = findViewById(R.id.textView2);
         title.setText(album_name);
@@ -96,7 +139,52 @@ public class AlbumDisplayActivity extends googleUtils {
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setIndeterminate(true);
 
-       // InitializeDownload();
+        if(!connected){
+            new AlbumDisplayActivity.ImageShower(this).execute();
+        }
+    }
+
+    public void update(){
+        vista_imagens.invalidateViews();
+    }
+
+    private class ImageShower extends AsyncTask<Void, Integer, Void> {
+
+        private Context ctx;
+
+        public ImageShower(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            vista_imagens.invalidateViews();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String ExternalStorageDirectoryPath = Environment
+                        .getExternalStorageDirectory()
+                        .getAbsolutePath();
+
+                String targetPath = ExternalStorageDirectoryPath + "/CMU-cloud-cache/" + album_name + "/";
+
+                java.io.File targetDirector = new java.io.File(targetPath);
+
+                java.io.File[] files = targetDirector.listFiles();
+                for (java.io.File file : files) {
+                    Uri uri = Uri.fromFile(file);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
+                    bitmapList.add(bitmap);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+
+        }
     }
 
     @Override
@@ -147,6 +235,8 @@ public class AlbumDisplayActivity extends googleUtils {
                                             @Override
                                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                                 bitmapList.add(resource);
+                                                backupImageToCache task = new backupImageToCache();
+                                                task.execute(resource);
                                                 vista_imagens.invalidateViews();
                                             }
 
@@ -171,7 +261,32 @@ public class AlbumDisplayActivity extends googleUtils {
         }
     }
 
+    public class backupImageToCache extends AsyncTask<Bitmap, Integer, Void>{
 
+        @Override
+        protected Void doInBackground(Bitmap... bitmaps) {
+            try {
+                Random random = new Random();
+                int randomInt = random.nextInt(999) + 111;
+                String name = bitmaps[0].getConfig().name() + randomInt;
+                java.io.File f = new java.io.File(Environment.getExternalStorageDirectory() + "/CMU-cloud-cache/" + album_name, name + ".jpg");
+                f.createNewFile();
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                bitmaps[0].compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+                byte[] bitmapdata = bos.toByteArray();
+
+                //write the bytes in file
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(bitmapdata);
+                fos.flush();
+                fos.close();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
 
 
     private class UploadFilesTask extends AsyncTask<Uri, Integer, Void> {

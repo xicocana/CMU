@@ -1,5 +1,8 @@
 package pt.ulisboa.tecnico.p2photo;
 
+import android.graphics.Bitmap;
+import android.util.LruCache;
+
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveResourceClient;
@@ -26,7 +29,6 @@ public class DataHolder {
     private DataHolder (){
 
     }
-
 
     public GoogleSignInClient getmGoogleSignInClient() {
         return mGoogleSignInClient;
