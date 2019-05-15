@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -14,9 +15,12 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +29,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.common.primitives.Bytes;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -410,12 +420,14 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
                 // construct a string from the valid bytes in the buffer
                 String readMessage = new String((byte[]) msg.obj, 0, msg.arg1);
                 Log.d(TAG, readMessage);
+                if(readMessage!=null){
+                    //ir ao server buscar albuns partilhados entre os users
+                    List<String> albums = new ArrayList<>();
+                    albums.add("teste");
+                    ImageShower im = new ImageShower(this);
+                    im.execute();
+                }
                 appendStatus("MENSAGEM: " + readMessage);
-                Runnable task = () -> {
-                    communicationManager.write("SEND_PHOTOS");
-                    communicationManager.write("PHOTOS");
-                };
-                task.run();
                 break;
 
             case MY_HANDLE:
@@ -423,6 +435,44 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
                 communicationManager = (CommunicationManager) obj;
         }
         return true;
+    }
+
+    private class ImageShower extends AsyncTask<Void, Integer, byte[]> {
+
+        private Context ctx;
+
+        public ImageShower(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected byte[] doInBackground(Void... voids) {
+            byte[] bytesArray = null;
+            try {
+                String ExternalStorageDirectoryPath = Environment
+                        .getExternalStorageDirectory()
+                        .getAbsolutePath();
+
+                String targetPath = ExternalStorageDirectoryPath + "/CMU/teste/";
+
+                File targetDirector = new File(targetPath);
+
+                File[] files = targetDirector.listFiles();
+                for (File file : files) {
+                    bytesArray = new byte[(int) file.length()];
+                    FileInputStream fis = new FileInputStream(file);
+                    fis.read(bytesArray); //read file into bytes[]
+                    fis.close();
+                }
+                communicationManager.write("SEND-PHOTO");
+                String encodedfile = new String(Base64.encodeBase64(bytesArray), "UTF-8");
+                communicationManager.write(encodedfile);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bytesArray;
+        }
     }
 
 

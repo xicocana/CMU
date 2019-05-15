@@ -32,7 +32,7 @@ public class ClientSocketHandler extends Thread {
             socket.bind(null);
             socket.connect(new InetSocketAddress(mAddress.getHostAddress(), SearchUsersActivityWifi.SERVER_PORT), 5000);
             Log.d(TAG, "Launching the I/O handler");
-            peerCommunicatioManager = new CommunicationManager(socket, handler,"TESTE_CLIENT");
+            peerCommunicatioManager = new CommunicationManager(socket, handler,name);
             new Thread(peerCommunicatioManager).start();
         } catch (IOException e) {
             e.printStackTrace();

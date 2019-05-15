@@ -1,9 +1,16 @@
 
 package pt.ulisboa.tecnico.p2photo.wifi;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,18 +71,21 @@ public class CommunicationManager implements Runnable {
                         readMessage = new String((byte[]) buffer, 0, bytes);
                         Log.d(TAG, "MSG " + readMessage);
 
-                        handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        //handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+
+                        write("SEND-PHOTO");
+                        Log.d(TAG, "SEND-PHOTO abc");
                     }
 
-                    if (readMessage.equals("SEND_PHOTO")) {
+                    if (readMessage.equals("SEND-PHOTO")) {
                         Log.d(TAG, "RECEIVE COMMAND " + readMessage);
-                        bytes = iStream.read(buffer);
+                        /*bytes = iStream.read(buffer);
 
                         if (bytes == -1) {
                             break;
                         }
                         readMessage = new String((byte[]) buffer, 0, bytes);
-                        Log.d(TAG, "MSG " + readMessage);
+                        Log.d(TAG, "MSG " + readMessage);*/
 
                     }
 

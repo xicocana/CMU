@@ -49,7 +49,7 @@ public class GroupOwnerSocketHandler extends Thread {
             try {
                 // A blocking operation. Initiate a CommunicationManager instance when
                 // there is a new connection
-                pool.execute(new CommunicationManager(socket.accept(), handler,"TESTE_SERVER"));
+                pool.execute(new CommunicationManager(socket.accept(), handler,name));
                 Log.d(TAG, "Launching the I/O handler");
 
             } catch (IOException e) {

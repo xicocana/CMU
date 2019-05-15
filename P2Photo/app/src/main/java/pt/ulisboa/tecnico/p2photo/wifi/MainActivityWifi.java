@@ -39,10 +39,10 @@ public class MainActivityWifi extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         PersistentLogin persistentLogin = new PersistentLogin(pref, getApplicationContext());
-//        if(persistentLogin.tryToLogin()) {
+        if(persistentLogin.tryToLogin()) {
             Intent intent = new Intent(MainActivityWifi.this, UserOptionsActivityWifi.class);
             startActivity(intent);
-//        }
+        }
     }
 
     public void logInActivity(View v) {
