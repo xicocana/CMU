@@ -1,13 +1,17 @@
 package pt.ulisboa.tecnico.p2photo.wifi;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -48,9 +52,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
 import pt.ulisboa.tecnico.p2photo.R;
+import pt.ulisboa.tecnico.p2photo.cloud.AlbumDisplayActivity;
 
 public class AlbumDisplayActivityWifi extends AppCompatActivity {
     public static final String TAG = "AlbumDisplayActivity";
@@ -63,15 +69,35 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
     String album_name;
     CircularProgressBar progressBar;
     private static final int READ_REQUEST_CODE = 42;
+    boolean connected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_display);
 
+        //VERIFY INTERNET CONNECTION
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            connected = true;
+        }
+        else {
+            connected = false;
+        }
+
         TextView title = findViewById(R.id.textView2);
         Intent intent = getIntent();
         album_name = intent.getStringExtra("album_name");
+
+        String folder_main = "CMU-wifi-cache/"+album_name;
+        java.io.File f = new java.io.File(Environment.getExternalStorageDirectory(), folder_main);
+        if (!f.exists()) {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                f.mkdirs();
+            }
+        }
 
         title.setText(album_name);
 
@@ -94,7 +120,13 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setIndeterminate(true);
 
-        new ImageShower(this).execute();
+
+
+        if(!connected){
+            new AlbumDisplayActivityWifi.ImageShower2(this).execute();
+        }else{
+            new ImageShower(this).execute();
+        }
 
     }
 
@@ -133,6 +165,63 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                         .getAbsolutePath();
 
                 String targetPath = ExternalStorageDirectoryPath + "/CMU/" + album_name + "/";
+
+                File targetDirector = new File(targetPath);
+
+                File[] files = targetDirector.listFiles();
+                for (File file : files) {
+                    Uri uri = Uri.fromFile(file);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
+                    bitmapList.add(bitmap);
+                    try {
+                        Random random = new Random();
+                        int randomInt = random.nextInt(999) + 111;
+                        String name = bitmap.getConfig().name() + randomInt;
+                        java.io.File f = new java.io.File(Environment.getExternalStorageDirectory() + "/CMU-wifi-cache/" + album_name, name + ".jpg");
+                        f.createNewFile();
+
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+                        byte[] bitmapdata = bos.toByteArray();
+
+                        //write the bytes in file
+                        FileOutputStream fos = new FileOutputStream(f);
+                        fos.write(bitmapdata);
+                        fos.flush();
+                        fos.close();
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    private class ImageShower2 extends AsyncTask<Void, Integer, Void> {
+
+        private Context ctx;
+
+        public ImageShower2(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            vista_imagens.invalidateViews();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                String ExternalStorageDirectoryPath = Environment
+                        .getExternalStorageDirectory()
+                        .getAbsolutePath();
+
+                String targetPath = ExternalStorageDirectoryPath + "/CMU-wifi-cache/" + album_name + "/";
 
                 File targetDirector = new File(targetPath);
 
