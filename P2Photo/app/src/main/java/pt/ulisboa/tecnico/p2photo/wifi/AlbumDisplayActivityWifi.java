@@ -296,7 +296,7 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
 //
 //            case MY_HANDLE:
 //                Object obj = msg.obj;
-//                (chatFragment).setChatManager((CommunicationManager) obj);
+//                (chatFragment).setChatManager((ServerCommunicationManager) obj);
 //
 //        }
 //        return true;

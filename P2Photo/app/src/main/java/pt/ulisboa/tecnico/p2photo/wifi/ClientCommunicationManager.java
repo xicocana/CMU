@@ -1,16 +1,9 @@
 
 package pt.ulisboa.tecnico.p2photo.wifi;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,13 +13,13 @@ import java.net.Socket;
  * Handles reading and writing of messages with socket buffers. Uses a Handler
  * to post messages to UI thread for UI updates.
  */
-public class CommunicationManager implements Runnable {
+public class ClientCommunicationManager implements Runnable {
 
     private Socket socket = null;
     private Handler handler;
     private String name;
 
-    public CommunicationManager(Socket socket, Handler handler, String name) {
+    public ClientCommunicationManager(Socket socket, Handler handler, String name) {
         this.socket = socket;
         this.handler = handler;
         this.name = name;
@@ -44,12 +37,22 @@ public class CommunicationManager implements Runnable {
             iStream = socket.getInputStream();
             oStream = socket.getOutputStream();
             byte[] buffer = new byte[1024];
+            byte[] buffer2 = new byte[1024];
             int bytes;
+
+            bytes = iStream.read(buffer);
+            String readMessage = new String((byte[]) buffer, 0, bytes);
+            if (readMessage.equals("USER")) {
+                Log.i(TAG, "recieve command user");
+                bytes = iStream.read(buffer2);
+                readMessage = new String((byte[]) buffer, 0, bytes);
+                Log.i(TAG, "recieve command user: "+readMessage);
+            }
 
             write("USER");
             write(name);
 
-            handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this).sendToTarget();
+            /*handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this).sendToTarget();
 
             while (true) {
                 try {
@@ -79,13 +82,13 @@ public class CommunicationManager implements Runnable {
 
                     if (readMessage.equals("SEND-PHOTO")) {
                         Log.d(TAG, "RECEIVE COMMAND " + readMessage);
-                        /*bytes = iStream.read(buffer);
+                        bytes = iStream.read(buffer);
 
                         if (bytes == -1) {
                             break;
                         }
                         readMessage = new String((byte[]) buffer, 0, bytes);
-                        Log.d(TAG, "MSG " + readMessage);*/
+                        Log.d(TAG, "MSG " + readMessage);
 
                     }
 
@@ -95,7 +98,7 @@ public class CommunicationManager implements Runnable {
                     Log.e(TAG, "disconnected", e);
                 }
 
-            }
+            }*/
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

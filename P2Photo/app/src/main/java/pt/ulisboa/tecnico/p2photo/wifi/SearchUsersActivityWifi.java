@@ -3,11 +3,8 @@ package pt.ulisboa.tecnico.p2photo.wifi;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -20,7 +17,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,8 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import com.google.common.primitives.Bytes;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -41,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.p2photo.DataHolder;
 import pt.ulisboa.tecnico.p2photo.R;
 
 public class SearchUsersActivityWifi extends AppCompatActivity implements Handler.Callback, WifiP2pManager.ConnectionInfoListener {
@@ -72,7 +65,7 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
     private WifiP2pInfo wifiP2pInfo;
     private boolean isGroupOwner;
 
-    private CommunicationManager communicationManager;
+    private ServerCommunicationManager communicationManager;
 
     private Handler handler = new Handler(this);
 
@@ -398,7 +391,7 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
         this.wifiP2pInfo = p2pInfo;
 
         if (p2pInfo.isGroupOwner) {
-            Log.d(TAG, "Connected as group owner");
+            Log.d("ChatHandler", "Connected as group owner");
             try {
                 thread = new GroupOwnerSocketHandler(getHandler(), name);
                 thread.start();
@@ -406,7 +399,7 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
                 Log.d(TAG, "Failed to create a server thread - " + e.getMessage());
             }
         } else {
-            Log.d(TAG, "Connected as peer");
+            Log.d("ChatHandler", "Connected as peer");
             thread = new ClientSocketHandler(getHandler(), p2pInfo.groupOwnerAddress, name);
             thread.start();
         }
@@ -432,7 +425,7 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
 
             case MY_HANDLE:
                 Object obj = msg.obj;
-                communicationManager = (CommunicationManager) obj;
+                communicationManager = (ServerCommunicationManager) obj;
         }
         return true;
     }

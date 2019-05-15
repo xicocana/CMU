@@ -4,7 +4,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveResourceClient;
 
-import pt.ulisboa.tecnico.p2photo.wifi.CommunicationManager;
+import pt.ulisboa.tecnico.p2photo.wifi.ServerCommunicationManager;
 
 public class DataHolder {
 
@@ -16,7 +16,7 @@ public class DataHolder {
     private String fileDriveID ="";
     private String txtDriveID ="";
 
-    private CommunicationManager communicationManager;
+    private ServerCommunicationManager communicationManager;
     private static DataHolder instance;
 
 
@@ -32,11 +32,11 @@ public class DataHolder {
     }
 
 
-    public CommunicationManager getCommunicationManager() {
+    public ServerCommunicationManager getCommunicationManager() {
         return communicationManager;
     }
 
-    public void setCommunicationManager(CommunicationManager communicationManager) {
+    public void setCommunicationManager(ServerCommunicationManager communicationManager) {
         this.communicationManager = communicationManager;
     }
 

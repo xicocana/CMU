@@ -4,8 +4,6 @@ package pt.ulisboa.tecnico.p2photo.wifi;
 import android.os.Handler;
 import android.util.Log;
 
-import com.google.api.services.drive.model.User;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -15,7 +13,7 @@ public class ClientSocketHandler extends Thread {
 
     private static final String TAG = "ClientSocketHandler";
     private Handler handler;
-    private CommunicationManager peerCommunicatioManager;
+    private ClientCommunicationManager peerCommunicatioManager;
     private InetAddress mAddress;
     private String name;
 
@@ -32,7 +30,7 @@ public class ClientSocketHandler extends Thread {
             socket.bind(null);
             socket.connect(new InetSocketAddress(mAddress.getHostAddress(), SearchUsersActivityWifi.SERVER_PORT), 5000);
             Log.d(TAG, "Launching the I/O handler");
-            peerCommunicatioManager = new CommunicationManager(socket, handler,name);
+            peerCommunicatioManager = new ClientCommunicationManager(socket, handler,name);
             new Thread(peerCommunicatioManager).start();
         } catch (IOException e) {
             e.printStackTrace();
