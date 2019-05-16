@@ -80,16 +80,6 @@ public class ClientCommunicationManager implements Runnable {
             Log.i(TAG, "GOING TO SEND : " + name);
             out.println(name);
 
-            Log.d(TAG, "FROM SERVER");
-            read = in.readLine();
-            Log.d(TAG, "Client read : " + read);
-            int sizeOfFiles = Integer.parseInt(read);
-
-            for (int i = 0; i < sizeOfFiles; i++) {
-                Log.d(TAG, "Entrou no FOR");
-                readFile2();
-            }
-
             Log.d(TAG, "TO SERVER");
 
             String ExternalStorageDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -105,6 +95,20 @@ public class ClientCommunicationManager implements Runnable {
                 Log.d(TAG, "Entrou no FOR");
                 writeFile2(file);
             }
+
+            Log.d(TAG, "FROM SERVER");
+            read = in.readLine();
+            Log.d(TAG, "Client read : " + read);
+            int sizeOfFiles = Integer.parseInt(read);
+
+            for (int i = 0; i < sizeOfFiles; i++) {
+                Log.d(TAG, "Entrou no FOR");
+                readFile2();
+            }
+
+
+
+
 
             //TODO
             out.close();
@@ -125,15 +129,15 @@ public class ClientCommunicationManager implements Runnable {
     public void writeFile2(File f) throws IOException {
         try {
             Log.d(TAG, "AQUI");
-            OutputStream stream = socket.getOutputStream();
             ContentResolver cr = ctx.getContentResolver();
             InputStream is = null;
             Uri fileUri = Uri.fromFile(f);
 
             is = cr.openInputStream(fileUri);
 
-            copyFile(is, stream);
+            copyFile(is, oStream);
             Log.d(TAG, "Client: Data written");
+            is.close();
         } catch (Exception e) {
             Log.d(TAG, e.toString());
         }
@@ -154,8 +158,10 @@ public class ClientCommunicationManager implements Runnable {
             f.createNewFile();
             Log.d(TAG, "Entrou no AQUI2");
             Log.d(TAG, "server: copying files " + f.toString());
-            InputStream inputstream = socket.getInputStream();
-            copyFile(inputstream, new FileOutputStream(f));
+           // InputStream inputstream = socket.getInputStream();
+            OutputStream outputStream = new FileOutputStream(f);
+            copyFile(iStream, outputStream);
+            outputStream.close();
         } catch (Exception e) {
             Log.d(TAG, e.toString());
         }
@@ -171,8 +177,8 @@ public class ClientCommunicationManager implements Runnable {
                 out.write(buf, 0, len);
 
             }
-            out.close();
-            inputStream.close();
+            //out.close();
+           // inputStream.close();
         } catch (IOException e) {
             Log.d(TAG, e.toString());
             return false;

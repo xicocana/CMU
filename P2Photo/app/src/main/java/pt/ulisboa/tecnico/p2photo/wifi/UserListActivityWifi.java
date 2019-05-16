@@ -82,6 +82,28 @@ public class UserListActivityWifi extends AppCompatActivity {
             usersViewList.setAdapter(arrayAdapter);
 
             Button addButton = (Button) findViewById(R.id.add_btn);
+            addButton.setOnClickListener(v -> {
+
+                ArrayList<String> checkedList = new ArrayList<>();
+                int len = usersViewList.getCount();
+                SparseBooleanArray checked = usersViewList.getCheckedItemPositions();
+                for (int i = 0; i < len; i++) {
+                    //TODO por isto a adicionar os utilizadores a drive e tambem no servidor
+                    if (checked.get(i)) {
+                        checkedList.add(usersList.get(i)[0]);
+                        Log.i("OnClickAddUsers", usersList.get(i)[0]);
+                        String share = usersList.get(i)[0];
+                        String email = usersList.get(i)[1];
+
+                        String message = "shared album with" + email;
+                        //CommunicationUtilities communicationUtilities2 = new CommunicationUtilities(this.getApplicationContext());
+                        communicationUtilities.sendAddUser(name, share, album_name);
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+
+                    }
+                }
+            });
 
         } else {
         }

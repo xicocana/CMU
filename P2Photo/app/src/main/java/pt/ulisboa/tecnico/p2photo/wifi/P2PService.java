@@ -81,107 +81,15 @@ public class P2PService extends IntentService implements Handler.Callback {
         }
     }
 
-    private void startRegistrationAndDiscovery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            manager.clearLocalServices(channel, new WifiP2pManager.ActionListener() {
-                @Override
-                public void onSuccess() {
-                    HashMap<String, String> record = new HashMap<>();
-                    record.put("name", "Amos");
-                    WifiP2pDnsSdServiceInfo serviceInfo = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_INSTANCE, SERVICE_REG_TYPE, record);
-                    manager.addLocalService(channel, serviceInfo, new WifiP2pManager.ActionListener() {
-                        @Override
-                        public void onSuccess() {
-                            appendStatus("Added Local Service");
-                            manager.setDnsSdResponseListeners(channel, (instanceName, registrationType, srcDevice) -> {
-                                if (instanceName.equalsIgnoreCase(SERVICE_INSTANCE)) {
-                                    // update the UI and add the item the discovered
-                                    // device.
-
-                                    WiFiP2pService service = new WiFiP2pService();
-                                    service.device = srcDevice;
-                                    service.instanceName = instanceName;
-                                    service.serviceRegistrationType = registrationType;
-
-//                                    arrayAdapter.add(service.device.deviceName + " - " + service.instanceName);
-//                                    arrayAdapter.notifyDataSetChanged();
-//                                    usersListWiFiP2pService.add(service);
-                                }
 
 
-                            }, (fullDomainName, txtRecordMap, srcDevice) -> {
-
-                                appendStatus("User : " + record.get("USER") + " is " + record.get(TXTRECORD_PROP_AVAILABLE));
-                                //Log.d(TAG, srcDevice.deviceName + " is " + record.get(TXTRECORD_PROP_AVAILABLE));
-                            });
-                            manager.clearServiceRequests(channel, new WifiP2pManager.ActionListener() {
-                                @Override
-                                public void onSuccess() {
-                                    manager.addServiceRequest(channel, WifiP2pDnsSdServiceRequest.newInstance(), new WifiP2pManager.ActionListener() {
-                                        @Override
-                                        public void onSuccess() {
-                                            appendStatus("Added service discovery request");
-                                            manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-                                                @Override
-                                                public void onSuccess() {
-                                                    manager.discoverServices(channel, new WifiP2pManager.ActionListener() {
-                                                        @Override
-                                                        public void onSuccess() {
-                                                            // this is my recursive discovery approach
-                                                            appendStatus("Service discovery initiated");
-                                                        }
-
-                                                        @Override
-                                                        public void onFailure(int code) {
-                                                            appendStatus("Service discovery failed");
-                                                        }
-                                                    });
-                                                }
-
-                                                @Override
-                                                public void onFailure(int code) {
-                                                }
-                                            });
-                                        }
-
-                                        @Override
-                                        public void onFailure(int code) {
-                                            appendStatus("Failed adding service discovery request");
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onFailure(int code) {
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(int code) {
-                            appendStatus("Failed to add a service");
-                        }
-                    });
-                }
-
-                @Override
-                public void onFailure(int code) {
-                }
-            });
-        }
-    }
-
-
-    public void appendStatus(String status) {
-        Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
-    }
 
     /**
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
     private void handleActionFoo() {
-        startRegistrationAndDiscovery();
+
     }
 
     /**

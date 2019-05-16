@@ -48,13 +48,14 @@ public class CreateFolderActivityWifi extends AppCompatActivity {
                 }
             }
             //enviar nome do album ao server
-            /*CommunicationTask task = new CommunicationTask("ADD-ALBUM");
+            CommunicationTask task = new CommunicationTask("ADD-ALBUM");
             task.setFileId("localID");
             task.setFolderId("localID");
             task.setName(name);
             task.setAlbum(folder_main);
             task.execute();
-            */
+
+            Toast.makeText(getApplicationContext(), "Album " + folder_name.getText().toString() + " created", Toast.LENGTH_SHORT).show();
             startActivity(intent);
 
         });

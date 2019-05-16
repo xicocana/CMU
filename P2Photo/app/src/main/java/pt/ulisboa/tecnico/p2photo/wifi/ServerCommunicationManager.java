@@ -56,9 +56,9 @@ public class ServerCommunicationManager implements Runnable {
 
     PrintWriter out = null;
     BufferedReader in = null;
+    private InputStream iStream;
+    private OutputStream oStream;
 
-    DataOutputStream dataOut = null;
-    DataInputStream dataIn = null;
 
     private static final String TAG = "ChatHandler";
 
@@ -66,8 +66,11 @@ public class ServerCommunicationManager implements Runnable {
     public void run() {
         try {
 
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-            in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            iStream = socket.getInputStream();
+            oStream = socket.getOutputStream();
+
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(oStream)), true);
+            in = new BufferedReader(new InputStreamReader(iStream));
 
             //WRITE
             Log.i(TAG, "GOING TO SEND : USER");
@@ -82,6 +85,17 @@ public class ServerCommunicationManager implements Runnable {
 
             read = in.readLine();
             Log.i(TAG, "Client read : " + read);
+
+
+            Log.d(TAG, "FROM CLIENT");
+            read = in.readLine();
+            Log.d(TAG, "Client read : " + read);
+            int sizeOfFiles = Integer.parseInt(read);
+
+            for (int i = 0; i < sizeOfFiles; i++) {
+                Log.d(TAG, "Entrou no FOR");
+                readFile2();
+            }
 
 
             Log.i(TAG, "TO CLIENT");
@@ -99,15 +113,8 @@ public class ServerCommunicationManager implements Runnable {
 //                sendPhoto(file);
             }
 
-            Log.d(TAG, "FROM CLIENT");
-            read = in.readLine();
-            Log.d(TAG, "Client read : " + read);
-            int sizeOfFiles = Integer.parseInt(read);
+            out.flush();
 
-            for (int i = 0; i < sizeOfFiles; i++) {
-                Log.d(TAG, "Entrou no FOR");
-                readFile2();
-            }
 
 
         } catch (IOException e) {
@@ -122,12 +129,7 @@ public class ServerCommunicationManager implements Runnable {
                 if (in != null) {
                     in.close();
                 }
-                if (dataOut != null) {
-                    dataOut.close();
-                }
-                if (dataIn != null) {
-                    dataIn.close();
-                }
+
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -137,7 +139,6 @@ public class ServerCommunicationManager implements Runnable {
 
     public void writeFile2(File f) throws IOException {
 
-        OutputStream stream = socket.getOutputStream();
         ContentResolver cr = ctx.getContentResolver();
         InputStream is = null;
         Uri fileUri = Uri.fromFile(f);
@@ -146,8 +147,10 @@ public class ServerCommunicationManager implements Runnable {
         } catch (FileNotFoundException e) {
             Log.d(TAG, e.toString());
         }
-        copyFile(is, stream);
+
+        copyFile(is, oStream);
         Log.d(TAG, "Client: Data written");
+        is.close();
     }
 
     public void readFile2() throws IOException {
@@ -163,8 +166,11 @@ public class ServerCommunicationManager implements Runnable {
             f.createNewFile();
             Log.d(TAG, "Entrou no AQUI2");
             Log.d(TAG, "server: copying files " + f.toString());
-            InputStream inputstream = socket.getInputStream();
-            copyFile(inputstream, new FileOutputStream(f));
+            //InputStream inputstream = socket.getInputStream();
+
+           OutputStream outputStream =  new FileOutputStream(f);
+           copyFile(iStream, new FileOutputStream(f));
+           outputStream.close();
         } catch (Exception e) {
             Log.d(TAG, e.toString());
         }
@@ -179,12 +185,13 @@ public class ServerCommunicationManager implements Runnable {
                 out.write(buf, 0, len);
 
             }
-            out.close();
-            inputStream.close();
+           // out.close();
+            //inputStream.close();
         } catch (IOException e) {
             Log.d(TAG, e.toString());
             return false;
         }
+
         return true;
     }
 

@@ -76,13 +76,12 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
         setContentView(R.layout.activity_album_display);
 
         //VERIFY INTERNET CONNECTION
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
             //we are connected to a network
             connected = true;
-        }
-        else {
+        } else {
             connected = false;
         }
 
@@ -90,10 +89,10 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
         Intent intent = getIntent();
         album_name = intent.getStringExtra("album_name");
 
-        String folder_main = "CMU-wifi-cache/"+album_name;
+        String folder_main = "CMU-wifi-cache/" + album_name;
         java.io.File f = new java.io.File(Environment.getExternalStorageDirectory(), folder_main);
         if (!f.exists()) {
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 f.mkdirs();
             }
         }
@@ -120,12 +119,8 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
         progressBar.setIndeterminate(true);
 
 
-
-        if(!connected){
-            new AlbumDisplayActivityWifi.ImageShower2(this).execute();
-        }else{
-            new ImageShower(this).execute();
-        }
+        new ImageShower(this).execute();
+        new ImageShower2(this).execute();
 
     }
 
@@ -136,6 +131,15 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
             Uri uri = null;
             if (resultData != null) {
                 uri = resultData.getData();
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                bitmapList.add(bitmap);
+                gridViewAdapter.notifyDataSetChanged();
+
                 Log.i(TAG, "Uri: " + uri.toString());
                 new ImageCopy(this).execute(uri);
             }
@@ -164,34 +168,43 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                         .getAbsolutePath();
 
                 String targetPath = ExternalStorageDirectoryPath + "/CMU/" + album_name + "/";
-
                 File targetDirector = new File(targetPath);
-
                 File[] files = targetDirector.listFiles();
+
                 for (File file : files) {
                     Uri uri = Uri.fromFile(file);
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
                     bitmapList.add(bitmap);
-                    try {
-                        Random random = new Random();
-                        int randomInt = random.nextInt(999) + 111;
-                        String name = bitmap.getConfig().name() + randomInt;
-                        java.io.File f = new java.io.File(Environment.getExternalStorageDirectory() + "/CMU-wifi-cache/" + album_name, name + ".jpg");
-                        f.createNewFile();
-
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-                        byte[] bitmapdata = bos.toByteArray();
-
-                        //write the bytes in file
-                        FileOutputStream fos = new FileOutputStream(f);
-                        fos.write(bitmapdata);
-                        fos.flush();
-                        fos.close();
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
+                    runOnUiThread(() -> {
+                        gridViewAdapter.notifyDataSetChanged();
+                    });
                 }
+
+//                for (File file : files) {
+//                    Uri uri = Uri.fromFile(file);
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
+//                    bitmapList.add(bitmap);
+//
+//                    try {
+//                        Random random = new Random();
+//                        int randomInt = random.nextInt(999) + 111;
+//                        String name = bitmap.getConfig().name() + randomInt;
+//                        java.io.File f = new java.io.File(Environment.getExternalStorageDirectory() + "/CMU-wifi-cache/" + album_name, name + ".jpg");
+//                        f.createNewFile();
+//
+//                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//                        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+//                        byte[] bitmapdata = bos.toByteArray();
+//
+//                        //write the bytes in file
+//                        FileOutputStream fos = new FileOutputStream(f);
+//                        fos.write(bitmapdata);
+//                        fos.flush();
+//                        fos.close();
+//                    }catch(Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -229,6 +242,9 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                     Uri uri = Uri.fromFile(file);
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), uri);
                     bitmapList.add(bitmap);
+                    runOnUiThread(() -> {
+                        gridViewAdapter.notifyDataSetChanged();
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -265,21 +281,16 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
                 fos.write(bitmapdata);
                 fos.flush();
                 fos.close();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
+
+
     }
 }
-
-
-
-
-
-
-
-
 
 
 //    @Override
@@ -300,9 +311,6 @@ public class AlbumDisplayActivityWifi extends AppCompatActivity {
 //        }
 //        return true;
 //    }
-
-
-
 
 
 //EXEMPLO DE LOADING
