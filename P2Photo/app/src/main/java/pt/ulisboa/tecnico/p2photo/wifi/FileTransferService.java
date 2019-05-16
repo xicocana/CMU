@@ -90,6 +90,7 @@ public class FileTransferService extends IntentService {
         byte buf[] = new byte[1024];
         int len;
         try {
+            Log.d("Chat", "Entrou no AQUI66");
             while ((len = inputStream.read(buf)) != -1) {
                 out.write(buf, 0, len);
 

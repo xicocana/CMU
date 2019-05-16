@@ -1,6 +1,7 @@
 
 package pt.ulisboa.tecnico.p2photo.wifi;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -21,12 +22,14 @@ public class GroupOwnerSocketHandler extends Thread {
     private Handler handler;
     private static final String TAG = "GroupOwnerSocketHandler";
     private String name ;
+    private Context ctx;
 
-    public GroupOwnerSocketHandler(Handler handler, String name) throws IOException {
+    public GroupOwnerSocketHandler(Handler handler, String name, Context ctx) throws IOException {
         try {
             socket = new ServerSocket(4545);
             this.handler = handler;
             this.name = name;
+            this.ctx = ctx;
             Log.d("GroupOwnerSocketHandler", "Socket Started");
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,7 +52,7 @@ public class GroupOwnerSocketHandler extends Thread {
             try {
                 // A blocking operation. Initiate a ServerCommunicationManager instance when
                 // there is a new connection
-                pool.execute(new ServerCommunicationManager(socket.accept(), handler,name));
+                pool.execute(new ServerCommunicationManager(socket.accept(), handler,name,ctx));
                 Log.d(TAG, "Launching the I/O handler");
 
             } catch (IOException e) {

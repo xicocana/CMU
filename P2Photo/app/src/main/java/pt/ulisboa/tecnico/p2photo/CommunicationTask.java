@@ -41,7 +41,7 @@ public class CommunicationTask extends AsyncTask<Void, Void, Void> {
     private String command = "";
     private String state = "waiting";
     private String message = null;
-    private String hostname = "192.168.1.80";
+    private String hostname = "192.168.1.115";
     private String loginToken = "not_received";
 
     private int port = 8080;

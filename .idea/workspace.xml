@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b42715af-b55c-4812-95e9-bd1dfae48ec5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/shared_albums/lalala.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/shared_albums/teste.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/P2Photo/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/P2Photo/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/AlbumDisplayActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/AlbumDisplayActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/AlbumsListActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/AlbumsListActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/UserOptionsActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/P2Photo/app/src/main/java/pt/ulisboa/tecnico/p2photo/cloud/UserOptionsActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/register_clients.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/register_clients.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/users_albums.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/users_albums.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,9 +14,10 @@
     <session id="-964753648">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.0" value="2" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.open.time.9" value="1" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -49,19 +41,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="CMU" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CMU" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="AndroidView">
         <subPane>
           <expand>
@@ -73,11 +52,24 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="CMU" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CMU" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Android/Sdk" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/P2Photo" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">

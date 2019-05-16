@@ -1,7 +1,7 @@
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/TimerThread.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/UtilsException.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Utils.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
-/home/xicocana/Documents/tagus/cmu/proj/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/UtilsException.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/exceptions/ServerLibraryException.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/Utils.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerApp.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/ServerLibrary.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/WorkerThread.java
+/home/dc/Desktop/IST/CMU/CMU/server/src/main/java/pt/ulisboa/tecnico/cmu/server/TimerThread.java

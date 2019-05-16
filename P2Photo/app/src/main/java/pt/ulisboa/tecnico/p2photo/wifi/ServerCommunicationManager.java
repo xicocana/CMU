@@ -1,6 +1,7 @@
 
 package pt.ulisboa.tecnico.p2photo.wifi;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,12 +10,31 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.bumptech.glide.load.data.BufferedOutputStream;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Random;
 
 /**
  * Handles reading and writing of messages with socket buffers. Uses a Handler
@@ -25,89 +45,89 @@ public class ServerCommunicationManager implements Runnable {
     private Socket socket = null;
     private Handler handler;
     private String name;
+    private Context ctx;
 
-    public ServerCommunicationManager(Socket socket, Handler handler, String name) {
+    public ServerCommunicationManager(Socket socket, Handler handler, String name, Context ctx) {
         this.socket = socket;
         this.handler = handler;
         this.name = name;
+        this.ctx = ctx;
     }
 
-    private InputStream iStream;
-    private OutputStream oStream;
-    private static final String TAG = "ChatHandler";
+    PrintWriter out = null;
+    BufferedReader in = null;
 
+    DataOutputStream dataOut = null;
+    DataInputStream dataIn = null;
+
+    private static final String TAG = "ChatHandler";
 
     @Override
     public void run() {
         try {
 
-            iStream = socket.getInputStream();
-            oStream = socket.getOutputStream();
-            byte[] buffer = new byte[1024];
-            byte[] buffer2 = new byte[1024];
-            int bytes;
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
-            write("USER");
-            write(name);
+            //WRITE
+            Log.i(TAG, "GOING TO SEND : USER");
+            out.println("USER");
 
-            bytes = iStream.read(buffer);
-            String readMessage = new String((byte[]) buffer, 0, bytes);
-            if (readMessage.equals("USER")) {
-                Log.i(TAG, "recieve command user");
-                bytes = iStream.read(buffer2);
-                readMessage = new String((byte[]) buffer2, 0, bytes);
-                Log.i(TAG, "recieve command user: "+readMessage);
+            Log.i(TAG, "GOING TO SEND : " + name);
+            out.println(name);
+
+            //READ
+            String read = in.readLine();
+            Log.i(TAG, "Client read : " + read);
+
+            read = in.readLine();
+            Log.i(TAG, "Client read : " + read);
+
+
+            Log.i(TAG, "TO CLIENT");
+
+            String ExternalStorageDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            String targetPath = ExternalStorageDirectoryPath + "/CMU/teste/";
+            File targetDirector = new File(targetPath);
+            File[] files = targetDirector.listFiles();
+
+            Log.i(TAG, "GOING TO SEND : " + files.length);
+            out.println(Integer.toString(files.length));
+            for (File file : files) {
+                Log.d(TAG, "Entrou no FOR");
+                writeFile2(file);
+//                sendPhoto(file);
             }
 
-            /*handler.obtainMessage(SearchUsersActivityWifi.MY_HANDLE, this).sendToTarget();
+            Log.d(TAG, "FROM CLIENT");
+            read = in.readLine();
+            Log.d(TAG, "Client read : " + read);
+            int sizeOfFiles = Integer.parseInt(read);
 
-            while (true) {
-                try {
-                    // Read from the InputStream
-                    bytes = iStream.read(buffer);
-                    if (bytes == -1) {
-                        break;
-                    }
+            for (int i = 0; i < sizeOfFiles; i++) {
+                Log.d(TAG, "Entrou no FOR");
+                readFile2();
+            }
 
-                    String readMessage = new String((byte[]) buffer, 0, bytes);
-                    if (readMessage.equals("USER")) {
-                        Log.d(TAG, "RECEIVE COMMAND " + readMessage);
 
-                        bytes = iStream.read(buffer);
-                        if (bytes == -1) {
-                            break;
-                        }
-
-                        readMessage = new String((byte[]) buffer, 0, bytes);
-                        Log.d(TAG, "MSG " + readMessage);
-
-                        //handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-
-                        write("SEND-PHOTO");
-                        Log.d(TAG, "SEND-PHOTO abc");
-                    }
-
-                    if (readMessage.equals("SEND-PHOTO")) {
-                        Log.d(TAG, "RECEIVE COMMAND " + readMessage);
-                        bytes = iStream.read(buffer);
-
-                        if (bytes == -1) {
-                            break;
-                        }
-                        readMessage = new String((byte[]) buffer, 0, bytes);
-                        Log.d(TAG, "MSG " + readMessage);
-
-                    }
-
-                } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
-                }
-            }*/
         } catch (IOException e) {
             e.printStackTrace();
+            Log.d(TAG, "BIG EXCECAO : " +  e.toString());
         } finally {
             Log.d(TAG, "FECHOU COMMUNICATION MANAGER");
             try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+                if (dataOut != null) {
+                    dataOut.close();
+                }
+                if (dataIn != null) {
+                    dataIn.close();
+                }
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -115,76 +135,57 @@ public class ServerCommunicationManager implements Runnable {
         }
     }
 
-    public String read() {
-        byte[] buffer = new byte[1024];
-        int bytes;
+    public void writeFile2(File f) throws IOException {
+
+        OutputStream stream = socket.getOutputStream();
+        ContentResolver cr = ctx.getContentResolver();
+        InputStream is = null;
+        Uri fileUri = Uri.fromFile(f);
         try {
-            // Read from the InputStream
-            bytes = iStream.read(buffer);
-
-            // Send the obtained bytes to the UI Activity
-            Log.d(TAG, "Rec:" + String.valueOf(buffer));
-
-            handler.obtainMessage(SearchUsersActivityWifi.MESSAGE_READ,
-                    bytes, -1, buffer).sendToTarget();
-        } catch (IOException e) {
-            Log.e(TAG, "disconnected", e);
+            is = cr.openInputStream(fileUri);
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, e.toString());
         }
-        return "";
+        copyFile(is, stream);
+        Log.d(TAG, "Client: Data written");
     }
 
-    public void write(String msg) {
-        final byte[] buffer = msg.getBytes();
-        Thread thread = new Thread() {
-            public void run() {
-                try {
-                    oStream.write(buffer);
-                } catch (IOException e) {
-                    Log.e(TAG, "Exception during write", e);
-                }
+    public void readFile2() throws IOException {
+        try {
+            Random random = new Random();
+            int randomInt = random.nextInt(999) + 111;
+            String name = "abc" + randomInt;
+            java.io.File f = new java.io.File(Environment.getExternalStorageDirectory() + "/CMU-wifi-cache/" + "teste", name + ".jpg");
+            Log.d(TAG, "Entrou no AQUI");
+            File dirs = new File(f.getParent());
+            if (!dirs.exists())
+                dirs.mkdirs();
+            f.createNewFile();
+            Log.d(TAG, "Entrou no AQUI2");
+            Log.d(TAG, "server: copying files " + f.toString());
+            InputStream inputstream = socket.getInputStream();
+            copyFile(inputstream, new FileOutputStream(f));
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
+        }
+
+    }
+
+    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+        byte buf[] = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                out.write(buf, 0, len);
+
             }
-        };
-        thread.start();
+            out.close();
+            inputStream.close();
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+            return false;
+        }
+        return true;
     }
-
-
-//    @Override
-//    public void run2() {
-//        try {
-//
-//            iStream = socket.getInputStream();
-//            oStream = socket.getOutputStream();
-//            byte[] buffer = new byte[1024];
-//            int bytes;
-//            handler.obtainMessage(UserOptionsActivityWifi.MY_HANDLE, this)
-//                    .sendToTarget();
-//
-//            while (true) {
-//                try {
-//                    // Read from the InputStream
-//                    bytes = iStream.read(buffer);
-//                    if (bytes == -1) {
-//                        break;
-//                    }
-//
-//                    // Send the obtained bytes to the UI Activity
-//                    Log.d(TAG, "Rec:" + String.valueOf(buffer));
-//                    handler.obtainMessage(UserOptionsActivityWifi.MESSAGE_READ,
-//                            bytes, -1, buffer).sendToTarget();
-//                } catch (IOException e) {
-//                    Log.e(TAG, "disconnected", e);
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                socket.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 
 }

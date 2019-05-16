@@ -1,6 +1,7 @@
 
 package pt.ulisboa.tecnico.p2photo.wifi;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -16,11 +17,13 @@ public class ClientSocketHandler extends Thread {
     private ClientCommunicationManager peerCommunicatioManager;
     private InetAddress mAddress;
     private String name;
+    private Context ctx;
 
-    public ClientSocketHandler(Handler handler, InetAddress groupOwnerAddress, String name) {
+    public ClientSocketHandler(Handler handler, InetAddress groupOwnerAddress, String name,Context ctx) {
         this.handler = handler;
         this.mAddress = groupOwnerAddress;
         this.name = name;
+        this.ctx = ctx;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class ClientSocketHandler extends Thread {
             socket.bind(null);
             socket.connect(new InetSocketAddress(mAddress.getHostAddress(), SearchUsersActivityWifi.SERVER_PORT), 5000);
             Log.d(TAG, "Launching the I/O handler");
-            peerCommunicatioManager = new ClientCommunicationManager(socket, handler,name);
+            peerCommunicatioManager = new ClientCommunicationManager(socket, handler,name,ctx);
             new Thread(peerCommunicatioManager).start();
         } catch (IOException e) {
             e.printStackTrace();

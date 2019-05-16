@@ -56,7 +56,6 @@ import java.util.Random;
 
 import pt.ulisboa.tecnico.p2photo.GridViewAdapter;
 import pt.ulisboa.tecnico.p2photo.R;
-import pt.ulisboa.tecnico.p2photo.cloud.AlbumDisplayActivity;
 
 public class AlbumDisplayActivityWifi extends AppCompatActivity {
     public static final String TAG = "AlbumDisplayActivity";

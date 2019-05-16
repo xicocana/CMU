@@ -393,14 +393,14 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
         if (p2pInfo.isGroupOwner) {
             Log.d("ChatHandler", "Connected as group owner");
             try {
-                thread = new GroupOwnerSocketHandler(getHandler(), name);
+                thread = new GroupOwnerSocketHandler(getHandler(), name,this);
                 thread.start();
             } catch (IOException e) {
                 Log.d(TAG, "Failed to create a server thread - " + e.getMessage());
             }
         } else {
             Log.d("ChatHandler", "Connected as peer");
-            thread = new ClientSocketHandler(getHandler(), p2pInfo.groupOwnerAddress, name);
+            thread = new ClientSocketHandler(getHandler(), p2pInfo.groupOwnerAddress, name,this);
             thread.start();
         }
     }
@@ -413,13 +413,6 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
                 // construct a string from the valid bytes in the buffer
                 String readMessage = new String((byte[]) msg.obj, 0, msg.arg1);
                 Log.d(TAG, readMessage);
-                if(readMessage!=null){
-                    //ir ao server buscar albuns partilhados entre os users
-                    List<String> albums = new ArrayList<>();
-                    albums.add("teste");
-                    ImageShower im = new ImageShower(this);
-                    im.execute();
-                }
                 appendStatus("MENSAGEM: " + readMessage);
                 break;
 
@@ -428,44 +421,6 @@ public class SearchUsersActivityWifi extends AppCompatActivity implements Handle
                 communicationManager = (ServerCommunicationManager) obj;
         }
         return true;
-    }
-
-    private class ImageShower extends AsyncTask<Void, Integer, byte[]> {
-
-        private Context ctx;
-
-        public ImageShower(Context ctx) {
-            this.ctx = ctx;
-        }
-
-        @Override
-        protected byte[] doInBackground(Void... voids) {
-            byte[] bytesArray = null;
-            try {
-                String ExternalStorageDirectoryPath = Environment
-                        .getExternalStorageDirectory()
-                        .getAbsolutePath();
-
-                String targetPath = ExternalStorageDirectoryPath + "/CMU/teste/";
-
-                File targetDirector = new File(targetPath);
-
-                File[] files = targetDirector.listFiles();
-                for (File file : files) {
-                    bytesArray = new byte[(int) file.length()];
-                    FileInputStream fis = new FileInputStream(file);
-                    fis.read(bytesArray); //read file into bytes[]
-                    fis.close();
-                }
-                communicationManager.write("SEND-PHOTO");
-                String encodedfile = new String(Base64.encodeBase64(bytesArray), "UTF-8");
-                communicationManager.write(encodedfile);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return bytesArray;
-        }
     }
 
 
